@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rozmann Botond — Egyedi weboldal-fejlesztés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EFECE7; --surface: #E3DDD3; --text: #1C1A17; --text-2: #6E6860;
+    --border: #D2CABE; --accent: #8C3B2A; --accent-soft: #F0DACF; --radius: 2px;
+    color-scheme: light;
+  }
+  [data-theme="dark"] {
+    --bg: #15130F; --surface: #211D18; --text: #F1ECE6; --text-2: #9C948A;
+    --border: #332C24; --accent: #D9805F; --accent-soft: #3A2018;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Inter", sans-serif; transition: background .25s ease, color .25s ease;
+    overflow-x: hidden;
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .serif { font-family: "Instrument Serif", serif; font-style: italic; }
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+  @media (max-width: 640px) { .container { padding: 0 20px; } }
+
+  /* ---------- NAV ---------- */
+  nav.site {
+    position: sticky; top: 0; z-index: 50; backdrop-filter: blur(8px);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    border-bottom: 1px solid var(--border);
+  }
+  nav.site .row { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+  .logo { font-size: 20px; font-weight: 500; }
+  .logo .serif { color: var(--accent); }
+  .nav-links { display: flex; gap: 28px; font-size: 14px; }
+  .nav-links a { color: var(--text-2); transition: color .2s ease; }
+  .nav-links a:hover { color: var(--accent); }
+  .mode-toggle {
+    font-size: 13px; background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); padding: 7px 14px; border-radius: var(--radius); cursor: pointer;
+  }
+  @media (max-width: 640px) { .nav-links { display: none; } }
+
+  /* ---------- HERO ---------- */
+  .hero { padding: 96px 0 80px; }
+  .eyebrow { font-size: 13px; letter-spacing: .05em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+  .name-lockup { font-size: clamp(46px, 8vw, 92px); line-height: .95; font-weight: 500; margin: 0 0 28px; }
+  .name-lockup .serif { color: var(--accent); }
+  p.lead { font-size: 19px; color: var(--text-2); max-width: 52ch; line-height: 1.6; margin: 0 0 36px; }
+  .hl { color: var(--accent); }
+  .cta {
+    display: inline-block; background: var(--accent); color: var(--bg); font-weight: 600;
+    padding: 15px 28px; border-radius: var(--radius); font-size: 15px; transition: opacity .2s ease;
+  }
+  .cta:hover { opacity: .85; }
+
+  /* ---------- SECTION SHELL ---------- */
+  section { padding: 100px 0; }
+  .section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 56px; flex-wrap: wrap; border-top: 1px solid var(--border); padding-top: 18px; }
+  .section-head .eyebrow { margin-bottom: 0; }
+  h2.section-title { font-size: clamp(30px, 4.5vw, 48px); font-weight: 500; line-height: 1.1; max-width: 18ch; margin: 12px 0 0; }
+  .section-sub { font-size: 16px; color: var(--text-2); max-width: 38ch; }
+
+  /* ---------- SZOLGÁLTATÁSOK ---------- */
+  .service-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr; gap: 16px; }
+  @media (max-width: 980px) { .service-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .service-grid { grid-template-columns: 1fr; } }
+  .s-card {
+    position: relative; border: 1px solid var(--border); border-radius: var(--radius);
+    overflow: hidden; min-height: 320px; display: flex; flex-direction: column; justify-content: flex-end;
+    border-bottom: 3px solid var(--border); transition: border-color .25s ease;
+  }
+  .s-card:hover { border-bottom-color: var(--accent); }
+  .s-card .label { padding: 18px 18px 20px; font-size: 18px; font-weight: 500; background: var(--surface); position: relative; z-index: 2; }
+  .s-card.featured { background: var(--surface); }
+  .s-card.featured .photo { position: absolute; inset: 0; }
+  .s-card.featured .photo img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.1); }
+  .s-card.featured .photo::after { content: ""; position: absolute; inset: 0; background: var(--accent); mix-blend-mode: multiply; opacity: .55; }
+  .s-card.featured .arrow {
+    position: absolute; top: 16px; right: 16px; width: 34px; height: 34px; border-radius: 50%;
+    background: var(--bg); color: var(--text); display: flex; align-items: center; justify-content: center;
+    font-size: 16px; z-index: 2;
+  }
+  .s-card .lineart { flex: 1; padding: 24px; background: var(--surface); }
+  .s-card .lineart svg { width: 100%; height: 100%; stroke: var(--border); fill: none; stroke-width: 1.4; }
+
+  /* ---------- MUNKÁIM (forced dark, lukebaffait-style) ---------- */
+  .dark-block {
+    --bg: #15130F; --surface: #211D18; --text: #F1ECE6; --text-2: #9C948A;
+    --border: #332C24; --accent: #D9805F; --accent-soft: #3A2018;
+    background: var(--bg); color: var(--text);
+  }
+  .projects { position: relative; overflow: hidden; }
+  .projects-inner { position: relative; display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; align-items: center; }
+  @media (max-width: 860px) { .projects-inner { grid-template-columns: 1fr; } }
+  .proj-count { font-size: 13px; color: var(--text-2); }
+  .proj-swoosh { position: absolute; top: -10%; left: 28%; width: 46%; height: 120%; z-index: 0; pointer-events: none; opacity: .9; }
+  .proj-swoosh path { stroke: var(--accent); fill: none; stroke-width: 90; stroke-linecap: round; opacity: .9; }
+  .proj-list { position: relative; z-index: 1; list-style: none; margin: 0; padding: 0; }
+  .proj-list li { border-bottom: 1px solid var(--border); }
+  .proj-list button {
+    width: 100%; text-align: left; background: none; border: none; cursor: pointer;
+    padding: 22px 0; font-family: "Inter", sans-serif; font-size: clamp(22px, 3.4vw, 34px);
+    color: var(--text-2); transition: color .25s ease; font-weight: 500;
+  }
+  .proj-list li.active button, .proj-list button:hover, .proj-list button:focus-visible { color: var(--text); }
+  .proj-list .meta { font-size: 13px; color: var(--text-2); font-weight: 400; margin-left: 14px; }
+  .proj-preview { position: relative; z-index: 1; aspect-ratio: 4/3; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+  .proj-preview img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.05); opacity: 0; transition: opacity .35s ease; position: absolute; inset: 0; }
+  .proj-preview img.show { opacity: 1; }
+  .proj-preview .tag { position: absolute; top: 14px; left: 14px; font-size: 12px; letter-spacing: .04em; z-index: 2; background: rgba(0,0,0,.55); color: #F1ECE6; padding: 4px 10px; border-radius: var(--radius); }
+  .proj-preview .tag.right { left: auto; right: 14px; }
+
+  /* ---------- ZÁRÓ CTA + FOOTER (forced dark, lukebaffait-style) ---------- */
+  .closing { position: relative; padding: 64px 0 48px; overflow: hidden; min-height: 460px; }
+  .dots { position: absolute; inset: 0; z-index: 0; opacity: .5; }
+  .meta-row { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-start; font-size: 13px; letter-spacing: .02em; }
+  .meta-row a { display: block; }
+  .meta-col-right { text-align: right; display: flex; gap: 36px; }
+  .meta-col-right .group a { display: block; margin-bottom: 6px; color: var(--text-2); transition: color .2s ease; }
+  .meta-col-right .group a:hover { color: var(--accent); }
+  .closing-name { font-size: clamp(54px, 11vw, 150px); line-height: .9; font-weight: 500; margin: 70px 0 0; position: relative; z-index: 1; }
+  .closing-name .serif { color: var(--accent); }
+  .closing-name .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); margin-left: 6px; vertical-align: middle; }
+  .copyright { margin-top: 40px; font-size: 13px; color: var(--text-2); position: relative; z-index: 1; }
+
+  @keyframes drift { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(2%, -3%) scale(1.05); } }
+  .glow { position: absolute; width: 60%; padding-top: 60%; border-radius: 50%; background: radial-gradient(circle, var(--accent) 0%, transparent 70%); opacity: .18; filter: blur(40px); animation: drift 14s ease-in-out infinite; }
+  .glow.g1 { top: -10%; left: -10%; }
+  .glow.g2 { bottom: -20%; right: -10%; animation-delay: -7s; }
+</style>
+</head>
+<body>
+
+<nav class="site">
+  <div class="container row">
+    <div class="logo">Rozmann <span class="serif">Botond.</span></div>
+    <div class="nav-links">
+      <a href="#szolgaltatasok">Szolgáltatások</a>
+      <a href="#munkaim">Munkáim</a>
+      <a href="#kapcsolat">Kapcsolat</a>
+    </div>
+    <button class="mode-toggle" id="modeToggle" aria-pressed="false">sötét mód</button>
+  </div>
+</nav>
+
+<header class="hero container">
+  <div class="eyebrow">web fejlesztő &amp; márkaépítő</div>
+  <h1 class="name-lockup">Rozmann <span class="serif">Botond.</span></h1>
+  <p class="lead">Egyedi kódolt weboldalak, prémium szinten — nem sablon, nem Elementor. Minden projektet kézzel írt kóddal építek fel, hogy az oldalad ne csak szépnek tűnjön, hanem <span class="serif hl">valódi üzleti eredményt</span> is hozzon.</p>
+  <a class="cta" href="#kapcsolat">Beszélgessünk a projektedről</a>
+</header>
+
+<section id="szolgaltatasok" class="container">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">01 — szolgáltatások</div>
+      <h2 class="section-title">Olyan munkát kapsz, ami <span class="serif hl">valóban</span> dolgozik a vállalkozásodért.</h2>
+    </div>
+    <p class="section-sub">Nem csomagokat árulok — egyedi megoldást építek, a tervezéstől a kódig.</p>
+  </div>
+
+  <div class="service-grid">
+    <a class="s-card featured" href="#kapcsolat">
+      <div class="photo">
+        <img src="https://placehold.co/640x800/1c1a17/1c1a17" alt="Egyedi fejlesztés" loading="lazy">
+      </div>
+      <div class="arrow">↗</div>
+      <div class="label">Egyedi fejlesztés</div>
+    </a>
+    <div class="s-card">
+      <div class="lineart"><svg viewBox="0 0 100 140"><path d="M20 10 L80 10 L80 50 L40 50 L40 90 L70 90 L70 130 L20 130"/></svg></div>
+      <div class="label">Márkaépítés</div>
+    </div>
+    <div class="s-card">
+      <div class="lineart"><svg viewBox="0 0 100 140"><path d="M10 130 C 10 60, 50 70, 50 20 C 50 70, 90 60, 90 130"/></svg></div>
+      <div class="label">SEO &amp; tartalom</div>
+    </div>
+    <div class="s-card">
+      <div class="lineart"><svg viewBox="0 0 100 140"><path d="M15 20 L60 20 L60 60 L85 60 L85 120 L15 120 Z"/></svg></div>
+      <div class="label">Karbantartás</div>
+    </div>
+    <div class="s-card">
+      <div class="lineart"><svg viewBox="0 0 100 140"><path d="M50 10 L90 60 L60 60 L60 130 L40 130 L40 60 L10 60 Z"/></svg></div>
+      <div class="label">Konzultáció</div>
+    </div>
+  </div>
+</section>
+
+<section id="munkaim" class="dark-block projects">
+  <div class="container">
+    <div class="section-head" style="border-color: var(--border);">
+      <div>
+        <div class="eyebrow">02 — munkáim</div>
+        <h2 class="section-title">Válassz ki egy projektet.</h2>
+      </div>
+      <div class="proj-count">(05)</div>
+    </div>
+
+    <div class="projects-inner">
+      <svg class="proj-swoosh" viewBox="0 0 300 600" preserveAspectRatio="none">
+        <path d="M40 30 C 220 80, 220 280, 90 330 C -10 370, -10 520, 160 570"/>
+      </svg>
+
+      <ul class="proj-list" id="projList">
+        <li class="active"><button data-img="https://placehold.co/700x520/2a2a2a/cccccc?text=Mythos+Private+Resort" data-tag="Resort weboldal" data-date="03 2025">Mythos Private Resort <span class="meta">resort &amp; szállás</span></button></li>
+        <li><button data-img="https://placehold.co/700x520/2a2a2a/cccccc?text=Gombabák" data-tag="Webshop" data-date="07 2025">Gombabák <span class="meta">webshop</span></button></li>
+        <li><button data-img="https://placehold.co/700x520/2a2a2a/cccccc?text=Szmh-Euro+Metall" data-tag="WordPress" data-date="11 2025">Szmh-Euro Metall <span class="meta">ipari B2B</span></button></li>
+        <li><button data-img="https://placehold.co/700x520/2a2a2a/cccccc?text=Tájkert+Kft." data-tag="WordPress" data-date="02 2026">Tájkert Kft. <span class="meta">kertépítés</span></button></li>
+        <li><button data-img="https://placehold.co/700x520/2a2a2a/cccccc?text=Walter+Group" data-tag="Shopify téma" data-date="05 2026">Walter Group <span class="meta">ipari karbantartás</span></button></li>
+      </ul>
+
+      <div class="proj-preview">
+        <span class="tag">03 2025</span>
+        <span class="tag right">ELŐNÉZET</span>
+        <img class="show" id="prevImg" src="https://placehold.co/700x520/2a2a2a/cccccc?text=Mythos+Private+Resort" alt="Projekt előnézet">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="kapcsolat" class="dark-block closing">
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+  <svg class="dots" width="100%" height="100%" aria-hidden="true">
+    <defs>
+      <pattern id="dotgrid" width="26" height="26" patternUnits="userSpaceOnUse">
+        <circle cx="2" cy="2" r="1.2" fill="var(--accent)" opacity="0.5"></circle>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#dotgrid)"></rect>
+  </svg>
+
+  <div class="container">
+    <div class="meta-row">
+      <a href="mailto:szia@rozmannbotond.hu">szia@rozmannbotond.hu</a>
+      <div class="meta-col-right">
+        <div class="group">
+          <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="#" target="_blank" rel="noopener">GitHub</a>
+          <a href="#" target="_blank" rel="noopener">Instagram</a>
+        </div>
+        <div class="group">
+          <a href="#szolgaltatasok">Szolgáltatások</a>
+          <a href="#munkaim">Munkáim</a>
+          <a href="#kapcsolat">Kapcsolat</a>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="closing-name">Rozmann <span class="serif">Botond.</span><span class="dot"></span></h2>
+    <div class="copyright">© 2026 Rozmann Botond — minden jog fenntartva.</div>
+  </div>
+</section>
+
+<script>
+  const toggleBtn = document.getElementById('modeToggle');
+  toggleBtn.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    toggleBtn.textContent = isDark ? 'sötét mód' : 'világos mód';
+    toggleBtn.setAttribute('aria-pressed', String(!isDark));
+  });
+
+  const items = document.querySelectorAll('#projList li');
+  const prevImg = document.getElementById('prevImg');
+  const tagEls = document.querySelectorAll('.proj-preview .tag');
+
+  function activate(li) {
+    items.forEach(i => i.classList.remove('active'));
+    li.classList.add('active');
+    const btn = li.querySelector('button');
+    const next = new Image();
+    next.src = btn.dataset.img;
+    next.onload = () => {
+      prevImg.classList.remove('show');
+      setTimeout(() => { prevImg.src = btn.dataset.img; prevImg.classList.add('show'); }, 120);
+    };
+    tagEls[0].textContent = btn.dataset.date;
+  }
+
+  items.forEach(li => {
+    const btn = li.querySelector('button');
+    btn.addEventListener('mouseenter', () => activate(li));
+    btn.addEventListener('focus', () => activate(li));
+  });
+</script>
+</body>
+</html>

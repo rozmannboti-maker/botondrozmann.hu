@@ -1,0 +1,199 @@
+/* ============================================================================
+   SZOLGÁLTATÁS-SZEKCIÓ ("átlós pálya")  —  görgetés-vezérelt kép-átmenet
+   ----------------------------------------------------------------------------
+   Forrás/inspiráció: fromanother.love „Our team" görgetős szekciója; a
+   mechanikát tiszta GSAP + ScrollTrigger alapon építettük újra, saját kóddal
+   (a fromanother.love Next.js + Prismic CMS-alapú, onnan sem DOM, sem JS nem
+   nyerhető ki — csak a viselkedést reprodukáltuk, két képernyőfelvétel
+   alapján). Vázlat + részletes doksi:
+   ../../komponens-vazlatok/szolgaltatas-szekcio-filmcsik.html
+
+   ÖSSZEHASONLÍTÁS CÉLJÁBÓL van most élesben, a #services (rövid lista)
+   alatt — a másik jelölt (diagonális kártya-stack mechanika) még nincs
+   beépítve, csak vázlat: ../../komponens-vazlatok/szolgaltatas-szekcio.html
+
+   Minden szabály #fc-section alá van scope-olva, hogy a Septiembre-sablon
+   globális CSS-e (section/h2/h3/p/div szabályok) ne érjen bele — ugyanaz a
+   minta, mint a munkafolyamat-szekcio.css-ben. A színek a márka VILÁGOS
+   palettája (Vizualis-Identitas.md), fixen — az oldalon nincs téma-kapcsoló.
+   ============================================================================ */
+
+#fc-section{
+  --fc-bg:      #EFECE7;
+  --fc-surface: #E3DDD3;
+  --fc-text:    #1C1A17;
+  --fc-text-2:  #6E6860;
+  --fc-border:  #D2CABE;
+  --fc-accent:  #8C3B2A;
+  --fc-count:   8;   /* a lépések száma — a szkript is felülírja a SERVICES.length-ből */
+
+  position:relative;
+  height:calc(var(--fc-count) * 100vh);
+  background:var(--fc-bg);
+  overflow:hidden;
+}
+
+#fc-section *,
+#fc-section *::before,
+#fc-section *::after{ box-sizing:border-box; }
+
+#fc-section .fc-sticky{
+  /* NEM position:sticky — a body-n lévő globális overflow-y:auto miatt az itt
+     nem működne (ua. tanulság, mint a munkafolyamat-szekciónál). A szkript
+     ScrollTrigger `pin`-nel rögzíti ezt az elemet görgetéskor. */
+  position:relative;
+  width:100%;
+  height:100vh;
+  overflow:hidden; /* ez vágja le a be-/kilépő képeket a képernyő szélén */
+}
+
+#fc-section .fc-index{
+  position:absolute;
+  top:2.5rem; left:50%; transform:translateX(-50%);
+  z-index:200;
+  mix-blend-mode:difference;
+  font-family:var(--font-sans, 'Inter', system-ui, sans-serif);
+  font-size:.8rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--fc-text-2);
+  display:flex; align-items:center; gap:.6rem;
+  pointer-events:none;
+}
+#fc-section .fc-index b{ color:var(--fc-text); font-weight:600; }
+#fc-section .fc-index i{ width:1px; height:.9em; background:var(--fc-border); display:inline-block; }
+
+#fc-section .fc-stage{
+  position:relative;
+  height:100%;
+  display:grid;
+  grid-template-columns:1fr;
+  place-items:center;
+  padding:6rem 1.5rem 4rem;
+}
+@media (min-width:1024px){
+  #fc-section .fc-stage{ grid-template-columns:1fr minmax(auto,34rem) 1fr; column-gap:4rem; }
+  #fc-section .fc-info{ justify-self:start; }
+}
+
+/* a "nagy" (középső/nyugalmi) pozíció — csak méretet/helyet ad; a be-/kilépő
+   képek EBBŐL a pozícióból (rel=0) indulva animálnak el a képernyő sarkai
+   felé, JS-ből számolt translate+scale-lel. */
+#fc-section .fc-media{
+  position:relative;
+  width:min(78vw, 26rem);
+  aspect-ratio:343/374;
+  grid-column:1;
+  overflow:visible; /* a be-/kilépő képek túlnyúlnak ezen a dobozon */
+}
+@media (min-width:1024px){
+  #fc-section .fc-media{ width:28rem; aspect-ratio:504/550; grid-column:2; }
+}
+#fc-section .fc-media-item{
+  position:absolute;
+  inset:0;
+  transform-origin:center center;
+  will-change:transform,opacity,filter;
+}
+#fc-section .fc-media-item-inner{
+  position:relative;
+  width:100%; height:100%;
+  overflow:clip;
+  border-radius:.75rem;
+  background:var(--fc-surface);
+  border:1px solid var(--fc-border);
+}
+#fc-section .fc-media-fill{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-serif, 'Instrument Serif', Georgia, serif); font-style:italic; font-size:2.4rem;
+  color:var(--fc-bg);
+  text-align:center;
+  padding:1rem;
+}
+
+/* bal-alsó nagy számláló — odométer-csík (ua. technika, mint a
+   munkafolyamat-szekció köríves számozásánál). A referencia-felvétel szerint
+   ez NEM a kép alá/mellé kötött elem, hanem a teljes pinelt viewport BAL
+   ALSÓ sarkába rögzített, a képtől független pozíció — jóval balrább, mint
+   a kép. */
+#fc-section .fc-counter{
+  position:absolute;
+  left:1.5rem; bottom:2.5rem;
+  z-index:10;
+  display:flex;
+  font-family:var(--font-sans, 'Inter', system-ui, sans-serif);
+  font-weight:600;
+  font-size:clamp(4.5rem, 5vw + 2rem, 9rem);
+  line-height:1em;
+  letter-spacing:-.08em; /* szorosabb a két számjegy közt */
+  color:var(--fc-text);
+  pointer-events:none;
+}
+@media (min-width:1024px){ #fc-section .fc-counter{ left:3rem; bottom:3.5rem; } }
+#fc-section .fc-digit{
+  position:relative;
+  height:1em;
+  width:.6em; /* szűkebb doboz = szorosabb pár */
+  overflow:hidden;
+  text-align:center;
+}
+#fc-section .fc-digit-strip{
+  display:flex;
+  flex-direction:column;
+  transition:transform .55s cubic-bezier(.65,0,.35,1);
+  will-change:transform;
+}
+#fc-section .fc-digit-strip span{
+  display:block;
+  height:1em;
+  line-height:1em;
+}
+
+/* jobb oldali szöveg-oszlop */
+#fc-section .fc-info{
+  position:relative;
+  grid-column:1;
+  width:100%;
+  max-width:26rem;
+  padding-top:2rem;
+  z-index:70;
+}
+@media (min-width:1024px){
+  #fc-section .fc-info{ grid-column:3; padding-top:0; }
+}
+#fc-section .fc-desc-stack{
+  position:relative;
+  display:grid;
+  grid-template-columns:1fr;
+  grid-template-rows:1fr;
+}
+#fc-section .fc-desc-stack>*{ grid-column:1/-1; grid-row:1/-1; }
+#fc-section .fc-desc{
+  font-family:var(--font-sans, 'Inter', system-ui, sans-serif);
+  font-size:clamp(1rem, .3vw + .95rem, 1.25rem);
+  line-height:1.55;
+  color:var(--fc-text);
+}
+#fc-section .fc-desc .fc-title{
+  font-weight:600;
+  display:inline-block;
+  will-change:opacity, filter;
+}
+#fc-section .fc-desc .word{
+  display:inline-block;
+  will-change:opacity, filter;
+}
+
+/* nav (pöttyök) */
+#fc-section .fc-nav{
+  position:absolute;
+  bottom:1.5rem; left:50%; transform:translateX(-50%);
+  z-index:60;
+  display:flex; gap:.4rem;
+}
+#fc-section .fc-dot{
+  width:1.2rem; height:1px; background:var(--fc-text-2); opacity:.35;
+  transition:opacity .2s ease, width .2s ease, background-color .2s ease;
+}
+#fc-section .fc-dot.is-active{ width:2rem; opacity:1; background:var(--fc-accent); }

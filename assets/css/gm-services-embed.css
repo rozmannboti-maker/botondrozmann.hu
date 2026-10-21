@@ -1,0 +1,47 @@
+/* ===== Gigantic-stílusú forgó SZOLGÁLTATÁS szekció – izolált iframe-beágyazás =====
+   A szekció tényleges tartalma/stílusa/JS-e az assets/gigantic-services/ mappában
+   él, saját (Webflow-alapú) stíluskészlettel. Itt CSAK a beágyazó keret van, hogy
+   a két oldal CSS-e ne ütközzön. Eltávolításhoz: töröld ezt a fájlt + a <link>-et
+   + a #gm-services-embed <section>-t + a lenti proxy <script>-et az index.html-ből. */
+
+.gm-services-embed {
+  position: relative;
+  background: #EFECE7; /* a márka világos háttere */
+}
+
+/* A magas "sín": ezen görgetve halad a beágyazott szekció belső animációja.
+   A tényleges magasságot a proxy-szkript állítja be az iframe belső
+   görgetési tartományából (fallback: 700vh). */
+.gm-services-track {
+  position: relative;
+  height: 700vh;
+}
+
+/* Az iframe VÉGIG position:fixed marad (soha nem vált pozíciót – így a benne
+   futó ScrollTrigger sosem zavarodik össze). A proxy csak a láthatóságát
+   kapcsolja: a szekció görgetési zónáján kívül rejtett. */
+.gm-services-embed iframe {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  border: 0;
+  display: block;
+  background: #EFECE7;
+  z-index: 5;
+  visibility: hidden;
+  pointer-events: none;
+}
+.gm-services-embed iframe.is-active {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Mobilon a forgó kör-elrendezés az eredetin is kikapcsol (a main.js csak
+   >=992px-en fut) – ott elrejtjük, a fenti egyszerű #services lista viszi
+   tovább a tartalmat. */
+@media (max-width: 991px) {
+  .gm-services-embed { display: none; }
+}

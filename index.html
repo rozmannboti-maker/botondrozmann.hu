@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="hu" class="lenis">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rozmann Botond — Webfejlesztő &amp; Márkaépítő</title>
+  <meta name="description" content="Egyedi kódolt weboldalak vállalkozásoknak — nem sablon, nem Elementor. Rozmann Botond webfejlesztő és márkaépítő, Budapest.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://rozmannbotond.hu/">
+  <meta property="og:title" content="Rozmann Botond — Webfejlesztő &amp; Márkaépítő">
+  <meta property="og:description" content="Egyedi kódolt weboldalak vállalkozásoknak — nem sablon, nem Elementor. Rozmann Botond webfejlesztő és márkaépítő, Budapest.">
+  <meta name="theme-color" content="#15130F">
+  <meta name="author" content="Rozmann Botond">
+
+  <!-- Preload critical fonts -->
+  <link rel="preload" href="assets/fonts/Instrument_Serif_400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/Instrument_Serif_400_italic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/Inter_400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/Instrument_Sans_700.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- Preload hero + profile images -->
+  <link rel="preload" href="assets/images/profile/botond-portre.avif" as="image" fetchpriority="high">
+  <link rel="preload" href="assets/images/projects/Covers/cyberDiag_web.avif" as="image" fetchpriority="low">
+
+  <link rel="stylesheet" href="assets/css/luke-adapted.css?v=4">
+
+  <!-- ===== KLÓNOZOTT SEPTIEMBRE HERO — saját CSS-je ===== -->
+  <!-- A "Rozmann" mostantól a márka Instrument Serif (dőlt) betűjével jelenik meg —
+       lásd hero-brand-override.css @font-face aliasát. A kép/szöveg illesztés a
+       hero-ghost-text-align.js élő méréssel dolgozik, ezért a betű-metrika változása
+       nem töri el az elrendezést. -->
+  <link rel="stylesheet" href="assets/css/utils.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="assets/css/styles.min.css">
+  <!-- isf2bxz.css (Typekit, a Septiembre cég fizetős betűkészlet-kitje) szándékosan nincs
+       betöltve — helyette lásd hero-brand-override.css: saját, self-hosted márka fontok. -->
+  <!-- ?v= gyorsítótár-törő: ezt a fájlt fejlesztés közben gyakran módosítjuk, a böngésző
+       viszont agresszíven cache-eli — enélkül a mentett változtatások néha nem látszanak
+       meg újratöltés után sem, csak kemény (cache-mentes) frissítéssel. Minden érdemi
+       módosításnál emeld a számot. -->
+  <link rel="stylesheet" href="assets/css/hero-brand-override.css?v=23">
+  <link rel="stylesheet" href="assets/css/munkafolyamat-szekcio.css?v=3">
+  <!-- assets/css/szolgaltatas-filmcsik-szekcio.css linkje ideiglenesen kivéve —
+       lásd a #services utáni HTML-kommentet a visszarakáshoz. -->
+  <!-- Menü (jobb-felső hamburger + sarokból kinyíló panel) — pensatori-menü mechanika,
+       saját márka-palettával/tipográfiával. A régi Septiembre #header semlegesítve. -->
+  <link rel="stylesheet" href="assets/css/menu-brand.css?v=5">
+</head>
+<body data-scroll-direction="initial" data-cursor-style="default" data-pg="pg-home" data-scroll-position="top">
+
+  <!-- ===== KLÓNOZOTT SEPTIEMBRE HERO — beillesztve, semmi más nem törölve ===== -->
+  <div class="cursor-wrapper" id="wrapper-cursor" data-cursor="open">
+    <div></div>
+  </div>
+
+  <div class="container-cookies" style="display:none">
+    <button class="btn-cookies accept"></button>
+  </div>
+
+  <!-- ============================================================
+       MENÜ  —  a régi Septiembre <header id="header"> helyén.
+       A #header wrapper MEGMARAD (a 92265_index.js scroll-szín
+       timeline-jei rá hivatkoznak; menu-brand.css semlegesíti).
+       #bt-menu + nav.menu = rejtett JS-stub: az app2.js
+       getElementById("bt-menu") null-ra dobna nélküle.
+       Vezérlő: assets/js/menu-brand.js · stílus: assets/css/menu-brand.css
+       ============================================================ -->
+  <header id="header" style="--content-color: #8C3B2A; --bg-color: #EFECE7;">
+
+    <!-- rejtett JS-stub a Septiembre app2.js-nek — SOHA nem látszik -->
+    <button id="bt-menu" type="button" tabindex="-1" aria-hidden="true"></button>
+    <nav class="menu" aria-hidden="true"><div class="menu--wrapper"></div></nav>
+
+<!-- #site-menu áthelyezve a </body> elé (a szekciók z-index:20010+ különben rátakarnának az overlay-re) -->
+
+
+  </header>
+  <!-- /header -->
+
+  <div id="main-transition">
+    <div class="wrapper" id="pg-home" data-scroll-container="">
+      <main>
+        <section class="home-intro">
+          <div class="container-fluid">
+            <div class="spacer pin-spacer">
+              <div class="row intro-row" data-sticky="" data-trigger=".home-intro" data-spacer="parent">
+                <div class="container-text">
+                  <span class="font-2 fs--210 d-block text-septiembre">Rozmann</span>
+                  <span class="d-block fs--47 fw-700 text-arquitectura" data-aos="fadeInUp .8s ease-out-cubic .6s">Botond</span>
+                </div>
+                <div class="hero-pitch" data-aos="fadeIn .6s ease-in-out 1s">
+                  <span class="hero-pitch-lead">Weboldalak, amik tényleg dolgoznak érted.</span>
+                  <span class="hero-pitch-sub">Célom, hogy a magyar kisvállalkozásoknak olyan digitális megoldásokat nyújtsak, amelyek valóban megkönnyítik a mindennapi működésüket. Vallom, hogy egy jól funkcionáló weboldal és egy esztétikus megjelenés nem zárja ki egymást, együtt alkotják az igazán professzionális jelenlétet.</span>
+                </div>
+                <span class="hero-cta" role="link" tabindex="0"
+                      data-href="index.html" data-scrollto="#contact" data-duration="1.1">
+                  <span class="hero-cta-label">Kapcsolat</span>
+                  <span class="hero-cta-icon" aria-hidden="true"><svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.06978 1.94975L12.9693 1.94973L12.9693 11.8492M0.948451 13.9705L12.6157 2.3033" stroke="currentColor" stroke-width="2"/></svg></span>
+                </span>
+              </div>
+            </div>
+            <div class="row initial-img-row">
+              <div class="initial-img" data-cursor-style="mix" data-aos="">
+                <div class="container-img">
+                  <img fetchpriority="high" src="assets/images/hero-life.gif?v=3" class="media" alt="Rozmann Botond">
+                </div>
+                <div class="text-spacer pin-spacer">
+                  <span class="invisible-text font-2 fs--210 d-block text-septiembre background-text" data-sticky="" data-trigger=".intro-row" data-spacer=".text-spacer">Rozmann</span>
+                </div>
+              </div>
+            </div>
+            <div class="row gallery-row">
+              <div class="trigger trigger-1" data-get-target="1"></div>
+              <div class="trigger trigger-2" data-get-target="2"></div>
+              <div class="trigger trigger-3" data-get-target="3"></div>
+              <div class="trigger trigger-4" data-get-target="4"></div>
+              <div class="trigger trigger-5" data-get-target="5"></div>
+              <div class="gallery-spacer pin-spacer">
+                <div class="gallery-wrapper">
+                  <div class="project-item-wrapper project-01">
+                    <a href="garden.html" class="project-card" data-cursor-style="view" data-set-target="2" data-pjax-state="">
+                      <div class="container-img">
+                        <img loading="lazy" src="assets/images/gallery/tajkert.jpg" class="media" alt="Tájkert">
+                      </div>
+                    </a>
+                  </div>
+                  <div class="project-item-wrapper project-03">
+                    <a href="cocolia.html" class="project-card" data-cursor-style="view" data-set-target="1" data-pjax-state="">
+                      <div class="container-img">
+                        <img loading="lazy" src="assets/images/gallery-placeholder.jpg" class="media" alt="imagen">
+                      </div>
+                    </a>
+                  </div>
+                  <div class="project-item-wrapper project-02">
+                    <a href="miquel.html" class="project-card" data-cursor-style="view" data-set-target="3" data-pjax-state="">
+                      <div class="container-img">
+                        <img loading="lazy" src="assets/images/gallery/suti-rozsakert.jpg" class="media" alt="Süti Rózsakert">
+                      </div>
+                    </a>
+                  </div>
+                  <div class="project-item-wrapper project-04">
+                    <a href="wittmore.html" class="project-card" data-cursor-style="view" data-set-target="4" data-pjax-state="">
+                      <div class="container-img">
+                        <img loading="lazy" src="assets/images/gallery/bbsalgo-hu.jpg" class="media" alt="BB Salgó">
+                      </div>
+                    </a>
+                  </div>
+                  <div class="project-item-wrapper project-05">
+                    <a href="tsinandali.html" class="project-card" data-cursor-style="view" data-set-target="5" data-pjax-state="">
+                      <div class="container-img">
+                        <img loading="lazy" src="assets/images/gallery/szmheumetall.jpg" class="media" alt="SZM Heumetall">
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div class="home-about-us" style="height:1px;"></div>
+        <div id="home-things-that-inspire" style="height:1px;"></div>
+        <div id="home-other-projects" style="height:1px;"></div>
+        <div id="home-team" style="height:1px;">
+          <!-- app2.js aw() (a "home" oldal main függvénye) a lap legvégén feltétel nélkül
+               .addEventListener-t hív a ".marquee-wrapper"-en (a csapat-karusszel, amit nem
+               hoztunk át) — enélkül null-ra hívta, ami uncaught exceptiont dobott és mindent
+               leállított, ami UTÁNA jönne abban a függvényben. Üres stub, hogy lefusson. -->
+          <div class="marquee-team" style="display:none">
+            <div class="marquee-wrapper"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="assets/js/loader.js"></script>
+  <script type="module" src="assets/js/app2.js"></script>
+  <script defer src="assets/js/hero-ghost-text-align.js"></script>
+  <!-- ===== KLÓNOZOTT HERO VÉGE ===== -->
+
+  <!-- ===== RÉGI preloader + hero — a JS (92265_index.js) még ezekre a DOM-elemekre épít
+       (pl. splitIntoChars a preloader spanokra, a scrollTl a #scroll-wrap-re), ezért nem
+       törölhetők DOM-szinten anélkül, hogy az egész fájl (Skills/Kapcsolat/Lábléc/
+       reveal-canvas) le ne állna egy uncaught exceptionnal. CSS-sel vizuálisan és
+       interakció szintjén teljesen el vannak rejtve — lásd luke-adapted.css legvégén. ===== -->
+  <div class="name-layer" id="name-layer" style="mix-blend-mode: difference;" aria-hidden="true">
+    <div class="preloader-content" id="preloader-content">
+      <div id="preloader-logo">R</div>
+      <span id="preloader-luke">ozmann</span>
+      <span id="preloader-baffait"> Botond</span>
+      <span id="preloader-dot">.</span>
+    </div>
+  </div>
+
+  <div class="scroll-wrap" id="scroll-wrap" aria-hidden="true">
+    <section class="hero" id="hero">
+      <div class="hero-canvas" id="hero-canvas"></div>
+      <div class="hero-content">
+        <div class="hero-tagline" id="hero-tagline"></div>
+        <div class="hero-line" id="hero-line"></div>
+        <div class="hero-bar" id="hero-bar">
+          <div class="hero-bar-left"></div>
+          <nav class="hero-bar-center"></nav>
+          <nav class="hero-bar-right"></nav>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== REVEAL IMAGE OVERLAY (project hover preview) ===== -->
+  <div class="reveal-image-wrap" id="reveal-image-wrap">
+    <canvas class="reveal-image reveal-seq" id="reveal-canvas" width="1440" height="900"></canvas>
+    <div class="reveal-frame reveal-seq">
+      <span class="reveal-corner tl"></span>
+      <span class="reveal-corner tr"></span>
+      <span class="reveal-corner bl"></span>
+      <span class="reveal-corner br"></span>
+    </div>
+    <div class="reveal-overlay" id="reveal-overlay"></div>
+    <p class="reveal-phrase" id="reveal-phrase">Én weboldalakat alkotok.</p>
+  </div>
+
+  <!-- ===== ABOUT + PROJECTS ===== -->
+  <section class="section-after" id="section-after">
+
+    <div class="about" id="about">
+      <div class="about-text" id="about-text">
+        <span class="word">Webfejlesztőként</span> <span class="other-accent"><span class="word">egyedi</span></span> <span class="word">webes</span> <span class="word">élményeket</span> <span class="word">tervezek</span> <span class="word">—</span> <span class="word">technikai</span> <span class="word">precizitással</span> <span class="word">és</span> <span class="other-accent"><span class="word">érzelemmel</span></span><span class="word">.</span>
+      </div>
+      <div class="about-sub" id="about-sub">
+        Rozmann Botond vagyok, egy szenvedélyes alkotó Budapestről. Emlékezetes digitális élményeket teremtek, mindig a kézzel írt kód és a vizuális hatás szimbiózisát keresve.
+      </div>
+      <!-- "V1.0" verzió-jelzés eltávolítva (2026-09-09) — a DOM-elem rejtve marad,
+           mert a 92265_index.js (#about init) feltétel nélkül a .about-version-re
+           és a benne lévő <svg>-re hivatkozik; null esetén az egész about-init eldobná. -->
+      <div class="about-version" style="display:none" aria-hidden="true">
+        <svg viewBox="0 0 84 85" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="word">
+          <path d="M11 38H54L37 21H51L73 43L51 65H37L54 48H11Z"></path>
+        </svg><span class="word">V1.0</span>
+      </div>
+      <div class="about-photo-wrap" id="about-photo-wrap">
+        <img class="about-photo" src="assets/images/profile/botond-portre.avif"
+             alt="Rozmann Botond" decoding="async" width="1728" height="2368">
+      </div>
+    </div>
+
+    <div class="projects" id="projects">
+      <svg class="fluid-line-svg" id="fluid-line-svg"
+           viewBox="0 0 1400 1400" preserveAspectRatio="xMidYMid slice">
+        <path class="fluid-line" id="fluid-line" d="
+          M -80,0
+          C 300,-20  600,150  540,400
+          C 490,650   100,700  235,930
+        "></path>
+      </svg>
+      <div class="projects-inner">
+        <div class="projects-list" id="projects-list">
+          <div class="proj-item" data-id="mythos"
+               data-img="assets/images/projects/Covers/cyberDiag_web.avif"
+               data-date="01 2025">Mythos Private Resort</div>
+          <div class="proj-item" data-id="gombabak"
+               data-img="assets/images/projects/Covers/Anima.avif"
+               data-date="06 2025">Gombabák</div>
+          <div class="proj-item" data-id="szmh"
+               data-img="assets/images/projects/Covers/CyberDiag.avif"
+               data-date="09 2025">Szmh-Euro Metall</div>
+          <div class="proj-item" data-id="tajkert"
+               data-img="assets/images/projects/Covers/Zenith.avif"
+               data-date="11 2025">Tájkert Kft.</div>
+          <div class="proj-item" data-id="walter"
+               data-img="assets/images/projects/Covers/SkymcDB.avif"
+               data-date="02 2026">Walter Group</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===== SZOLGÁLTATÁSOK (korábban "Elismerések"/awards szekció volt itt lejjebb, placeholder
+       díjakkal — mivel azok nem valósak, ez a lista-elrendezés (hover-wipe, scroll-aktív
+       kiemelés) most a szolgáltatásokat mutatja, és előrébb, a Rólam+Munkáim után került).
+       A CSS/JS class-nevek (awards, award-item, award-org...) szándékosan maradtak a
+       klónozott sablonból örökölt belső hook-ok — csak a látható szöveg és a pozíció változott. ===== -->
+  <section class="awards" id="services">
+    <div class="awards-inner">
+      <div class="skills-subtitle awards-title">Szolgáltatások</div>
+      <div class="awards-list" id="awards-list">
+        <div class="award-item">
+          <div class="award-item-row">
+            <div class="award-org">Egyedi weboldal</div>
+            <div class="award-prize">Kódolt, nem sablon</div>
+            <div class="award-date">01</div>
+            <span class="award-toggle-icon" aria-hidden="true"><span></span><span></span></span>
+          </div>
+          <div class="award-detail">
+            <p>Statikus, kézzel kódolt (Astro) oldal — ez a leggyorsabban betöltő megoldás, ha nem kell utólag magad szerkesztened a tartalmat. Bemutatkozó/marketing oldaltól a szállásadók saját, jutalékmentes időpontfoglaló rendszeréig terjed, ahol a foglalás akár a Booking.com-mal és a Szállás.hu-val is kétirányban szinkronizálható, hogy sose legyen dupla foglalás.</p>
+          </div>
+        </div>
+        <div class="award-item">
+          <div class="award-item-row">
+            <div class="award-org">WordPress fejlesztés</div>
+            <div class="award-prize">Egyedi téma, Elementor nélkül</div>
+            <div class="award-date">02</div>
+            <span class="award-toggle-icon" aria-hidden="true"><span></span><span></span></span>
+          </div>
+          <div class="award-detail">
+            <p>Egyedi PHP-témára épülő WordPress-oldal — nem Elementorral összerakott, sablonos felület —, ha a tartalmat magad szeretnéd kezelni, vagy rendszeresen blogolnál. Ide tartozik a szállásadóknak épített, Booking.com-mal és Szállás.hu-val kétirányban szinkronizáló időpontfoglaló rendszer is, ahogy a mythosresort.hu-n élesben fut, jutalékmentes közvetlen foglalásokkal.</p>
+          </div>
+        </div>
+        <div class="award-item">
+          <div class="award-item-row">
+            <div class="award-org">Webshop</div>
+            <div class="award-prize">WooCommerce alapú</div>
+            <div class="award-date">03</div>
+            <span class="award-toggle-icon" aria-hidden="true"><span></span><span></span></span>
+          </div>
+          <div class="award-detail">
+            <p>Shopify-alapú egyedi fejlesztés, WooCommerce-kombináció vagy platform-mentes, teljesen egyedi webshop — attól függ, melyik illik a termékstruktúrádhoz és a fizetési folyamathoz. Mindegyikhez hozzátartozik a fizetési (pl. Barion) és csomagpontos szállítási integráció, a checkout pedig végponttól végpontig tesztelve indul élesbe, hogy vásárlás közben semmi ne akadjon el.</p>
+          </div>
+        </div>
+        <div class="award-item">
+          <div class="award-item-row">
+            <div class="award-org">Márkaépítés</div>
+            <div class="award-prize">Design, identitás, arculat</div>
+            <div class="award-date">04</div>
+            <span class="award-toggle-icon" aria-hidden="true"><span></span><span></span></span>
+          </div>
+          <div class="award-detail">
+            <p>Logó (színes, mono és önmagában is felismerhető ikon-verzióban), világos/sötét módra tervezett színpaletta, cím- és törzsszöveg tipográfia-párosítás, plusz közösségimédia- és nyomtatott sablonok. Jellemzően weboldal-készítéssel együtt éri meg igazán, mert a design egyszerre készül el minden felületre — de önállóan is kérhető.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SZOLGÁLTATÁSOK — "átlós pálya" görgetős szekció KIVÉVE (2026-09-18) =====
+       Élesben kipróbálva, összehasonlításra a rövid #services lista alatt —
+       a user egyelőre a rövid listát tartja meg. A HTML-jelölés innen
+       törölve, de a fájlok VÁLTOZATLANUL a lemezen maradtak, hogy egy sor
+       visszaillesztéssel újra bekapcsolható legyen:
+         CSS: assets/css/szolgaltatas-filmcsik-szekcio.css (linkje is kivéve a <head>-ből)
+         JS:  assets/js/szolgaltatas-filmcsik-szekcio.js (script-tagje is kivéve a </body> elől)
+         Vázlat + doksi: ../../komponens-vazlatok/szolgaltatas-szekcio-filmcsik.html
+       Visszarakáshoz: a <link>/<script> visszatétele + az alábbi <section>
+       újra beillesztése (ugyanez a blokk, változtatás nélkül):
+
+       <section class="fc-section" id="fc-section" aria-label="Szolgáltatások — átlós pálya">
+         <div class="fc-sticky">
+           <div class="fc-index"><b id="fc-index-n">01</b><i></i><span>Szolgáltatásaim</span></div>
+           <div class="fc-stage">
+             <div class="fc-media" id="fc-media"></div>
+             <div class="fc-counter" id="fc-counter">
+               <div class="fc-digit" id="fc-digit-0"></div>
+               <div class="fc-digit" id="fc-digit-1"></div>
+             </div>
+             <div class="fc-info">
+               <div class="fc-desc-stack" id="fc-desc-stack"></div>
+             </div>
+           </div>
+           <nav class="fc-nav" id="fc-nav"></nav>
+         </div>
+       </section>
+  -->
+
+  <!-- ===== SZOLGÁLTATÁSOK — interaktív forgó szekció (Gigantic-stílus) eltávolítva (2026-09-05) =====
+       Csak a fenti rövid #services lista maradt. A törölt forgó szekció:
+       #gm-services-embed (iframe) + a </body> előtti scroll-proxy <script> + a
+       gm-services-embed.css <link>. A szövegei elmentve:
+       [[../../01-Sajat-Brand/Weboldal-Szolgaltatas-Szovegek]] (HQ vault).
+       Árva, már nem hivatkozott fájlok a lemezen: assets/gigantic-services/ ·
+       assets/css/gm-services-embed.css -->
+
+  <!-- ===== MUNKAFOLYAMAT — görgetés-vezérelt köríves 4-lépéses szekció =====
+       Inspiráció: hear.ai „Think Different"; tiszta GSAP + ScrollTrigger újraépítés.
+       CSS: assets/css/munkafolyamat-szekcio.css · JS: assets/js/munkafolyamat-szekcio.js
+       (a JS a </body> előtt, a gsap/ScrollTrigger UTÁN töltődik).
+       Vázlat + részletes doksi: ../../komponens-vazlatok/munkafolyamat-szekcio.html
+       A #mf-nodes-be a csomópontokat a JS generálja a STEPS tömbből. -->
+  <section class="mf-section" id="mf-section" aria-label="Munkafolyamat">
+    <div class="mf-sticky">
+      <h2 class="mf-heading">
+        <span>Így dolgozom.</span>
+        <span>Kezdéstől az élesítésig.</span>
+      </h2>
+      <div class="mf-stage">
+        <div class="mf-circle" id="mf-circle"></div>
+        <div class="mf-star" id="mf-star">
+          <div class="mf-star-inner">
+            <svg width="44" height="44" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M22.5496 45.2544C21.9484 33.0318 12.2182 23.2345 6.10352e-05 22.5493C12.1932 21.8817 21.9537 12.1881 22.7051 -0.000173569C23.3727 12.193 33.0663 21.9535 45.2546 22.7049C33.032 23.3061 23.2347 33.0362 22.5496 45.2544Z"></path>
+            </svg>
+          </div>
+          <div class="mf-needle" id="mf-needle"></div>
+        </div>
+        <div id="mf-nodes"></div>
+        <div class="mf-text" id="mf-text">
+          <h3 id="mf-title"></h3>
+          <p id="mf-desc"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CIRCLE GALLERY ===== -->
+  <section class="circle-gallery" id="circle-gallery">
+    <div class="circle-gallery-pin" id="circle-gallery-pin">
+      <div class="cg-img"></div>
+      <div class="cg-img"></div>
+      <div class="cg-img"></div>
+      <div class="cg-img"></div>
+      <div class="cg-img"></div>
+      <p class="cg-phrase" id="cg-phrase">
+        <span class="word">Minden</span> <span class="word">projekt</span> <span class="word">lehetőség</span> <span class="other-accent"><span class="word">tanulni</span></span><span class="word">,</span> <span class="other-accent"><span class="word">kísérletezni</span></span> <span class="word">és</span> <span class="word">határokat</span> <span class="word">feszíteni.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== KAPCSOLAT / CONTACT ===== -->
+  <div class="contact-bg" id="contact-bg"></div>
+  <div class="contact-blob-wrap" id="contact-blob-wrap">
+    <div class="contact-blob" id="contact-blob"></div>
+  </div>
+  <section class="contact" id="contact">
+    <div class="contact-pin" id="contact-pin">
+      <div class="contact-title" id="contact-title">Kapcsolat</div>
+
+      <div class="contact-dispo" id="contact-dispo">
+        <p>Elérhető vagyok <span class="other-accent">szabadúszó</span> és projektmunkákra — <span class="other-accent">hazai és nemzetközi</span> vállalkozások számára egyaránt.</p>
+      </div>
+
+      <div class="contact-frame" id="contact-frame">
+        <img class="contact-frame-img" id="contact-frame-img"
+             src="assets/images/art/Untitled2.png" alt="" loading="lazy" decoding="async">
+        <span class="frame-corner tl"></span>
+        <span class="frame-corner tr"></span>
+        <span class="frame-corner bl"></span>
+        <span class="frame-corner br"></span>
+      </div>
+
+      <div class="contact-dispo" id="contact-dispo-2">
+        <p>Nyitott vagyok <span class="other-accent">hosszú távú partnerségekre</span> is — ahol a minőség és a <span class="other-accent">részletek számítanak</span>.</p>
+      </div>
+
+      <div class="contact-frame" id="contact-frame-2">
+        <img class="contact-frame-img" id="contact-frame-img-2"
+             src="assets/images/art/Untitled1.png" alt="" loading="lazy" decoding="async">
+        <span class="frame-corner tl"></span>
+        <span class="frame-corner tr"></span>
+        <span class="frame-corner bl"></span>
+        <span class="frame-corner br"></span>
+      </div>
+
+      <div class="contact-bottom" id="contact-bottom">
+        <nav class="contact-socials" id="contact-socials" aria-label="Közösségi média">
+          <a class="chr-hover" href="https://www.linkedin.com/in/rozmannbotond/"
+             target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">LinkedIn</a>
+          <a class="chr-hover" href="https://www.behance.net/rozmannbotond"
+             target="_blank" rel="noopener noreferrer" aria-label="Behance">Behance</a>
+          <a class="chr-hover" href="https://www.instagram.com/rozmannbotond/"
+             target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram</a>
+        </nav>
+        <a class="contact-mail" id="contact-mail"
+           href="mailto:szia@rozmannbotond.hu">szia@rozmannbotond.hu</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <div class="footer-transition" id="footer-transition"></div>
+  <footer class="footer" id="footer">
+    <div class="footer-content" id="footer-content">
+      <div class="footer-top">
+        <div class="footer-top-col">
+          <a class="chr-hover footer-mail" href="mailto:szia@rozmannbotond.hu"
+             aria-label="E-mail küldése">szia@rozmannbotond.hu</a>
+          <span class="chr-hover footer-date">© 2026</span>
+        </div>
+        <nav class="footer-top-col" aria-label="Közösségi média">
+          <a class="chr-hover" href="https://www.linkedin.com/in/rozmannbotond/"
+             target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">LinkedIn</a>
+          <a class="chr-hover" href="https://www.behance.net/rozmannbotond"
+             target="_blank" rel="noopener noreferrer" aria-label="Behance">Behance</a>
+          <a class="chr-hover" href="https://www.instagram.com/rozmannbotond/"
+             target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram</a>
+        </nav>
+        <nav class="footer-top-col" aria-label="Lábléc navigáció">
+          <a class="chr-hover" href="#projects" aria-label="Munkáim">Munkáim</a>
+          <a class="chr-hover" href="#about" aria-label="Rólam">Rólam</a>
+          <a class="chr-hover" href="#contact" aria-label="Kapcsolat">Kapcsolat</a>
+        </nav>
+      </div>
+      <div class="footer-ascii-wrap">
+        <div class="footer-ascii left">
+          <pre id="ascii-left"></pre>
+        </div>
+        <div class="footer-ascii right">
+          <pre id="ascii-right"></pre>
+        </div>
+      </div>
+      <div class="footer-name">
+        <span class="footer-name-luke">Rozmann</span><span class="footer-name-baffait-wrap"><span class="footer-name-baffait">Botond</span><span class="footer-name-dot">.</span></span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== JS-DRIVEN OVERLAYS ===== -->
+  <div class="proj-preview" id="proj-preview">
+    <div class="proj-card" id="proj-card">
+      <div class="proj-meta">
+        <span class="proj-date" id="proj-date"></span>
+        <span class="proj-label">Előnézet</span>
+      </div>
+      <img id="proj-cover" src="assets/images/projects/Covers/cyberDiag_web.avif" alt="" width="1333" height="1000">
+    </div>
+  </div>
+  <div class="proj-cursor" id="proj-cursor">Megtekintés</div>
+
+  <div class="page-fade" id="page-fade"></div>
+  <div class="flying-title" id="flying-title"></div>
+  <div class="work-transition-overlay" id="work-transition-overlay"></div>
+  <div class="work-flying-text" id="work-flying-text">Munkáim</div>
+
+  <section class="project-detail" id="project-detail">
+    <div class="detail-back chr-hover" id="detail-back" data-chr="←VISSZA">←VISSZA</div>
+    <div class="detail-info">
+      <div class="detail-title-wrap" id="detail-title-wrap">
+        <h1 class="detail-title" id="detail-title"></h1>
+        <span class="detail-year" id="detail-year"></span>
+      </div>
+      <p class="detail-desc" id="detail-desc"></p>
+      <div class="detail-tags" id="detail-tags"></div>
+    </div>
+    <div class="detail-gallery-wrap" id="detail-gallery-wrap">
+      <div class="detail-thumbs" id="detail-thumbs">
+        <div class="detail-thumbs-inner" id="detail-thumbs-inner"></div>
+      </div>
+      <div class="detail-selected" id="detail-selected"></div>
+    </div>
+  </section>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script defer src="assets/js/64911_i18n.js"></script>
+  <script defer src="assets/js/5902_gsap.min.js"></script>
+  <script defer src="assets/js/37406_ScrollTrigger.min.js"></script>
+  <script defer src="assets/js/55762_lenis.min.js"></script>
+  <script defer src="assets/js/92265_index.js?v=4"></script>
+  <script defer src="assets/js/munkafolyamat-szekcio.js?v=2"></script>
+  <script defer src="assets/js/menu-brand.js?v=2"></script>
+
+  <!-- Scroll progress sidebar -->
+  <div class="scroll-pct" id="scroll-pct">(0)</div>
+  <div class="scroll-timeline" id="scroll-timeline">
+    <span class="st-label" id="st-label"></span>
+    <div class="st-bar" id="st-bar">
+      <div class="st-seg" title="Bemutatkozás" style="flex: 0.1677 1 0%;"><div class="st-seg-fill"></div></div>
+      <div class="st-seg" title="Projektek" style="flex: 0.0993 1 0%;"><div class="st-seg-fill"></div></div>
+      <div class="st-seg" title="Galéria" style="flex: 0.4256 1 0%;"><div class="st-seg-fill"></div></div>
+      <div class="st-seg" title="Képességek" style="flex: 0.1372 1 0%;"><div class="st-seg-fill"></div></div>
+      <div class="st-seg" title="Kapcsolat" style="flex: 0.1277 1 0%;"><div class="st-seg-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- (A Gigantic forgó szolgáltatás-szekció scroll-proxy szkriptje eltávolítva
+       2026-09-05, a #gm-services-embed szekcióval együtt.) -->
+
+  <!-- ============================================================
+       MENÜ  —  jobb-felső hamburger + sarokból kinyíló panel.
+       Ide, a </body> elé került (NEM a #header-be), hogy a nagy
+       z-index-ű szekciók (section-after: 20010, stb.) ne
+       takarjanak rá a teljes képernyős sötétítőre.
+       Stílus: assets/css/menu-brand.css · vezérlő: assets/js/menu-brand.js
+       ============================================================ -->
+  <div id="site-menu">
+    <button class="sm-toggle" type="button" aria-expanded="false"
+            aria-controls="sm-panel" aria-label="Menü megnyitása">
+      <span class="sm-bars" aria-hidden="true"><i></i><i></i></span>
+    </button>
+
+    <div class="sm-panel" id="sm-panel" aria-hidden="true" inert>
+      <nav class="sm-nav" aria-label="Fő navigáció">
+        <div class="sm-links">
+
+          <span class="sm-link" role="link" tabindex="0"
+                data-href="index.html" data-scrollto="#section-after" data-duration="1.1">
+            <span class="sm-link-row">
+              <span class="sm-label">Rólam</span>
+              <span class="sm-arrow" aria-hidden="true"><svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.06978 1.94975L12.9693 1.94973L12.9693 11.8492M0.948451 13.9705L12.6157 2.3033" stroke="currentColor" stroke-width="2"/></svg></span>
+            </span>
+            <span class="sm-line"></span>
+          </span>
+
+          <span class="sm-link" role="link" tabindex="0"
+                data-href="index.html" data-scrollto="#services" data-duration="1.1">
+            <span class="sm-link-row">
+              <span class="sm-label">Szolgáltatások</span>
+              <span class="sm-arrow" aria-hidden="true"><svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.06978 1.94975L12.9693 1.94973L12.9693 11.8492M0.948451 13.9705L12.6157 2.3033" stroke="currentColor" stroke-width="2"/></svg></span>
+            </span>
+            <span class="sm-line"></span>
+          </span>
+
+          <span class="sm-link" role="link" tabindex="0"
+                data-href="index.html" data-scrollto="#mf-section" data-duration="1.1">
+            <span class="sm-link-row">
+              <span class="sm-label">Munkafolyamat</span>
+              <span class="sm-arrow" aria-hidden="true"><svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.06978 1.94975L12.9693 1.94973L12.9693 11.8492M0.948451 13.9705L12.6157 2.3033" stroke="currentColor" stroke-width="2"/></svg></span>
+            </span>
+            <span class="sm-line"></span>
+          </span>
+
+          <span class="sm-link" role="link" tabindex="0"
+                data-href="index.html" data-scrollto="#circle-gallery" data-duration="1.1">
+            <span class="sm-link-row">
+              <span class="sm-label">Referenciák</span>
+              <span class="sm-arrow" aria-hidden="true"><svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.06978 1.94975L12.9693 1.94973L12.9693 11.8492M0.948451 13.9705L12.6157 2.3033" stroke="currentColor" stroke-width="2"/></svg></span>
+            </span>
+            <span class="sm-line"></span>
+          </span>
+
+          <span class="sm-link" role="link" tabindex="0"
+                data-href="index.html" data-scrollto="#contact" data-duration="1.1">
+            <span class="sm-link-row">
+              <span class="sm-label">Kapcsolat</span>
+              <span class="sm-arrow" aria-hidden="true"><svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.06978 1.94975L12.9693 1.94973L12.9693 11.8492M0.948451 13.9705L12.6157 2.3033" stroke="currentColor" stroke-width="2"/></svg></span>
+            </span>
+            <span class="sm-line"></span>
+          </span>
+
+        </div>
+
+        <div class="sm-social">
+          <span class="sm-social-title">Média</span>
+          <a href="https://www.linkedin.com/in/rozmannbotond/" target="_blank" rel="noopener noreferrer">
+            <span class="sm-social-caret" aria-hidden="true"><svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.06978 1.94975L12.9693 1.94973L12.9693 11.8492M0.948451 13.9705L12.6157 2.3033" stroke="currentColor" stroke-width="2"/></svg></span>
+            <span>LinkedIn</span>
+          </a>
+          <a href="https://www.behance.net/rozmannbotond" target="_blank" rel="noopener noreferrer">
+            <span class="sm-social-caret" aria-hidden="true"><svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.06978 1.94975L12.9693 1.94973L12.9693 11.8492M0.948451 13.9705L12.6157 2.3033" stroke="currentColor" stroke-width="2"/></svg></span>
+            <span>Behance</span>
+          </a>
+          <a href="https://www.instagram.com/rozmannbotond/" target="_blank" rel="noopener noreferrer">
+            <span class="sm-social-caret" aria-hidden="true"><svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.06978 1.94975L12.9693 1.94973L12.9693 11.8492M0.948451 13.9705L12.6157 2.3033" stroke="currentColor" stroke-width="2"/></svg></span>
+            <span>Instagram</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+
+    <div class="sm-overlay" aria-hidden="true"></div>
+  </div>
+
+</body>
+</html>

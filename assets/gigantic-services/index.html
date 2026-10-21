@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="hu" class="lenis">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Szolgáltatások — forgó szekció</title>
+<base target="_parent">
+
+<link rel="stylesheet" href="css/fwd-gigantic-media.webflow.shared.09a0b64d4.css">
+<link rel="stylesheet" href="css/homepage-circle.css">
+<link rel="stylesheet" href="css/orbit-rotation.css">
+<link rel="stylesheet" href="css/lenis.css">
+
+<style>
+  /* ============================================================
+     BRAND SZÍNEK — a 01-Sajat-Brand/Vizualis-Identitas.md szerint
+     Háttér #EFECE7 · Felület #E3DDD3 · Elsődleges szöveg #1C1A17
+     Másodlagos szöveg #6E6860 · Accent #8C3B2A · Keret #D2CABE
+     A Gigantic Webflow-témaváltozóit mind ezekre írjuk át.
+     ============================================================ */
+  :root {
+    /* háttér / felület — a "sötét" maszk is krém lesz → NINCS sötét fázis */
+    --_gigantic-theme---light-color: #EFECE7 !important;
+    --_gigantic-theme---dark-color: #EFECE7 !important;
+    --_gigantic-theme---primary-bg-color: #EFECE7 !important;
+    --_gigantic-theme---secondary-bg-color: #EFECE7 !important;
+    --_gigantic-theme---bg-graphics--circle-over-white: #EFECE7 !important;
+    --base-color-neutral--white: #EFECE7 !important;
+    --base-color-neutral--black: #1C1A17 !important;
+
+    /* accent (terrakotta-bordó) — orbit-pöttyök, középpont, sarok-pöttyök */
+    --_gigantic-theme---secondary-color: #8C3B2A !important;
+    --_gigantic-theme---tertiary-bg-color: #8C3B2A !important;
+    --_gigantic-theme---accent-red: #8C3B2A !important;
+    --_gigantic-theme---dropshadow-color: #8C3B2A !important;
+
+    /* szöveg */
+    --_gigantic-theme---text-color-primary: #1C1A17 !important;
+    --_gigantic-theme---text-color-secondary: #6E6860 !important;
+    --_gigantic-theme---text-secondary-light: #6E6860 !important;
+    --_gigantic-theme---text-secondary-dark: #6E6860 !important;
+    --text-color--text-primary: #1C1A17 !important;
+    --text-color--text-secondary: #6E6860 !important;
+    --text-color--text-alternate: #1C1A17 !important;
+
+    /* vonalak / keretek (a kör körvonala + a küllők) */
+    --_gigantic-theme---bg-graphics--lines-over-white: #D2CABE !important;
+    --_gigantic-theme---nav--lines-over-white: #D2CABE !important;
+    --_gigantic-theme---lines-light: #D2CABE !important;
+    --_gigantic-theme---lines-dark: #6E6860 !important;
+    --_gigantic-theme---primary-color: #6E6860 !important;
+  }
+
+  /* FONTOS: csak a <html>-en legyen háttér, a <body> maradjon átlátszó —
+     a forgó kör (.rotator_section) z-index:-1, átlátszatlan body mögé kerülne. */
+  html { background: #EFECE7 !important; }
+  body { background: transparent !important; overflow-x: clip; }
+  .overflow-hidden { overflow: hidden !important; overscroll-behavior: none; }
+
+  /* Konkrét elem-felülírások (ahol a téma nem változóból dolgozik) */
+  .circle_mask_red { display: none !important; }               /* piros átmenet-maszk – nem kell */
+  .circle_mask, .rect_mask { background-color: #EFECE7 !important; } /* a "sötét" maszk → krém */
+  .text-color-alternate,
+  .zoom-left-trigger .heading-style-h2,
+  .zoom-left-trigger .overline,
+  .services_section_text { color: #1C1A17 !important; }
+  .zoom-left-trigger p { color: #6E6860 !important; }
+  .circle-list-el-h2 { color: #1C1A17 !important; }
+  .circle_orbit_element, .center_circle, .line_corner_dot {
+    background-color: #8C3B2A !important;
+  }
+  .circumference { border-color: #D2CABE !important; }
+  .slice-line-divider-inner { background-color: #D2CABE !important; }
+  a.button.secondary { pointer-events: none; background-color: #E3DDD3 !important; color: #1C1A17 !important; }
+
+  /* elég belső görgetési magasság a pin-hez (ezt a szülőoldal vezérli) */
+  .embed-spacer { height: 40vh; }
+  .embed-spacer.pre { height: 30vh; }
+</style>
+</head>
+<body class="body homepage_body">
+
+<main class="main-wrapper">
+
+  <div class="embed-spacer pre"></div>
+
+<div class="intersection_triggger"><section class="section intersection_section"><div class="padding-global padding-section-large"><div class="container-large"><div class="text-zoom-in-first"><div class="max-width-medium-large-2"><h2 class="heading-style-h2 text-align-center">Egy weboldal, ami dolgozik a vállalkozásodért.</h2></div></div></div></div></section><section class="section text-zoom-in-second unified_lines_trigger"><div class="padding-global padding-section-large"><div class="container-large"><div class="max-width-medium-large align-center"><h2 class="heading-style-h2 text-align-center">Átgondolt felépítés. Mérhető eredmény.</h2></div></div></div></section></div><div class="circle_mask_zoom_trigger"><section class="section zoom-left-trigger"><div class="padding-global padding-section-large"><div class="container-large"><div class="w-layout-hflex max-width-full space_between items_end mobile_col items_start m_gap_4"><div class="w-layout-vflex max-width-medium relative gap_5 text-color-alternate m_gap_3"><h2 class="text_indent heading-style-h2">Hosszú távú munkakapcsolatokra építek.</h2><div class="overline">Így dolgozom</div><div class="m_homepage_width_custom"><p class="text-size-small max-width-small">Ráadásul jó velem együtt dolgozni. Az is számít.</p></div></div><a href="#contact" class="button secondary w-inline-block"><div class="btn-viewport"><div class="btn-strip"><div class="btn-line">Beszéljünk</div><div class="btn-line">Beszéljünk</div></div></div></a></div></div></div></section></div><div class="circle_mask_light_zoom_trigger"></div><section class="section services_section rotation_trigger"><div class="padding-global padding-section-large"><div class="container-large"><div class="services_section_text text-size-tiny">szolgáltatások</div></div></div></section>
+
+  <div class="embed-spacer" style="height:60vh"></div>
+
+<section class="section rotator_section"><div><div><div class="init_lines_container"><div class="border_square left"><div class="border_square_line_1 glitch"></div><div class="border_square_line_2 glitch"></div><div class="circle_orbit_element border_square_orbit_el_left circle_center"></div></div><div class="border_square right"><div class="border_square_line_1 glitch"></div><div class="border_square_line_2 glitch"></div><div class="circle_orbit_element border_square_orbit_ell_right circle_center"></div></div></div><div class="circle-section-container"><div class="init-circle-section"><div class="circle_orbit_container"><div class="circle_orbit_element"></div></div><div class="init-circle-section-inner glitch"></div></div><div class="circle-section"><div class="circle_orbit_container"><div class="circle_orbit_element"></div></div><div class="center_circle"></div><div class="circle_mask"></div><div class="circle_mask_light"></div><div class="rect_mask"></div><div class="circle_mask_red"></div><div class="circle-list-container"><div class="circle-list-el-container"><div class="slice-line-divider main"><div class="w-layout-hflex slice-line-divider-id"><div class="line_corner_dot"></div><div class="text-size-large text-weight-medium relative slice-line-number">01</div></div><div class="hide">LINE 1</div><div class="slice-line-divider-inner glitch"></div></div><div class="circle-list-el-content"><h2 class="circle-list-el-h2">Bemutatkozó weboldal</h2><p class="text-size-small text-color-secondary-light max-width-xxxsmall">Egyedi kódolt vagy WordPress oldal, ami eladja a vállalkozásod — nem sablon, nem Elementor.</p></div></div><div connect-box="3" class="circle-list-el-container"><div class="slice-line-divider"><div class="slice-line-divider-inner glitch"></div><div class="w-layout-hflex slice-line-divider-id"><div class="line_corner_dot"></div><div class="text-size-large text-weight-medium relative slice-line-number">02</div></div><div class="hide">LINE 2</div></div><div class="circle-list-el-content"><h2 class="circle-list-el-h2">WordPress egyedi téma</h2><p class="text-size-small text-color-secondary-light max-width-xxxsmall">Saját PHP-téma, amit magad is tudsz szerkeszteni és bővíteni, felesleges plugin-teher nélkül.</p></div></div><div connect-box="4" class="circle-list-el-container"><div class="slice-line-divider main-2 main"><div class="w-layout-hflex slice-line-divider-id"><div class="line_corner_dot"></div><div class="text-size-large text-weight-medium relative slice-line-number">03</div></div><div class="hide">LINE 3</div><div class="slice-line-divider-inner glitch"></div></div><div class="circle-list-el-content"><h2 class="circle-list-el-h2">Webshop</h2><p class="text-size-small text-color-secondary-light max-width-xxxsmall">Shopify, WooCommerce vagy teljesen egyedi webshop — a termékstruktúrától a fizetésig végiggondolva.</p></div></div><div connect-box="5" class="circle-list-el-container"><div class="slice-line-divider"><div class="w-layout-hflex slice-line-divider-id"><div class="line_corner_dot"></div><div class="text-size-large text-weight-medium relative slice-line-number">04</div></div><div class="hide">LINE 4</div><div class="slice-line-divider-inner glitch"></div></div><div class="circle-list-el-content"><h2 class="circle-list-el-h2">Márkaépítés</h2><p class="text-size-small text-color-secondary-light max-width-xxxsmall">Logó, színpaletta, tipográfia és sablonok — egységes arculat, ami minden felületen működik.</p></div></div><div class="circle-list-el-container has-box"><div class="slice-line-divider main"><div class="w-layout-hflex slice-line-divider-id"><div class="line_corner_dot"></div><div class="text-size-large text-weight-medium relative slice-line-number">05</div></div><div class="hide">LINE 5</div><div class="slice-line-divider-inner glitch"></div></div><div class="circle-list-el-content"><h2 class="circle-list-el-h2">Időpontfoglaló rendszer</h2><p class="text-size-small text-color-secondary-light max-width-xxxsmall">Beépített foglalási felület: a látogató maga foglal időpontot, automatikus visszaigazolással.</p></div></div><div class="circle-list-el-container has-box"><div class="slice-line-divider"><div class="w-layout-hflex slice-line-divider-id"><div class="line_corner_dot"></div><div class="text-size-large text-weight-medium relative slice-line-number">06</div></div><div class="hide">LINE 6</div><div class="slice-line-divider-inner glitch"></div></div><div class="circle-list-el-content"><h2 class="circle-list-el-h2">Tartalom és képek</h2><p class="text-size-small text-color-secondary-light max-width-xxxsmall">Szövegezés és saját stílusú, AI-generált képek — ha nincs kész anyagod, benne van az árban.</p></div></div><div class="circle-list-el-container has-box"><div class="slice-line-divider main-2 main"><div class="w-layout-hflex slice-line-divider-id"><div class="line_corner_dot"></div><div class="text-size-large text-weight-medium relative slice-line-number">07</div></div><div class="hide">LINE 7</div><div class="slice-line-divider-inner glitch"></div></div><div class="circle-list-el-content"><h2 class="circle-list-el-h2">SEO-alapok</h2><p class="text-size-small text-color-secondary-light max-width-xxxsmall">Meta címek, Open Graph, sitemap és sebességoptimalizálás — hogy a Google is megtaláljon.</p></div></div><div class="circle-list-el-container"><div class="slice-line-divider"><div class="w-layout-hflex slice-line-divider-id"><div class="line_corner_dot"></div><div class="text-size-large text-weight-medium relative slice-line-number">08</div></div><div class="hide">LINE 8</div><div class="slice-line-divider-inner glitch"></div></div><div class="circle-list-el-content"><h2 class="circle-list-el-h2">Karbantartás</h2><p class="text-size-small text-color-secondary-light max-width-xxxsmall">Havidíjas apró javítások és módosítások, plusz 2 hét ingyenes finomhangolás minden projekt után.</p></div></div><div class="circle-list-el-container"><div class="slice-line-divider main"><div class="slice-line-divider-inner glitch"></div></div></div><div class="circle-list-el-container"><div class="slice-line-divider"><div class="slice-line-divider-inner glitch"></div></div></div><div class="circle-list-el-container has-box right"><div class="slice-line-divider main-2 main"><div class="slice-line-divider-inner glitch"></div></div></div><div connect-box="0" class="circle-list-el-container has-box right"><div class="slice-line-divider"><div class="slice-line-divider-inner glitch"></div></div></div><div connect-box="1" class="circle-list-el-container has-box right"><div class="slice-line-divider main"><div class="slice-line-divider-inner glitch"></div></div></div><div connect-box="2" class="circle-list-el-container"><div class="slice-line-divider"><div class="slice-line-divider-inner glitch"></div></div></div><div class="circle-list-el-container"><div class="slice-line-divider main-2 main"><div class="slice-line-divider-inner glitch"></div></div></div><div class="circle-list-el-container"><div class="slice-line-divider"><div class="slice-line-divider-inner glitch"></div></div></div></div><div class="circumference glitch"></div></div></div><div class="circle-background"></div></div></div></section>
+
+  <!-- Helyőrzők: az eredeti main.js ezekre hivatkozik (null-hiba ellen) -->
+  <div class="page_border_container" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;width:0;height:0;overflow:hidden"></div>
+  <div class="navbar" aria-hidden="true" style="position:fixed;width:0;height:0;overflow:hidden"></div>
+  <div class="box_row_container" aria-hidden="true" style="position:fixed;width:0;height:0;overflow:hidden"></div>
+
+  <!-- Ezek az eredeti oldalon a forgás UTÁNI szekciók. Itt csak azért maradnak a
+       DOM-ban, hogy a hozzájuk kötött ScrollTrigger-ek ne "hibázzanak félre" (a
+       trigger-elem hiánya miatt a callback-jeik rögtön lefutnának). A szülőoldal
+       scroll-proxyja viszont a forgás végénél MEGÁLL, így ezekhez sosem görgetünk. -->
+  <div class="embed-spacer" style="height:60vh"></div>
+  <section class="section brand_carousel_trigger" style="min-height:120vh"></section>
+  <section class="section_contact_form contact_section" style="min-height:120vh"></section>
+
+</main>
+
+<!-- Lenis KIKAPCSOLVA: az iframe belső görgetését a szülőoldal hajtja (scroll-proxy),
+     ezért a Lenis-t egy semmit-nem-csináló stubbal helyettesítjük. Így a ScrollTrigger
+     a natív scroll-eseményre figyel, amit a szülő állít. -->
+<script>
+  window.Lenis = function Lenis(){
+    return {
+      on:function(){}, off:function(){}, raf:function(){}, start:function(){},
+      stop:function(){}, destroy:function(){}, resize:function(){},
+      scrollTo:function(t){ if (typeof t === 'number') window.scrollTo(0, t); },
+      get scroll(){ return window.scrollY; },
+      get limit(){ return document.documentElement.scrollHeight - window.innerHeight; },
+      get progress(){ var l = this.limit; return l > 0 ? this.scroll / l : 0; }
+    };
+  };
+</script>
+
+<script src="js/gsap.min.js"></script>
+<script src="js/ScrollTrigger.min.js"></script>
+<script src="js/MotionPathPlugin.min.js"></script>
+<script src="js/split-type.js"></script>
+<!-- FONTOS: az igazi lenis.min.js-t NEM töltjük be — felülírná a fenti stubot,
+     valódi Lenis-példány jönne létre, ami elrabolná a görgetést és megbénítaná
+     a szülőoldal scroll-proxyját. A main.js a stubbal is elfut. -->
+<script>gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);</script>
+<script src="js/main.js"></script>
+
+<!-- Scroll-proxy vevő: a szülőoldal pixelben küldi a belső scroll-pozíciót (1:1) -->
+<script>
+(function(){
+  function scrollRange(){ return document.documentElement.scrollHeight - window.innerHeight; }
+
+  var healPending = false;
+  function heal(target){
+    // teljes refresh (drága) — csak akkor, ha a ScrollTrigger scroll-cache-e
+    // elszállt. Egyszerre max. egy, a következő frame-en.
+    if (healPending || !window.ScrollTrigger) return;
+    healPending = true;
+    setTimeout(function(){
+      healPending = false;
+      ScrollTrigger.refresh();
+      window.scrollTo(0, target);
+      ScrollTrigger.update();
+    }, 0);
+  }
+  function applyScroll(target){
+    target = Math.max(0, Math.min(scrollRange(), target || 0));
+    window.scrollTo(0, target);
+    if (!window.ScrollTrigger) return;
+    ScrollTrigger.update();
+    var sf = ScrollTrigger.getScrollFunc(window);
+    if (Math.abs(sf() - target) > 4) heal(target);   // csak ha tényleg elcsúszott
+  }
+
+  window.addEventListener('message', function(e){
+    var d = e.data;
+    if (!d) return;
+    if (d.type === 'gm-refresh'){ heal(window.scrollY); return; }
+    if (d.type === 'gm-scroll') applyScroll(d.y);
+  }, false);
+  function announce(){
+    // a használható tartomány = a FORGÁS ScrollTrigger vége (utána már a
+    // forgás-utáni szekciók jönnének, amiket nem akarunk mutatni)
+    var usable = scrollRange();
+    try {
+      if (window.ScrollTrigger) {
+        var pin = ScrollTrigger.getAll().filter(function(s){
+          return s.pin && s.trigger && s.trigger.classList &&
+                 s.trigger.classList.contains('rotation_trigger');
+        })[0];
+        if (pin && pin.end > 0) usable = Math.min(usable, Math.round(pin.end) + 20);
+      }
+    } catch (_) {}
+    try {
+      parent.postMessage({ type: 'gm-ready', scrollRange: usable, innerHeight: window.innerHeight }, '*');
+    } catch (_) {}
+  }
+  // az elrendezés/pin a load után is változhat még → többször jelentünk
+  if (document.readyState === 'complete') announce();
+  window.addEventListener('load', announce);
+  setTimeout(announce, 400);
+  setTimeout(announce, 1200);
+  window.addEventListener('resize', announce);
+})();
+</script>
+</body>
+</html>
