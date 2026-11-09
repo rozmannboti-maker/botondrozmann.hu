@@ -99,6 +99,10 @@ export class ContactCard {
   private hoverTarget = 0;
   private restPos: THREE.Vector3;
   private restQuat: THREE.Quaternion;
+  private stack: THREE.Object3D;
+  private stackPos: THREE.Vector3;
+  private stackQuat: THREE.Quaternion;
+  private away: THREE.Vector3;
   private dim: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
   private layer: HTMLDivElement;
   private box: HTMLDivElement;
@@ -129,6 +133,13 @@ export class ContactCard {
     this.onChange = onChange;
     this.restPos = card.position.clone();
     this.restQuat = card.quaternion.clone();
+    // A kártyacsomag (fehér + fekete) együtt emelkedik, ha fölé viszed az egeret.
+    this.stack = card.parent!;
+    this.stackPos = this.stack.position.clone();
+    this.stackQuat = this.stack.quaternion.clone();
+    // A fehér kártya a fekete alól oldalra csúszik ki, mielőtt felemelkedik.
+    const other = hitTargets.find((t) => t !== card);
+    this.away = other ? card.position.clone().sub(other.position).setY(0).normalize() : new THREE.Vector3(-1, 0, 0);
 
     // Elsötétítő sík közvetlenül a kártya mögött: a jelenet háttérbe húzódik.
     this.dim = new THREE.Mesh(
@@ -228,17 +239,23 @@ export class ContactCard {
     this.progress = this.target ? Math.min(1, this.progress + step) : Math.max(0, this.progress - step);
     this.hover = damp(this.hover, this.hoverTarget, 10, dt);
     if (Math.abs(this.hover - this.hoverTarget) < 1e-3) this.hover = this.hoverTarget;
-    const e = ease(this.progress);
+    // Két szakasz: előbb kicsúszik a fekete kártya alól (az asztal síkjában), utána repül.
+    const SLIDE = 0.3;
+    const a = ease(Math.min(1, this.progress / SLIDE));
+    const e = ease(Math.max(0, (this.progress - SLIDE) / (1 - SLIDE)));
     const { p, q, pq, fwd, ndc } = this.tmp;
 
-    // Pihenő helyzet, egérrel fölötte kicsit megemelkedik és felénk billen.
-    const restP = this.restPos.clone();
-    restP.y += 0.03 * this.hover;
-    const restQ = this.restQuat.clone().multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), 0.12 * this.hover));
+    // Egérrel fölötte a két kártya együtt emelkedik meg és billen felénk.
+    this.stack.position.copy(this.stackPos);
+    this.stack.position.y += 0.025 * this.hover;
+    this.stack.quaternion.copy(this.stackQuat).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), 0.08 * this.hover));
 
-    if (e <= 0) {
-      this.card.position.copy(restP);
-      this.card.quaternion.copy(restQ);
+    const restP = this.restPos.clone().addScaledVector(this.away, 0.36 * a);
+    const restQ = this.restQuat;
+
+    if (this.progress <= 0) {
+      this.card.position.copy(this.restPos);
+      this.card.quaternion.copy(this.restQuat);
       this.dim.visible = false;
       if (!this.layer.hidden && this.target === 0) this.layer.hidden = true;
       return before !== this.progress + this.hover;
