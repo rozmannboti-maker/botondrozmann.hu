@@ -158,13 +158,10 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   const contents = new Pages.ContentsPage(o.cases, brand.logo, o.print, boardAspect, { turnIn, spine: "right" });
 
   const faces: FaceSpec[] = videoPages.map((video) => ({ video }));
-  let backInner = Pages.closingTexture(brand, o.print, boardAspect, { turnIn, spine: "left" });
-  if (faces.length % 2) {
-    // Odd number of cases: the closing note becomes the last page instead.
-    backInner.dispose();
-    faces.push({ map: Pages.closingTexture(brand, o.print, ASPECT) });
-    backInner = Pages.blankTexture(boardAspect, { turnIn, spine: "left" });
-  }
+  // 2026-11-09: a „Köszönöm, hogy megnézted” záróoldal kivéve (Botond kérése); a hátsó előzék üres.
+  const backInner = Pages.blankTexture(boardAspect, { turnIn, spine: "left" });
+  // Odd number of cases: an empty paper page closes the last spread.
+  if (faces.length % 2) faces.push({ map: Pages.plainTexture(ASPECT) });
   const sheets: SheetSpec[] = [];
   for (let i = 0; i < faces.length; i += 2) sheets.push({ front: faces[i], back: faces[i + 1] });
 

@@ -1,5 +1,5 @@
 // Printed (non-video) surfaces of the book, drawn on canvases:
-// cover, contents, closing page, back cover, paper edges and the contact shadow.
+// cover, contents, back cover, paper edges and the contact shadow.
 import * as THREE from "three";
 
 const PAPER = "#f3f2ee";
@@ -256,28 +256,11 @@ export class ContentsPage {
   }
 }
 
-export function closingTexture({ logo }: Brand, copy: PrintCopy, aspect: number, frame?: Frame) {
-  const c = canvas(TEX_W, Math.round(TEX_W / aspect));
+export function plainTexture(aspect: number) {
+  const c = canvas(1024, Math.round(1024 / aspect));
   const ctx = context(c);
-  let W = c.width, H = c.height;
-  const pad = 110;
-  if (frame) {
-    const r = endpaper(ctx, W, H, frame);
-    ({ w: W, h: H } = r);
-    ctx.translate(r.x, r.y);
-  } else {
-    ctx.fillStyle = PAPER;
-    ctx.fillRect(0, 0, W, H);
-  }
-  mono(ctx, copy.works, pad, pad + 32, 24);
-  mono(ctx, copy.fin, W - pad, pad + 32, 24, MUTED, "right");
-  ctx.fillStyle = RULE;
-  ctx.fillRect(pad, pad + 78, W - pad * 2, 2);
-  drawLogo(ctx, logo, INK, W / 2, H / 2 - 68, 126, "center");
-  mono(ctx, copy.thanks, W / 2, H / 2 + 140, 26, MUTED, "center");
-  ctx.fillStyle = RULE;
-  ctx.fillRect(pad, H - pad - 50, W - pad * 2, 2);
-  mono(ctx, copy.site, W / 2, H - pad + 10, 24, INK, "center");
+  ctx.fillStyle = PAPER;
+  ctx.fillRect(0, 0, c.width, c.height);
   return texture(c);
 }
 
