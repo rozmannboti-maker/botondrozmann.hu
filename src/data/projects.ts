@@ -32,8 +32,6 @@ export const works: Work[] = [
     summary: "Kivitelező cég bemutatkozó weboldala." },
   { slug: "tajkert-szolgaltatasok", title: "tájkert", start: 0, video: false,
     summary: "Kertépítő cég szolgáltatás-oldala." },
-  { slug: "gombabak", title: "gombabák", start: 0, video: true,
-    summary: "Egyedi fejlesztésű webshop számlázz.hu integrációval és csomagpontos szállítással." },
 ];
 
 // A gömb extra helyei (csak a záró szekcióban): első körben szintén ismétlés.

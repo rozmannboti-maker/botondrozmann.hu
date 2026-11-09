@@ -9,7 +9,6 @@ export const ABOUT = {
 // slug = a work-<slug>-960.webp előnézeti kép (a Walter Groupnak még nincs képe)
 export const PROJECTS = [
   { name: "Mythos Private Resort", kind: "Szálláshely", date: "01 2025", slug: "mythos" },
-  { name: "Gombabák", kind: "Webshop", date: "06 2025", slug: "gombabak" },
   { name: "Szmh-Euro Metall", kind: "Ipar", date: "09 2025", slug: "szmheumetall" },
   { name: "Tájkert Kft.", kind: "Bemutatkozó weboldal", date: "11 2025", slug: "tajkert" },
   { name: "Walter Group", kind: "Webshop", date: "02 2026", slug: "" },
