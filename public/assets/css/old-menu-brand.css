@@ -254,3 +254,19 @@
 }
 /* zárt állapotban a 44px-es összecsukott panel se látszódjon (a JS kapcsolja) */
 #site-menu .sm-panel{ visibility:hidden; }
+
+/* 2026-11-09: a menü minden oldalon ugyanígy nézzen ki. A méretegység (--u, --pill-h) eddig a főoldal
+   :root tokenjeiből jött, a /referenciak/ oldalon hiányzott (szögletes panel lett); a „Média” felirat
+   felülírása pedig csak a főoldal old-hero-brand-override.css-ében volt. Mostantól a menü maga hozza. */
+#site-menu {
+  --u: calc(min(100vw, 100svh * 1440 / 900) / 1440);
+  --pill-h: calc(var(--u) * 38);
+}
+@media (orientation: portrait) {
+  #site-menu { --u: calc(min(100vw, 100svh * 390 / 760) / 390); }
+}
+#site-menu .sm-panel .sm-social .sm-social-title {
+  text-transform: none;
+  letter-spacing: 0;
+  color: #F1ECE6;
+}
