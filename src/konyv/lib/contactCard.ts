@@ -20,13 +20,21 @@ export type CardCopy = {
 export type Hotspot = { label: string; href: string; x: number; y: number; w: number; h: number; external: boolean };
 
 const SANS = '"Helvetica Neue", Helvetica, Arial, sans-serif';
-const INK = "#1c1a17";
-const MUTED = "#6e6860";
-const ACCENT = "#8c3b2a";
-const PAPER = "#f2f0ea";
+const SERIF = '"Instrument Serif", Georgia, serif';
+const MONO = '"JetBrains Mono", ui-monospace, monospace';
 
-// Az elrendezés 840 × 506-os alapra van megadva (a kártya aránya), s-sel skálázva.
-export function drawCardFace(ctx: CanvasRenderingContext2D, w: number, h: number, c: CardCopy): Hotspot[] {
+// A márka két témája (src/styles/tokens.css): a fehér kártya világos, a fekete sötét.
+export const CARD_THEMES = {
+  light: { bg: "#efece7", ink: "#1c1a17", muted: "#6e6860", accent: "#8c3b2a" },
+  dark: { bg: "#1c1a17", ink: "#f1ece6", muted: "#9c948a", accent: "#d9805f" },
+};
+export type CardTheme = keyof typeof CARD_THEMES;
+
+// 2026-11-09: a user által küldött névjegy-mockup elrendezése a saját tartalommal és színekkel:
+// bal oldalt kis felirat, nagy félkövér név, elérhetőségek és kerek monogram; jobb oldalt
+// óriási, a kártya szélénél levágott dőlt felirat. Az elrendezés 840 × 506-os alapra van megadva.
+export function drawCardFace(ctx: CanvasRenderingContext2D, w: number, h: number, c: CardCopy, theme: CardTheme = "light", contacts = true): Hotspot[] {
+  const t = CARD_THEMES[theme];
   const s = w / 840;
   const spots: Hotspot[] = [];
   const pad = 10 * s;
@@ -34,56 +42,88 @@ export function drawCardFace(ctx: CanvasRenderingContext2D, w: number, h: number
     const top = base - size * 0.9 - pad;
     spots.push({ label, href, external, x: (x - pad) / w, y: top / h, w: (width + 2 * pad) / w, h: (size * 1.2 + 2 * pad) / h });
   };
+  const tracking = (px: number) => {
+    if ("letterSpacing" in ctx) ctx.letterSpacing = `${px}px`;
+  };
 
-  ctx.fillStyle = PAPER;
+  ctx.fillStyle = t.bg;
   ctx.fillRect(0, 0, w, h);
   ctx.textBaseline = "alphabetic";
-  if ("letterSpacing" in ctx) ctx.letterSpacing = "0px";
+  tracking(0);
 
-  // terrakotta négyzet, mint a könyv borítóján a név mellett
-  ctx.fillStyle = ACCENT;
-  ctx.fillRect(w - 86 * s, 62 * s, 26 * s, 26 * s);
+  // óriási dőlt felirat a jobb oldalon, a kártya szélénél levágva
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, w, h);
+  ctx.clip();
+  ctx.fillStyle = t.accent;
+  ctx.font = `italic 400 ${300 * s}px ${SERIF}`;
+  tracking(-6 * s);
+  ctx.fillText("Rozmann", 470 * s, 236 * s);
+  ctx.fillText("Botond", 440 * s, 484 * s);
+  ctx.restore();
+  tracking(0);
 
-  ctx.fillStyle = INK;
-  ctx.font = `400 ${64 * s}px "Instrument Serif", Georgia, serif`;
-  ctx.fillText(c.name, 58 * s, 112 * s);
-  ctx.fillStyle = MUTED;
-  ctx.font = `400 ${22 * s}px ${SANS}`;
-  ctx.fillText(c.role, 60 * s, 152 * s);
+  // kis felirat
+  ctx.fillStyle = t.accent;
+  ctx.font = `500 ${19 * s}px ${SANS}`;
+  ctx.fillText(c.role, 60 * s, 92 * s);
 
-  // e-mail
-  const mailSize = 30 * s, mailBase = 330 * s;
-  ctx.fillStyle = INK;
-  ctx.font = `500 ${mailSize}px ${SANS}`;
-  ctx.fillText(c.email, 60 * s, mailBase);
-  spot(c.email, c.mailto, 60 * s, mailBase, mailSize, ctx.measureText(c.email).width, false);
+  // név, nagy félkövér
+  ctx.fillStyle = t.ink;
+  ctx.font = `700 ${58 * s}px ${SANS}`;
+  tracking(-1 * s);
+  const [family, ...given] = c.name.toUpperCase().split(" "); // magyar sorrend: ROZMANN / BOTOND
+  ctx.fillText(family, 57 * s, 170 * s);
+  ctx.fillText(given.join(" "), 57 * s, 224 * s);
+  tracking(0);
 
-  // közösségi oldalak egy sorban
-  const socSize = 22 * s, socBase = 384 * s, gap = 34 * s;
-  ctx.font = `400 ${socSize}px ${SANS}`;
-  let x = 60 * s;
-  c.socials.forEach((so, i) => {
-    if (i > 0) {
-      ctx.fillStyle = MUTED;
-      ctx.fillRect(x + gap / 2 - 2 * s, socBase - socSize * 0.35, 4 * s, 4 * s);
-    }
-    if (i > 0) x += gap;
-    ctx.fillStyle = INK;
-    ctx.fillText(so.label, x, socBase);
-    const tw = ctx.measureText(so.label).width;
-    spot(so.label, so.href, x, socBase, socSize, tw, true);
-    x += tw;
-  });
+  if (contacts) {
+    // e-mail
+    const mailSize = 24 * s, mailBase = 300 * s;
+    ctx.fillStyle = t.ink;
+    ctx.font = `500 ${mailSize}px ${SANS}`;
+    ctx.fillText(c.email, 60 * s, mailBase);
+    spot(c.email, c.mailto, 60 * s, mailBase, mailSize, ctx.measureText(c.email).width, false);
 
-  // webcím
-  const siteSize = 19 * s, siteBase = 446 * s;
-  ctx.fillStyle = MUTED;
-  ctx.font = `500 ${siteSize}px "JetBrains Mono", ui-monospace, monospace`;
-  if ("letterSpacing" in ctx) ctx.letterSpacing = `${0.14 * siteSize}px`;
+    // közösségi oldalak egy sorban
+    const socSize = 19 * s, socBase = 340 * s, gap = 30 * s;
+    ctx.font = `400 ${socSize}px ${SANS}`;
+    let x = 60 * s;
+    c.socials.forEach((so, i) => {
+      if (i > 0) {
+        ctx.fillStyle = t.muted;
+        ctx.fillRect(x + gap / 2 - 2 * s, socBase - socSize * 0.35, 4 * s, 4 * s);
+        x += gap;
+      }
+      ctx.fillStyle = t.ink;
+      ctx.fillText(so.label, x, socBase);
+      const tw = ctx.measureText(so.label).width;
+      spot(so.label, so.href, x, socBase, socSize, tw, true);
+      x += tw;
+    });
+  }
+
+  // kerek monogram és webcím alul
+  const cx = 84 * s, cy = 432 * s, r = 24 * s;
+  ctx.fillStyle = t.accent;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = t.bg;
+  ctx.font = `italic 400 ${28 * s}px ${SERIF}`;
+  ctx.textAlign = "center";
+  ctx.fillText("RB", cx, cy + 9 * s);
+  ctx.textAlign = "left";
+
+  const siteSize = 15 * s, siteBase = 437 * s;
+  ctx.fillStyle = t.muted;
+  ctx.font = `500 ${siteSize}px ${MONO}`;
+  tracking(0.14 * siteSize);
   const site = c.site.toUpperCase();
-  ctx.fillText(site, 60 * s, siteBase);
-  spot(c.site, c.siteHref, 60 * s, siteBase, siteSize, ctx.measureText(site).width, false);
-  if ("letterSpacing" in ctx) ctx.letterSpacing = "0px";
+  ctx.fillText(site, 124 * s, siteBase);
+  if (contacts) spot(c.site, c.siteHref, 124 * s, siteBase, siteSize, ctx.measureText(site).width, false);
+  tracking(0);
   return spots;
 }
 

@@ -29,15 +29,6 @@ function texture(c: HTMLCanvasElement, srgb = true) {
   return t;
 }
 
-function tinted(src: HTMLCanvasElement, color: string) {
-  return canvas(src.width, src.height, (ctx, w, h) => {
-    ctx.drawImage(src, 0, 0);
-    ctx.globalCompositeOperation = "source-in";
-    ctx.fillStyle = color;
-    ctx.fillRect(0, 0, w, h);
-  });
-}
-
 function shadowed<T extends THREE.Object3D>(obj: T) {
   obj.traverse((o) => {
     if (o instanceof THREE.Mesh) { o.castShadow = true; o.receiveShadow = true; }
@@ -389,26 +380,15 @@ function pencil(env: THREE.Texture, copy: PropCopy) {
 
 // ---------------------------------------------------------- business cards
 
-function businessCards(brand: Brand, paper: THREE.Texture, env: THREE.Texture, copy: PropCopy) {
+function businessCards(paper: THREE.Texture, env: THREE.Texture, copy: PropCopy) {
   const W = 0.39, D = 0.235, T = 0.0045;
-  const logo = (ctx: CanvasRenderingContext2D, color: string, cx: number, cy: number, height: number) => {
-    const lw = (brand.logo.width / brand.logo.height) * height;
-    ctx.drawImage(tinted(brand.logo, color), cx - lw / 2, cy - height / 2, lw, height);
-  };
 
-  // Matte black stock with a spot-gloss logo (roughness map: logo is smooth).
+  // A fekete kártya: ugyanaz a névjegy sötét változatban, elérhetőségek nélkül (2026-11-09).
   const blackFace = new THREE.MeshPhysicalMaterial({
-    map: texture(canvas(840, 506, (ctx, w, h) => {
-      ctx.fillStyle = "#0b0b0b";
-      ctx.fillRect(0, 0, w, h);
-      logo(ctx, "#f4f2ee", w / 2, h / 2, 57);
+    map: texture(canvas(1680, 1012, (ctx, w, h) => {
+      drawCardFace(ctx, w, h, copy.card, "dark", false);
     })),
-    roughnessMap: texture(canvas(840, 506, (ctx, w, h) => {
-      ctx.fillStyle = "#e0e0e0";
-      ctx.fillRect(0, 0, w, h);
-      logo(ctx, "#202020", w / 2, h / 2, 57);
-    }), false),
-    roughness: 1, envMap: env, envMapIntensity: 0.6,
+    roughness: 0.9, envMap: env, envMapIntensity: 0.6,
   });
   // A fehér kártya: névjegy az elérhetőségekkel (2026-11-09), nagy felbontásban, mert kattintásra
   // a kamera elé repül. A linkek helyét (hotspots) a ContactCard teszi kattinthatóvá.
@@ -422,17 +402,17 @@ function businessCards(brand: Brand, paper: THREE.Texture, env: THREE.Texture, c
     bumpMap: paper, bumpScale: 0.6, roughness: 0.85,
   });
   const blackEdge = new THREE.MeshStandardMaterial({ color: 0x101010, roughness: 0.9 });
-  const whiteEdge = new THREE.MeshStandardMaterial({ color: 0xe9e6df, roughness: 0.9 });
+  const whiteEdge = new THREE.MeshStandardMaterial({ color: 0xe6e2db, roughness: 0.9 });
   const card = (face: THREE.Material, edge: THREE.Material, backColor: number) => new THREE.Mesh(
     new THREE.BoxGeometry(W, T, D),
     [edge, edge, face, new THREE.MeshStandardMaterial({ color: backColor, roughness: 0.9 }), edge, edge],
   );
 
   const group = new THREE.Group();
-  const white = card(whiteFace, whiteEdge, 0xf2f0ea);
+  const white = card(whiteFace, whiteEdge, 0xefece7);
   white.position.set(-0.035, T / 2, 0.03);
   white.rotation.y = 0.32;
-  const black = card(blackFace, blackEdge, 0x0b0b0b);
+  const black = card(blackFace, blackEdge, 0x1c1a17);
   black.position.set(0.02, T * 1.5 + 0.0004, -0.02);
   black.rotation.y = 0.08;
   group.add(white, black);
@@ -573,7 +553,7 @@ function succulent() {
 
 // ---------------------------------------------------------------- arrange
 
-export function createProps({ brand, paper, renderer, copy }: { brand: Brand; paper: THREE.Texture; renderer: THREE.WebGLRenderer; copy: PropCopy }) {
+export function createProps({ paper, renderer, copy }: { brand: Brand; paper: THREE.Texture; renderer: THREE.WebGLRenderer; copy: PropCopy }) {
   const env = studioEnvironment(renderer);
   const group = new THREE.Group();
 
@@ -588,7 +568,7 @@ export function createProps({ brand, paper, renderer, copy }: { brand: Brand; pa
   pen.position.set(-2.02, 0, 0.42);
   pen.rotation.y = 1.05;
 
-  const cards = businessCards(brand, paper, env, copy);
+  const cards = businessCards(paper, env, copy);
   cards.position.set(2.06, 0, 0.36);
   cards.rotation.y = -0.18;
 
