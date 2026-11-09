@@ -39,10 +39,18 @@
   overflow: visible;
   z-index: 0;
 }
-.svc-glow {
+/* 2026-11-09: a fény a szekció elejétől a végéig a képernyőn marad: a teljes .svc-t kitöltő
+   sávban egy 100svh magas, sticky réteg (Botond kérése: a kártya-animáció végéig maradjon). */
+.svc-glow-track {
   position: absolute;
-  /* a fénynek a rövidebb bevezetőnél nagyobb terület kell, lefelé a kártyák mögé is */
-  inset: 0 0 -80svh 0;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.svc-glow {
+  position: sticky;
+  top: 0;
+  height: 100svh;
   pointer-events: none;
   filter: blur(60px);
 }
@@ -53,9 +61,9 @@
   opacity: 0.35;
   animation: svc-drift 14s ease-in-out infinite alternate;
 }
-.svc-glow span:nth-child(1) { width: 22vw; height: 40vh; left: 38%; top: 48%; transform: rotate(-30deg); }
-.svc-glow span:nth-child(2) { width: 30vw; height: 22vh; left: 18%; top: 72%; background: var(--svc-accent); opacity: 0.22; animation-duration: 18s; }
-.svc-glow span:nth-child(3) { width: 8vw; height: 12vh; left: 41%; top: 54%; opacity: 0.45; filter: blur(10px); animation-duration: 11s; }
+.svc-glow span:nth-child(1) { width: 22vw; height: 40vh; left: 38%; top: 34%; transform: rotate(-30deg); }
+.svc-glow span:nth-child(2) { width: 30vw; height: 22vh; left: 18%; top: 56%; background: var(--svc-accent); opacity: 0.22; animation-duration: 18s; }
+.svc-glow span:nth-child(3) { width: 8vw; height: 12vh; left: 41%; top: 40%; opacity: 0.45; filter: blur(10px); animation-duration: 11s; }
 @keyframes svc-drift { to { translate: 4vw -6vh; rotate: 20deg; } }
 .svc-noise {
   position: absolute;

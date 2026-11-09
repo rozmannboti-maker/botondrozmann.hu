@@ -74,8 +74,11 @@
        fromanother.love "Our team" szekció mechanikája, saját stílusra igazítva.
        Stílus: /assets/css/svc-stack.css · vezérlő: src/old/svc-stack.ts -->
   <section class="svc" id="svc" aria-label="Szolgáltatások részletesen">
+    <!-- 2026-11-09: a fény a teljes szekción végigkíséri a kártyákat (sticky réteg), nem csak a bevezetőnél -->
+    <div class="svc-glow-track" aria-hidden="true">
+      <div class="svc-glow"><span></span><span></span><span></span></div>
+    </div>
     <div class="svc-intro">
-      <div class="svc-glow" aria-hidden="true"><span></span><span></span><span></span></div>
       <div class="svc-noise" aria-hidden="true"></div>
       <div class="svc-title">
         <h2 aria-label="Amiben segíteni tudok."><span class="word" aria-hidden="true">Amiben</span><br><em><span class="word" aria-hidden="true">segíteni</span> <span class="word" aria-hidden="true">tudok.</span></em></h2>
