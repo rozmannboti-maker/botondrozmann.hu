@@ -3,7 +3,7 @@
 // (konyv/case-<slug>.mp4, 1280 × 800, telefonon case-<slug>-phone.mp4), ott a lap hoverre mozog;
 // a felvétel első kockája megegyezik a poszterrel. `tag` is the small label on the contents page.
 // `full` (2026-11-09): a felvétel a teljes oldal végiggörgetése (Botond képernyőfelvétele), a lap
-// állóképe ennek első kockája: konyv/poster-<slug>.webp. A felvétel 2940 széles (teljes képernyős oldalak), ezért a 16:10-es lapon fent-lent papírszínű margót kap. A Süti Rózsakertnél még a régi 6 mp-es hero-klip megy.
+// állóképe ennek első kockája: konyv/poster-<slug>.webp. A felvétel 2940 széles (teljes képernyős oldalak), ezért a 16:10-es lapon fent-lent papírszínű margót kap.
 export type Case = { slug: string; title: string; tag: string; start: number; poster: string; video: boolean; full?: boolean };
 
 export const ASSETS = `${import.meta.env.BASE_URL}konyv/`;
@@ -12,7 +12,7 @@ export const CASES: Case[] = [
   { slug: "mythos", title: "mythos private resort", tag: "szálláshely", start: 0, poster: "mythos", video: true, full: true },
   { slug: "szmheumetall", title: "szmh-euro metall", tag: "kivitelező", start: 0, poster: "szmheumetall", video: true, full: true },
   { slug: "tajkert", title: "tájkert", tag: "kertépítő", start: 0, poster: "tajkert", video: true, full: true },
-  { slug: "suti-rozsakert", title: "süti rózsakert", tag: "webshop", start: 0, poster: "suti-rozsakert", video: true },
+  { slug: "suti-rozsakert", title: "süti rózsakert", tag: "webshop", start: 0, poster: "suti-rozsakert", video: true, full: true },
   { slug: "confinium", title: "confinium", tag: "könyvelőiroda", start: 0, poster: "confinium", video: true, full: true },
   { slug: "lodore", title: "l'odore di napoli", tag: "étterem", start: 0, poster: "lodore", video: true, full: true },
   { slug: "truckfest", title: "truckfest", tag: "rendezvény", start: 0, poster: "truckfest", video: true, full: true },
