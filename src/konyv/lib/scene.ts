@@ -125,11 +125,12 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
 
   const loaderTex = new THREE.TextureLoader();
   loaderTex.setCrossOrigin("anonymous");
-  let brand: Pages.Brand, posters: THREE.Texture[];
+  let brand: Pages.Brand, posters: THREE.Texture[], cardFaces: THREE.Texture[];
   try {
-    [brand, posters] = await Promise.all([
+    [brand, posters, cardFaces] = await Promise.all([
       Pages.loadBrand(o.brand),
       Promise.all(o.cases.map((c) => loaderTex.loadAsync(c.poster))),
+      Promise.all([o.print.card.faceLight, o.print.card.faceDark].map((src) => loaderTex.loadAsync(src))),
       Pages.loadFonts(),
     ]);
   } catch (err) {
@@ -141,7 +142,7 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
     free();
     return () => {};
   }
-  posters.forEach((t) => {
+  [...posters, ...cardFaces].forEach((t) => {
     t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = anisotropy;
   });
@@ -179,7 +180,7 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   const paper = Pages.paperTexture();
   const book = new Book({ aspect: ASPECT, sheets, covers, edge: Pages.edgeTexture(), paper });
   scene.add(book.root);
-  const props = createProps({ brand, paper, renderer, copy: o.print });
+  const props = createProps({ brand, paper, renderer, copy: o.print, faces: { light: cardFaces[0], dark: cardFaces[1] } });
   scene.add(props);
   scene.add(camera); // az elsötétítő sík a kamerához van kötve
   const card = new ContactCard(props.userData.card, props.userData.cardTargets, camera, canvas, o.print.card, () => {

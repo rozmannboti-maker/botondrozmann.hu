@@ -4,9 +4,10 @@
 import * as THREE from "three";
 import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
 import type { Brand } from "./pages";
-import { drawCardFace, type CardCopy, type Hotspot } from "./contactCard";
+import type { CardCopy } from "./contactCard";
 
 export type PropCopy = { site: string; pencil: string; card: CardCopy };
+export type CardFaces = { light: THREE.Texture; dark: THREE.Texture };
 
 const TAU = Math.PI * 2;
 const v2 = (pts: number[][]) => pts.map(([x, y]) => new THREE.Vector2(x, y));
@@ -380,25 +381,14 @@ function pencil(env: THREE.Texture, copy: PropCopy) {
 
 // ---------------------------------------------------------- business cards
 
-function businessCards(paper: THREE.Texture, env: THREE.Texture, copy: PropCopy) {
-  const W = 0.39, D = 0.235, T = 0.0045;
+function businessCards(paper: THREE.Texture, env: THREE.Texture, copy: PropCopy, faces: CardFaces) {
+  const W = 0.39, D = W / copy.card.aspect, T = 0.0045;
 
-  // A fekete kártya: ugyanaz a névjegy sötét változatban, elérhetőségek nélkül (2026-11-09).
-  const blackFace = new THREE.MeshPhysicalMaterial({
-    map: texture(canvas(1680, 1012, (ctx, w, h) => {
-      drawCardFace(ctx, w, h, copy.card, "dark", false);
-    })),
-    roughness: 0.9, envMap: env, envMapIntensity: 0.6,
-  });
-  // A fehér kártya: névjegy az elérhetőségekkel (2026-11-09), nagy felbontásban, mert kattintásra
-  // a kamera elé repül. A linkek helyét (hotspots) a ContactCard teszi kattinthatóvá.
-  let hotspots: Hotspot[] = [];
-  const faceMap = texture(canvas(1680, 1012, (ctx, w, h) => {
-    hotspots = drawCardFace(ctx, w, h, copy.card);
-  }));
+  // A két kártya arca Botond saját névjegye (2026-11-09): sötét és világos változat.
+  const blackFace = new THREE.MeshPhysicalMaterial({ map: faces.dark, roughness: 0.9, envMap: env, envMapIntensity: 0.6 });
   const whiteFace = new THREE.MeshStandardMaterial({
-    map: faceMap,
-    emissive: 0xffffff, emissiveMap: faceMap, emissiveIntensity: 0, // a kamera előtt egyenletes fény
+    map: faces.light,
+    emissive: 0xffffff, emissiveMap: faces.light, emissiveIntensity: 0, // a kamera előtt egyenletes fény
     bumpMap: paper, bumpScale: 0.6, roughness: 0.85,
   });
   const blackEdge = new THREE.MeshStandardMaterial({ color: 0x101010, roughness: 0.9 });
@@ -417,7 +407,7 @@ function businessCards(paper: THREE.Texture, env: THREE.Texture, copy: PropCopy)
   black.rotation.y = 0.08;
   group.add(white, black);
   shadowed(group);
-  white.userData.hotspots = hotspots;
+  white.userData.hotspots = copy.card.spots;
   group.userData.card = white;
   group.userData.hitTargets = [white, black];
   const sh = contactShadow("rect", 0.5, 0.36, 0.5);
@@ -553,7 +543,7 @@ function succulent() {
 
 // ---------------------------------------------------------------- arrange
 
-export function createProps({ paper, renderer, copy }: { brand: Brand; paper: THREE.Texture; renderer: THREE.WebGLRenderer; copy: PropCopy }) {
+export function createProps({ paper, renderer, copy, faces }: { brand: Brand; paper: THREE.Texture; renderer: THREE.WebGLRenderer; copy: PropCopy; faces: CardFaces }) {
   const env = studioEnvironment(renderer);
   const group = new THREE.Group();
 
@@ -568,7 +558,7 @@ export function createProps({ paper, renderer, copy }: { brand: Brand; paper: TH
   pen.position.set(-2.02, 0, 0.42);
   pen.rotation.y = 1.05;
 
-  const cards = businessCards(paper, env, copy);
+  const cards = businessCards(paper, env, copy, faces);
   cards.position.set(2.06, 0, 0.36);
   cards.rotation.y = -0.18;
 

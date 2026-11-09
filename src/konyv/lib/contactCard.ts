@@ -1,99 +1,23 @@
 // A névjegykártya (2026-11-09): kattintásra felrepül a kamera elé, és kattintható elérhetőségeket mutat.
-// A kártya arcát egy nagy felbontású canvas rajzolja (drawCardFace), a linkek fölé pedig átlátszó
-// HTML-mezők kerülnek pontosan ugyanoda, így a 3D kártya és a kattintható felület fedi egymást.
+// A kártya arca Botond saját névjegy-képe; a linkek fölé átlátszó HTML-mezők kerülnek pontosan
+// ugyanoda (CardCopy.spots), így a 3D kártya és a kattintható felület fedi egymást.
 import * as THREE from "three";
 import "../styles/contact-card.css";
 
 export type CardCopy = {
   name: string;
   role: string;
-  email: string;
-  mailto: string;
-  site: string;
-  siteHref: string;
-  socials: { label: string; href: string }[];
   dialogLabel: string;
   close: string;
+  // a Botond által tervezett kártya képei (01-Sajat-Brand/Kepek/Rozmann Botond névjegykártya)
+  faceLight: string;
+  faceDark: string;
+  aspect: number; // szélesség / magasság
+  spots: Hotspot[];
 };
 
 // Egy link helye a kártyán, a kártya szélességének / magasságának arányában.
 export type Hotspot = { label: string; href: string; x: number; y: number; w: number; h: number; external: boolean };
-
-const SANS = '"Helvetica Neue", Helvetica, Arial, sans-serif';
-const SERIF = '"Instrument Serif", Georgia, serif';
-
-// A márka két témája (src/styles/tokens.css): a fehér kártya világos, a fekete sötét.
-export const CARD_THEMES = {
-  light: { bg: "#efece7", ink: "#1c1a17", muted: "#6e6860", accent: "#8c3b2a" },
-  dark: { bg: "#1c1a17", ink: "#f1ece6", muted: "#9c948a", accent: "#d9805f" },
-};
-export type CardTheme = keyof typeof CARD_THEMES;
-
-// 2026-11-09: a user által küldött névjegy-mockup elrendezése a saját tartalommal és színekkel:
-// bal oldalt kis felirat, nagy félkövér név, elérhetőségek és kerek monogram; jobb oldalt
-// óriási, a kártya szélénél levágott dőlt felirat. Az elrendezés 840 × 506-os alapra van megadva.
-export function drawCardFace(ctx: CanvasRenderingContext2D, w: number, h: number, c: CardCopy, theme: CardTheme = "light", contacts = true): Hotspot[] {
-  const t = CARD_THEMES[theme];
-  const s = w / 840;
-  const spots: Hotspot[] = [];
-  const pad = 10 * s;
-  const spot = (label: string, href: string, x: number, base: number, size: number, width: number, external: boolean) => {
-    const top = base - size * 0.9 - pad;
-    spots.push({ label, href, external, x: (x - pad) / w, y: top / h, w: (width + 2 * pad) / w, h: (size * 1.2 + 2 * pad) / h });
-  };
-  const tracking = (px: number) => {
-    if ("letterSpacing" in ctx) ctx.letterSpacing = `${px}px`;
-  };
-
-  ctx.fillStyle = t.bg;
-  ctx.fillRect(0, 0, w, h);
-  ctx.textBaseline = "alphabetic";
-  tracking(0);
-
-  // óriási dőlt felirat a jobb oldalon, a kártya szélénél levágva
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(0, 0, w, h);
-  ctx.clip();
-  ctx.fillStyle = t.accent;
-  ctx.font = `italic 400 ${300 * s}px ${SERIF}`;
-  tracking(-6 * s);
-  ctx.fillText("Rozmann", 470 * s, 236 * s);
-  ctx.fillText("Botond", 440 * s, 484 * s);
-  ctx.restore();
-  tracking(0);
-
-  // Bal oldal (2026-11-09, 2. kör): a főoldal tipográfiája. Név normál súllyal, szűk betűközzel,
-  // alatta szürke szlogen; az elérhetőségek a kártya alján, egységes kis méretben, pontok nélkül.
-  ctx.fillStyle = t.ink;
-  ctx.font = `400 ${54 * s}px ${SERIF}`; // a név a kártya címe: Instrument Serif
-  tracking(-0.01 * 54 * s);
-  ctx.fillText(c.name, 56 * s, 112 * s);
-  tracking(0);
-  ctx.fillStyle = t.muted;
-  ctx.font = `400 ${19 * s}px ${SANS}`;
-  ctx.fillText(c.role, 59 * s, 146 * s);
-
-  if (contacts) {
-    const size = 19 * s, gap = 26 * s;
-    ctx.font = `400 ${size}px ${SANS}`;
-    ctx.fillStyle = t.ink;
-    const mailBase = 404 * s;
-    ctx.fillText(c.email, 59 * s, mailBase);
-    spot(c.email, c.mailto, 59 * s, mailBase, size, ctx.measureText(c.email).width, false);
-
-    const socBase = 440 * s;
-    let x = 59 * s;
-    c.socials.forEach((so, i) => {
-      if (i > 0) x += gap;
-      ctx.fillText(so.label, x, socBase);
-      const tw = ctx.measureText(so.label).width;
-      spot(so.label, so.href, x, socBase, size, tw, true);
-      x += tw;
-    });
-  }
-  return spots;
-}
 
 const DURATION = 0.85; // s, a repülés ideje
 const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
@@ -327,7 +251,7 @@ export class ContactCard {
       this.box.style.top = `${r.top + r.height / 2}px`;
       this.box.style.width = `${widthPx}px`;
       this.box.style.height = `${(widthPx * D) / W}px`;
-      this.box.style.setProperty("--cc-pad", `${(widthPx * 10) / 840}px`);
+      this.box.style.setProperty("--cc-pad", `${(widthPx * 9) / 1050}px`);
     }
     return before !== this.progress + this.hover;
   }

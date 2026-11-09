@@ -1,5 +1,5 @@
 import { ASSETS } from "./cases";
-import { FOOTER, MAIL, MAILTO } from "../../data/site";
+import { MAILTO } from "../../data/site";
 
 // 2026-11-06: a főoldal /referenciak/ aloldala. A logó SVG-k üresek (a user kérésére nincs logó).
 export const STUDIO = {
@@ -30,16 +30,21 @@ export const PRINT = {
   fin: "Vége.",
   thanks: "Köszönöm, hogy megnézted",
   pencil: "ROZMANN BOTOND",
-  // a névjegykártya az asztalon (2026-11-09): az adatok a főoldal site.ts-éből jönnek
+  // a névjegykártya az asztalon (2026-11-09): Botond saját tervezésű kártyája (1050 × 600 px képek,
+  // forrás: 01-Sajat-Brand/Kepek/Rozmann Botond névjegykártya). A kattintható mezők a kép pixeleiben
+  // vannak megadva (a sorok helye kimérve), arányként.
   card: {
     name: "Rozmann Botond",
-    role: "Weboldal készítés üzleti szemmel",
-    email: MAIL,
-    mailto: MAILTO,
-    site: "botondrozmann.hu",
-    siteHref: "/",
-    socials: FOOTER.socials.map((so) => ({ label: so.label === "Insta" ? "Instagram" : so.label, href: so.href })),
+    role: "Webfejlesztés",
     dialogLabel: "Névjegy: Rozmann Botond",
     close: "Névjegy bezárása",
+    faceLight: `${ASSETS}nevjegy-vilagos.webp`,
+    faceDark: `${ASSETS}nevjegy-sotet.webp`,
+    aspect: 1050 / 600,
+    spots: [
+      { label: "+36 70 772 2277", href: "tel:+36707722277", x: 68/1050, y: 463/600, w: (252-68)/1050, h: (492-463)/600, external: false },
+      { label: "rozmann.boti@gmail.com", href: MAILTO, x: 68/1050, y: 492/600, w: (333-68)/1050, h: (520-492)/600, external: false },
+      { label: "botondrozmann.hu", href: "/", x: 68/1050, y: 520/600, w: (271-68)/1050, h: (547-520)/600, external: false },
+    ],
   },
 };
