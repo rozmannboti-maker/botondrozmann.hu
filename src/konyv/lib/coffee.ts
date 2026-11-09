@@ -17,7 +17,8 @@ const DRINK = 2.1; // s, egy korty teljes ideje
 const REFILL = 0.9; // s
 const TILT = 0.72; // rad, ennyire billen felénk a csésze
 const LIFT = 0.13; // ennyire emelkedik a csészealj fölé, mielőtt elindul
-const APPROACH = 0.42; // a kamera felé megtett út aránya
+const SCREEN_H = 0.42; // a csésze magassága a képernyő közepén, a képernyőmagasság arányában (2026-11-09)
+const CUP_H = 0.31; // a csésze magassága (csészealj nélkül), világegységben
 
 const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
@@ -26,7 +27,8 @@ const damp = (a: number, b: number, lambda: number, dt: number) => a + (b - a) *
 
 export class CoffeeCup {
   private parts: CoffeeParts;
-  private camera: THREE.Camera;
+  private camera: THREE.PerspectiveCamera;
+  private ray = new THREE.Raycaster();
   private targets: THREE.Object3D[];
   private sips = 0; // 0..3
   private level = FULL;
@@ -37,7 +39,7 @@ export class CoffeeCup {
   private r0: number;
   private tmp = { a: new THREE.Vector3(), b: new THREE.Vector3(), q: new THREE.Quaternion(), pq: new THREE.Quaternion(), axis: new THREE.Vector3() };
 
-  constructor(parts: CoffeeParts, camera: THREE.Camera) {
+  constructor(parts: CoffeeParts, camera: THREE.PerspectiveCamera) {
     this.parts = parts;
     this.camera = camera;
     this.targets = [parts.cup, parts.saucer];
@@ -130,9 +132,16 @@ export class CoffeeCup {
     const { a: rest, b: cam, q, pq, axis } = this.tmp;
     rest.copy(this.restPos);
     parent.localToWorld(rest);
-    cam.copy(this.camera.position);
-    const toward = cam.sub(rest).multiplyScalar(APPROACH * go);
-    const world = rest.add(toward);
+    // A képernyő közepe, olyan mélységben, hogy a csésze a képernyő SCREEN_H részét töltse ki
+    // (mint a névjegy: a kamerán át a kép közepére mutató sugár mentén).
+    this.camera.updateMatrixWorld();
+    this.ray.setFromCamera(new THREE.Vector2(0, 0), this.camera);
+    const vt = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
+    const depth = CUP_H / (2 * vt * SCREEN_H);
+    const fwd = this.camera.getWorldDirection(new THREE.Vector3());
+    cam.copy(this.ray.ray.origin).addScaledVector(this.ray.ray.direction, depth / this.ray.ray.direction.dot(fwd));
+    cam.y -= CUP_H * 0.5; // a csésze talppontja: így a csésze közepe kerül a képernyő közepére
+    const world = rest.lerp(cam, go);
     world.y += LIFT * lift;
     parent.worldToLocal(world);
     cup.position.copy(world);
