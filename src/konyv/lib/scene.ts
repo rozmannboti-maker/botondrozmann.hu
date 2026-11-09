@@ -7,6 +7,7 @@ import * as Pages from "./pages";
 import { createProps, type PropCopy } from "./props";
 import { createTable } from "./table";
 import { ContactCard } from "./contactCard";
+import { CoffeeCup } from "./coffee";
 import { quality } from "./quality";
 
 const ASPECT = 16 / 10; // every page is 16:10, like the videos
@@ -189,9 +190,11 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
     book.setHover(-1);
     invalidate(4);
   });
-  // Csak csukott könyvnél kattintható.
+  const coffee = new CoffeeCup(props.userData.coffee, camera);
+  // Csak csukott könyvnél kattinthatók (a névjegy és a kávé).
   const cardEnabled = () => book.target === 0 && !book.busy && book.openness < 0.02 && !card.isOpen;
-  let cardPress: { x: number; y: number } | null = null;
+  const cupEnabled = () => cardEnabled() && !coffee.busy;
+  let cardPress: { x: number; y: number; what: "card" | "cup" } | null = null;
 
   // Soft contact shadow where the book meets the wood.
   const blob = new THREE.Mesh(
@@ -276,8 +279,10 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   function updateHover(e: PointerEvent) {
     const hit = toBook(e);
     const overCard = cardEnabled() && card.hit(raycaster);
+    const overCup = !overCard && cupEnabled() && coffee.hit(raycaster);
     card.setHover(overCard);
-    if (overCard) {
+    coffee.setHover(overCup);
+    if (overCard || overCup) {
       hoveredFace = -1;
       book.setHover(-1);
       canvas.style.cursor = "pointer";
@@ -309,7 +314,11 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
     if (e.button !== 0) return;
     const hit = toBook(e);
     if (cardEnabled() && card.hit(raycaster)) {
-      cardPress = { x: e.clientX, y: e.clientY };
+      cardPress = { x: e.clientX, y: e.clientY, what: "card" };
+      return;
+    }
+    if (cupEnabled() && coffee.hit(raycaster)) {
+      cardPress = { x: e.clientX, y: e.clientY, what: "cup" };
       return;
     }
     const side = sideAt(hit);
@@ -348,8 +357,10 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   const onUp = (e: PointerEvent) => {
     if (cardPress) {
       const tap = Math.hypot(e.clientX - cardPress.x, e.clientY - cardPress.y) < 8;
+      const what = cardPress.what;
       cardPress = null;
-      if (tap && cardEnabled()) card.open();
+      if (tap && what === "card" && cardEnabled()) card.open();
+      if (tap && what === "cup" && cupEnabled()) coffee.click();
       return;
     }
     if (!press) return;
@@ -366,6 +377,7 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   const onLeave = () => {
     pointer.inside = false;
     card.setHover(false);
+    coffee.setHover(false);
     hoveredFace = -1;
     if (!press) book.setHover(-1);
   };
@@ -516,7 +528,8 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
     }
 
     const cameraMoved = placeCamera(dt);
-    const cardChanged = card.update(dt, size.w, size.h);
+    const cupChanged = coffee.update(dt);
+    const cardChanged = card.update(dt, size.w, size.h) || cupChanged;
     const videoPlaying = videoPages.some((p) => p.playing && p.ready);
     if (bookChanged || cameraMoved || cardChanged || videoPlaying || renderFrames > 0) {
       renderer.render(scene, camera);

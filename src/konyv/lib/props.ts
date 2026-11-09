@@ -170,6 +170,37 @@ function latteArt() {
   }));
 }
 
+// A kortyok után (2026-11-09): a szív eltűnt, sima kávéfelszín, a peremnél vékony habgyűrűvel
+// és halvány, szétfolyt habnyomokkal.
+function drunkFoam() {
+  return texture(canvas(512, 512, (ctx, w, h) => {
+    const cx = w / 2, cy = h / 2;
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, w / 2);
+    g.addColorStop(0, "#5f371b");
+    g.addColorStop(0.8, "#553017");
+    g.addColorStop(0.9, "#7d5b3f");
+    g.addColorStop(0.97, "#cdb89a");
+    g.addColorStop(1, "#d9c6a8");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+    if ("filter" in ctx) ctx.filter = "blur(10px)";
+    ctx.strokeStyle = "rgba(214,192,160,0.22)";
+    for (let i = 0; i < 5; i++) {             // szétfolyt habnyomok, a perem felé húzódva
+      const a = rand(0, TAU), r = rand(150, 215);
+      ctx.lineWidth = rand(6, 16);
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, a, a + rand(0.4, 1.2));
+      ctx.stroke();
+    }
+    ctx.filter = "none";
+    ctx.globalAlpha = 0.12;
+    for (let i = 0; i < 1600; i++) {
+      ctx.fillStyle = Math.random() < 0.5 ? "#2e180a" : "#e8d6bb";
+      ctx.fillRect(rand(0, w), rand(0, h), 1.2, 1.2);
+    }
+  }));
+}
+
 function teaspoon(steel: THREE.Material) {
   const group = new THREE.Group();
   // Handle: tapered strap, extruded with a soft bevel, rising from the bowl.
@@ -219,7 +250,9 @@ function cappuccino(env: THREE.Texture) {
     ...cubic([0.3, 0.046], [0.26, 0.03], [0.19, 0.022], [0.13, 0.021], 12).slice(1), [0, 0.021]];
   const saucerGlaze = glaze.clone();
   saucerGlaze.map = stoneware(5 / (saucerPts.length - 1));
-  group.add(new THREE.Mesh(new THREE.LatheGeometry(v2(saucerPts), 96), saucerGlaze));
+  const saucer = new THREE.Mesh(new THREE.LatheGeometry(v2(saucerPts), 96), saucerGlaze);
+  group.add(saucer);
+  group.userData.saucer = saucer;
 
   const cup = new THREE.Group();
   cup.position.y = 0.021;
@@ -246,6 +279,11 @@ function cappuccino(env: THREE.Texture) {
   coffee.material.map = art;
   cup.add(coffee);
   group.add(cup);
+  // a kortyolás-animációhoz (lib/coffee.ts)
+  group.userData.cup = cup;
+  group.userData.coffee = coffee;
+  group.userData.arts = { full: art, drunk: drunkFoam() };
+  group.userData.inner = inner; // a csésze belső falának profilja: a kávé korongjának mérete ehhez igazodik
 
   const steel = new THREE.MeshPhysicalMaterial({ color: 0xe4e4e2, metalness: 1, roughness: 0.16, envMap: env, envMapIntensity: 2.2, side: THREE.DoubleSide });
   // Resting along a chord of the saucer in front of the cup, handle up on the rim.
@@ -564,6 +602,7 @@ export function createProps({ paper, renderer, copy, faces }: { brand: Brand; pa
 
   group.add(cup, plant, pen, cards);
   group.userData.card = cards.userData.card;
+  group.userData.coffee = cup.userData;
   group.userData.cardTargets = cards.userData.hitTargets;
   return group;
 }
