@@ -1,0 +1,7 @@
+# 2026-11-09: az rb-oldal (Vite) a botondrozmann.hu-n; a Netlify minden push után újraépíti.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
