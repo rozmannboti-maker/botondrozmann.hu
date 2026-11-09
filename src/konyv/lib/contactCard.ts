@@ -21,7 +21,6 @@ export type Hotspot = { label: string; href: string; x: number; y: number; w: nu
 
 const SANS = '"Helvetica Neue", Helvetica, Arial, sans-serif';
 const SERIF = '"Instrument Serif", Georgia, serif';
-const MONO = '"JetBrains Mono", ui-monospace, monospace';
 
 // A márka két témája (src/styles/tokens.css): a fehér kártya világos, a fekete sötét.
 export const CARD_THEMES = {
@@ -64,66 +63,35 @@ export function drawCardFace(ctx: CanvasRenderingContext2D, w: number, h: number
   ctx.restore();
   tracking(0);
 
-  // kis felirat
-  ctx.fillStyle = t.accent;
-  ctx.font = `500 ${19 * s}px ${SANS}`;
-  ctx.fillText(c.role, 60 * s, 92 * s);
-
-  // név, nagy félkövér
+  // Bal oldal (2026-11-09, 2. kör): a főoldal tipográfiája. Név normál súllyal, szűk betűközzel,
+  // alatta szürke szlogen; az elérhetőségek a kártya alján, egységes kis méretben, pontok nélkül.
   ctx.fillStyle = t.ink;
-  ctx.font = `700 ${58 * s}px ${SANS}`;
-  tracking(-1 * s);
-  const [family, ...given] = c.name.toUpperCase().split(" "); // magyar sorrend: ROZMANN / BOTOND
-  ctx.fillText(family, 57 * s, 170 * s);
-  ctx.fillText(given.join(" "), 57 * s, 224 * s);
+  ctx.font = `400 ${46 * s}px ${SANS}`;
+  tracking(-0.035 * 46 * s);
+  ctx.fillText(c.name, 56 * s, 112 * s);
   tracking(0);
+  ctx.fillStyle = t.muted;
+  ctx.font = `400 ${19 * s}px ${SANS}`;
+  ctx.fillText(c.role, 59 * s, 146 * s);
 
   if (contacts) {
-    // e-mail
-    const mailSize = 24 * s, mailBase = 300 * s;
+    const size = 19 * s, gap = 26 * s;
+    ctx.font = `400 ${size}px ${SANS}`;
     ctx.fillStyle = t.ink;
-    ctx.font = `500 ${mailSize}px ${SANS}`;
-    ctx.fillText(c.email, 60 * s, mailBase);
-    spot(c.email, c.mailto, 60 * s, mailBase, mailSize, ctx.measureText(c.email).width, false);
+    const mailBase = 404 * s;
+    ctx.fillText(c.email, 59 * s, mailBase);
+    spot(c.email, c.mailto, 59 * s, mailBase, size, ctx.measureText(c.email).width, false);
 
-    // közösségi oldalak egy sorban
-    const socSize = 19 * s, socBase = 340 * s, gap = 30 * s;
-    ctx.font = `400 ${socSize}px ${SANS}`;
-    let x = 60 * s;
+    const socBase = 440 * s;
+    let x = 59 * s;
     c.socials.forEach((so, i) => {
-      if (i > 0) {
-        ctx.fillStyle = t.muted;
-        ctx.fillRect(x + gap / 2 - 2 * s, socBase - socSize * 0.35, 4 * s, 4 * s);
-        x += gap;
-      }
-      ctx.fillStyle = t.ink;
+      if (i > 0) x += gap;
       ctx.fillText(so.label, x, socBase);
       const tw = ctx.measureText(so.label).width;
-      spot(so.label, so.href, x, socBase, socSize, tw, true);
+      spot(so.label, so.href, x, socBase, size, tw, true);
       x += tw;
     });
   }
-
-  // kerek monogram és webcím alul
-  const cx = 84 * s, cy = 432 * s, r = 24 * s;
-  ctx.fillStyle = t.accent;
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = t.bg;
-  ctx.font = `italic 400 ${28 * s}px ${SERIF}`;
-  ctx.textAlign = "center";
-  ctx.fillText("RB", cx, cy + 9 * s);
-  ctx.textAlign = "left";
-
-  const siteSize = 15 * s, siteBase = 437 * s;
-  ctx.fillStyle = t.muted;
-  ctx.font = `500 ${siteSize}px ${MONO}`;
-  tracking(0.14 * siteSize);
-  const site = c.site.toUpperCase();
-  ctx.fillText(site, 124 * s, siteBase);
-  if (contacts) spot(c.site, c.siteHref, 124 * s, siteBase, siteSize, ctx.measureText(site).width, false);
-  tracking(0);
   return spots;
 }
 
