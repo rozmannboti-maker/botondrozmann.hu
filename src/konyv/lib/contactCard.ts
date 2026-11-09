@@ -66,8 +66,8 @@ export function drawCardFace(ctx: CanvasRenderingContext2D, w: number, h: number
   // Bal oldal (2026-11-09, 2. kör): a főoldal tipográfiája. Név normál súllyal, szűk betűközzel,
   // alatta szürke szlogen; az elérhetőségek a kártya alján, egységes kis méretben, pontok nélkül.
   ctx.fillStyle = t.ink;
-  ctx.font = `400 ${46 * s}px ${SANS}`;
-  tracking(-0.035 * 46 * s);
+  ctx.font = `400 ${54 * s}px ${SERIF}`; // a név a kártya címe: Instrument Serif
+  tracking(-0.01 * 54 * s);
   ctx.fillText(c.name, 56 * s, 112 * s);
   tracking(0);
   ctx.fillStyle = t.muted;

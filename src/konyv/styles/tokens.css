@@ -13,8 +13,10 @@
   --vignette: radial-gradient(ellipse 75% 70% at 50% 55%, transparent 55%, rgba(21, 19, 15, 0.6) 100%);
 
   /* Fonts (all OFL, self-hosted with @fontsource) */
-  --font-head: "Inter Tight", Inter, system-ui, sans-serif;
-  --font-cta: "Google Sans", "Inter Tight", system-ui, sans-serif;
+  /* Két betűtípus az egész oldalon (2026-11-09): címek Instrument Serif, minden más Helvetica Neue. */
+  --font-head: "Instrument Serif", Georgia, serif;
+  --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-cta: var(--font-body);
   --tracking: -0.02em;
 
   /* Layout */

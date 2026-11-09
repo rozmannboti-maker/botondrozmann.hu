@@ -310,7 +310,7 @@ function pencil(env: THREE.Texture, copy: PropCopy) {
   const foil = (isColor: boolean) => canvas(2048, 384, (ctx, w, h) => {
     ctx.fillStyle = isColor ? "#131313" : "#000000";
     ctx.fillRect(0, 0, w, h);
-    ctx.font = "500 30px Inter, system-ui, sans-serif";
+    ctx.font = '400 30px "Helvetica Neue", Helvetica, Arial, sans-serif';
     if ("letterSpacing" in ctx) ctx.letterSpacing = "0.32em";
     ctx.textBaseline = "middle";
     ctx.fillStyle = isColor ? "#c8a65e" : "#ffffff";

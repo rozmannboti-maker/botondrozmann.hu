@@ -7,8 +7,9 @@ const INK = "#111111";
 const MUTED = "#8a8984";
 const RULE = "#dcdad3";
 const CLOTH = "#0b0b0b"; // cover cloth turned in around the endpapers
-const SANS = "Inter, system-ui, sans-serif";
-const MONO = '"JetBrains Mono", ui-monospace, monospace';
+// Két betűtípus az egész oldalon (2026-11-09): címek Instrument Serif, minden más Helvetica Neue.
+const SANS = '"Helvetica Neue", Helvetica, Arial, sans-serif';
+const SERIF = '"Instrument Serif", Georgia, serif';
 const TEX_W = 2048;
 const LOGO_PX = 8; // logo canvases: pixels per SVG unit
 
@@ -34,8 +35,7 @@ export type ContentsEntry = { title: string; tag: string };
 type Frame = { turnIn: { x: number; y: number }; spine: "left" | "right" };
 
 export async function loadFonts() {
-  const specs = ["400 40px Inter", "500 40px Inter", '400 20px "JetBrains Mono"', '500 20px "JetBrains Mono"',
-    '400 40px "Instrument Serif"', 'italic 400 40px "Instrument Serif"'];
+  const specs = ['400 40px "Instrument Serif"', 'italic 400 40px "Instrument Serif"'];
   await Promise.all(specs.map((s) => document.fonts.load(s))).catch(() => {});
 }
 
@@ -95,7 +95,7 @@ function setSpacing(ctx: CanvasRenderingContext2D, em: number) {
 }
 
 function mono(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, size: number, color = MUTED, align: CanvasTextAlign = "left") {
-  ctx.font = `500 ${size}px ${MONO}`;
+  ctx.font = `400 ${size}px ${SANS}`;
   ctx.fillStyle = color;
   ctx.textAlign = align;
   setSpacing(ctx, 0.12);
@@ -124,7 +124,6 @@ function endpaper(ctx: CanvasRenderingContext2D, w: number, h: number, { turnIn,
 
 // Front cover. 2026-11-06: logó helyett a név, a főoldal hero-címének párosításával
 // ("Rozmann" egyenes, "Botond." dőlt Instrument Serif), alatta a kiadás-sor.
-const SERIF = '"Instrument Serif", Georgia, serif';
 export function coverTexture({ bg, cover }: Brand, aspect: number, copy: PrintCopy) {
   const c = canvas(TEX_W, Math.round(TEX_W / aspect));
   const ctx = context(c);
@@ -202,8 +201,8 @@ export class ContentsPage {
 
     ctx.fillStyle = INK;
     ctx.textAlign = "left";
-    ctx.font = `500 128px ${SANS}`;
-    setSpacing(ctx, -0.03);
+    ctx.font = `400 136px ${SERIF}`; // cím: Instrument Serif
+    setSpacing(ctx, -0.01);
     ctx.fillText(this.copy.contents, pad - 6, pad + 260);
     setSpacing(ctx, 0);
     mono(ctx, this.copy.count(this.entries.length), pad, pad + 330, 24);
@@ -225,8 +224,8 @@ export class ContentsPage {
       if (compact) {
         mono(ctx, String(i + 1).padStart(2, "0"), x, y + 47, 22, on ? INK : MUTED);
         ctx.fillStyle = INK;
-        ctx.font = `500 40px ${SANS}`;
-        setSpacing(ctx, -0.01);
+        ctx.font = `400 46px ${SERIF}`; // a munka neve: cím
+        setSpacing(ctx, 0);
         ctx.fillText(entry.title, x + 78, y + 50);
         setSpacing(ctx, 0);
         if (on) mono(ctx, "→", x + colW, y + 49, 30, INK, "right");
@@ -234,8 +233,8 @@ export class ContentsPage {
       } else {
         mono(ctx, String(i + 1).padStart(2, "0"), x, y + 58, 22, on ? INK : MUTED);
         ctx.fillStyle = INK;
-        ctx.font = `500 46px ${SANS}`;
-        setSpacing(ctx, -0.01);
+        ctx.font = `400 52px ${SERIF}`; // a munka neve: cím
+        setSpacing(ctx, 0);
         ctx.fillText(entry.title, x + 78, y + 64);
         setSpacing(ctx, 0);
         if (entry.tag) mono(ctx, entry.tag, x + 80, y + 102, 19);

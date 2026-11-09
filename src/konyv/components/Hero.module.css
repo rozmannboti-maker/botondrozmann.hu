@@ -34,13 +34,14 @@
 }
 
 .hero h1 {
-  font-weight: 500;
+  font-weight: 400;
   font-size: var(--h1-size);
   letter-spacing: var(--tracking);
   line-height: 1;
 }
 
 .hero p {
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: var(--p-size);
   letter-spacing: var(--tracking);
