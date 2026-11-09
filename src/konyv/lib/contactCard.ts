@@ -116,7 +116,9 @@ export class ContactCard {
     this.closeBtn.type = "button";
     this.closeBtn.className = "cc-close";
     this.closeBtn.setAttribute("aria-label", copy.close);
-    this.closeBtn.innerHTML = '<span aria-hidden="true">×</span>';
+    // rajzolt ikon: a betűjel (×) a betű alapvonala miatt nem ül pontosan középen (2026-11-09)
+    this.closeBtn.innerHTML =
+      '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
     this.closeBtn.addEventListener("click", () => this.close());
     this.box.appendChild(this.closeBtn);
     this.layer.append(backdrop, this.box);
