@@ -1,5 +1,5 @@
 import { ASSETS } from "./cases";
-import { MAILTO } from "../../data/site";
+import { FOOTER, MAIL, MAILTO } from "../../data/site";
 
 // 2026-11-06: a főoldal /referenciak/ aloldala. A logó SVG-k üresek (a user kérésére nincs logó).
 export const STUDIO = {
@@ -30,4 +30,16 @@ export const PRINT = {
   fin: "Vége.",
   thanks: "Köszönöm, hogy megnézted",
   pencil: "ROZMANN BOTOND",
+  // a névjegykártya az asztalon (2026-11-09): az adatok a főoldal site.ts-éből jönnek
+  card: {
+    name: "Rozmann Botond",
+    role: "Weboldal készítés üzleti szemmel",
+    email: MAIL,
+    mailto: MAILTO,
+    site: "botondrozmann.hu",
+    siteHref: "/",
+    socials: FOOTER.socials.map((so) => ({ label: so.label === "Insta" ? "Instagram" : so.label, href: so.href })),
+    dialogLabel: "Névjegy: Rozmann Botond",
+    close: "Névjegy bezárása",
+  },
 };

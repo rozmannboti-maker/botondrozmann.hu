@@ -6,6 +6,7 @@ import { MediaPool, VideoPage } from "./media";
 import * as Pages from "./pages";
 import { createProps, type PropCopy } from "./props";
 import { createTable } from "./table";
+import { ContactCard } from "./contactCard";
 import { quality } from "./quality";
 
 const ASPECT = 16 / 10; // every page is 16:10, like the videos
@@ -178,7 +179,18 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   const paper = Pages.paperTexture();
   const book = new Book({ aspect: ASPECT, sheets, covers, edge: Pages.edgeTexture(), paper });
   scene.add(book.root);
-  scene.add(createProps({ brand, paper, renderer, copy: o.print }));
+  const props = createProps({ brand, paper, renderer, copy: o.print });
+  scene.add(props);
+  scene.add(camera); // az elsötétítő sík a kamerához van kötve
+  const card = new ContactCard(props.userData.card, props.userData.cardTargets, camera, canvas, o.print.card, () => {
+    pointer.inside = false; // a nézőpont visszaáll középre
+    hoveredFace = -1;
+    book.setHover(-1);
+    invalidate(4);
+  });
+  // Csak csukott könyvnél kattintható.
+  const cardEnabled = () => book.target === 0 && !book.busy && book.openness < 0.02 && !card.isOpen;
+  let cardPress: { x: number; y: number } | null = null;
 
   // Soft contact shadow where the book meets the wood.
   const blob = new THREE.Mesh(
@@ -215,6 +227,7 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   const onKey = (e: KeyboardEvent) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (window.scrollY > window.innerHeight * 0.5) return; // the book is off screen
+    if (card.isOpen) return; // a névjegy van elöl
     if (e.key in keys) {
       e.preventDefault();
       go(book.target + keys[e.key]);
@@ -261,6 +274,14 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
 
   function updateHover(e: PointerEvent) {
     const hit = toBook(e);
+    const overCard = cardEnabled() && card.hit(raycaster);
+    card.setHover(overCard);
+    if (overCard) {
+      hoveredFace = -1;
+      book.setHover(-1);
+      canvas.style.cursor = "pointer";
+      return;
+    }
     const side = sideAt(hit);
     const entry = side < 0 ? contentsEntry() : -1;
     if (entry !== contents.hover) {
@@ -286,6 +307,10 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   const onDown = (e: PointerEvent) => {
     if (e.button !== 0) return;
     const hit = toBook(e);
+    if (cardEnabled() && card.hit(raycaster)) {
+      cardPress = { x: e.clientX, y: e.clientY };
+      return;
+    }
     const side = sideAt(hit);
     if (!side || !hit) return;
     press = { x: e.clientX, y: e.clientY, side, hit, entry: side < 0 ? contentsEntry() : -1, moved: false, dragging: false };
@@ -319,7 +344,13 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
     }
   };
 
-  const onUp = () => {
+  const onUp = (e: PointerEvent) => {
+    if (cardPress) {
+      const tap = Math.hypot(e.clientX - cardPress.x, e.clientY - cardPress.y) < 8;
+      cardPress = null;
+      if (tap && cardEnabled()) card.open();
+      return;
+    }
     if (!press) return;
     if (press.dragging) {
       book.endDrag(now());
@@ -333,6 +364,7 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
 
   const onLeave = () => {
     pointer.inside = false;
+    card.setHover(false);
     hoveredFace = -1;
     if (!press) book.setHover(-1);
   };
@@ -468,7 +500,7 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
     pool.update(visible, wanted, playing);
 
     const bookChanged = book.update(t, dt);
-    if (!press && pointer.inside && pointer.event) updateHover(pointer.event);
+    if (!press && !card.isOpen && pointer.inside && pointer.event) updateHover(pointer.event);
 
     const fp = book.footprint();
     blob.position.x = (fp.left + fp.right) / 2;
@@ -476,15 +508,16 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
 
     // The headline steps aside as soon as the book is (heading to) open, and
     // returns while it closes on either cover.
-    const nowOpen = (book.target > 0 && book.target < book.NI) || book.openness > 0.5;
+    const nowOpen = (book.target > 0 && book.target < book.NI) || book.openness > 0.5 || card.isOpen;
     if (nowOpen !== isOpen) {
       isOpen = nowOpen;
       o.onOpenChange(isOpen);
     }
 
     const cameraMoved = placeCamera(dt);
+    const cardChanged = card.update(dt, size.w, size.h);
     const videoPlaying = videoPages.some((p) => p.playing && p.ready);
-    if (bookChanged || cameraMoved || videoPlaying || renderFrames > 0) {
+    if (bookChanged || cameraMoved || cardChanged || videoPlaying || renderFrames > 0) {
       renderer.render(scene, camera);
       renderFrames = Math.max(0, renderFrames - 1);
       govern(dt);
@@ -509,6 +542,7 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
     window.removeEventListener("keydown", onKey);
     document.removeEventListener("visibilitychange", onVisibility);
     pool.dispose();
+    card.dispose();
     contents.texture.dispose();
     free();
   };

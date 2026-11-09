@@ -4,8 +4,9 @@
 import * as THREE from "three";
 import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
 import type { Brand } from "./pages";
+import { drawCardFace, type CardCopy, type Hotspot } from "./contactCard";
 
-export type PropCopy = { site: string; pencil: string };
+export type PropCopy = { site: string; pencil: string; card: CardCopy };
 
 const TAU = Math.PI * 2;
 const v2 = (pts: number[][]) => pts.map(([x, y]) => new THREE.Vector2(x, y));
@@ -390,12 +391,6 @@ function pencil(env: THREE.Texture, copy: PropCopy) {
 
 function businessCards(brand: Brand, paper: THREE.Texture, env: THREE.Texture, copy: PropCopy) {
   const W = 0.39, D = 0.235, T = 0.0045;
-  const mono = (ctx: CanvasRenderingContext2D, text: string, x: number, y: number, color: string) => {
-    ctx.font = "500 22px \"JetBrains Mono\", ui-monospace, monospace";
-    ctx.fillStyle = color;
-    if ("letterSpacing" in ctx) ctx.letterSpacing = "0.14em";
-    ctx.fillText(text.toUpperCase(), x, y);
-  };
   const logo = (ctx: CanvasRenderingContext2D, color: string, cx: number, cy: number, height: number) => {
     const lw = (brand.logo.width / brand.logo.height) * height;
     ctx.drawImage(tinted(brand.logo, color), cx - lw / 2, cy - height / 2, lw, height);
@@ -415,14 +410,15 @@ function businessCards(brand: Brand, paper: THREE.Texture, env: THREE.Texture, c
     }), false),
     roughness: 1, envMap: env, envMapIntensity: 0.6,
   });
+  // A fehér kártya: névjegy az elérhetőségekkel (2026-11-09), nagy felbontásban, mert kattintásra
+  // a kamera elé repül. A linkek helyét (hotspots) a ContactCard teszi kattinthatóvá.
+  let hotspots: Hotspot[] = [];
+  const faceMap = texture(canvas(1680, 1012, (ctx, w, h) => {
+    hotspots = drawCardFace(ctx, w, h, copy.card);
+  }));
   const whiteFace = new THREE.MeshStandardMaterial({
-    map: texture(canvas(840, 506, (ctx, w, h) => {
-      ctx.fillStyle = "#f2f0ea";
-      ctx.fillRect(0, 0, w, h);
-      const mh = 43, mw = (brand.mark.width / brand.mark.height) * mh;
-      ctx.drawImage(tinted(brand.mark, "#111111"), 61.5, 61.5, mw, mh);
-      mono(ctx, copy.site, 60, h - 64, "#111111");
-    })),
+    map: faceMap,
+    emissive: 0xffffff, emissiveMap: faceMap, emissiveIntensity: 0, // a kamera előtt egyenletes fény
     bumpMap: paper, bumpScale: 0.6, roughness: 0.85,
   });
   const blackEdge = new THREE.MeshStandardMaterial({ color: 0x101010, roughness: 0.9 });
@@ -441,6 +437,9 @@ function businessCards(brand: Brand, paper: THREE.Texture, env: THREE.Texture, c
   black.rotation.y = 0.08;
   group.add(white, black);
   shadowed(group);
+  white.userData.hotspots = hotspots;
+  group.userData.card = white;
+  group.userData.hitTargets = [white, black];
   const sh = contactShadow("rect", 0.5, 0.36, 0.5);
   sh.rotation.z = 0.2;
   group.add(sh);
@@ -594,5 +593,7 @@ export function createProps({ brand, paper, renderer, copy }: { brand: Brand; pa
   cards.rotation.y = -0.18;
 
   group.add(cup, plant, pen, cards);
+  group.userData.card = cards.userData.card;
+  group.userData.cardTargets = cards.userData.hitTargets;
   return group;
 }

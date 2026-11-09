@@ -1,0 +1,89 @@
+/* A névjegykártya kattintható rétege (lib/contactCard.ts), 2026-11-09 */
+.cc-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 15; /* a jelenet fölött, a fejléc (z 20) alatt */
+}
+.cc-layer[hidden] {
+  display: none;
+}
+.cc-layer.is-closing {
+  pointer-events: none;
+}
+.cc-backdrop {
+  position: absolute;
+  inset: 0;
+  cursor: zoom-out;
+}
+.cc-card {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.cc-card:focus {
+  outline: none;
+}
+.cc-layer.is-ready .cc-card {
+  pointer-events: auto;
+}
+.cc-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* A link szövegét a 3D kártya mutatja; ez a mező csak átlátszó kattintható felület. */
+.cc-hot {
+  position: absolute;
+  display: block;
+  color: transparent;
+  font-size: 1px;
+  overflow: hidden;
+  border-radius: 6px;
+  outline: none;
+}
+.cc-hot::after {
+  content: "";
+  position: absolute;
+  left: var(--cc-pad, 8px);
+  right: var(--cc-pad, 8px);
+  bottom: calc(var(--cc-pad, 8px) * 0.6);
+  height: 2px;
+  background: #8c3b2a;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.cc-hot:hover::after,
+.cc-hot:focus-visible::after {
+  transform: scaleX(1);
+}
+.cc-hot:focus-visible {
+  box-shadow: 0 0 0 2px #8c3b2a;
+}
+.cc-close {
+  position: absolute;
+  top: -52px;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: #efece7;
+  color: #1c1a17;
+  font: 400 24px/1 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.cc-layer.is-ready .cc-close {
+  opacity: 1;
+  transform: none;
+}
+.cc-close:focus-visible {
+  outline: 2px solid #efece7;
+  outline-offset: 3px;
+}
