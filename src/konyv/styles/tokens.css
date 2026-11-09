@@ -1,0 +1,59 @@
+/* Design tokens. The overlay follows the original's design frame at 1440 × 900 and scales with clamp(): its
+   numbers are the 1440-wide values with their floors and ceilings. The 3D scene's numbers live in src/lib/. */
+
+:root {
+  color-scheme: dark;
+
+  /* Colors */
+  --bg: #15130f;
+  --fg: #f1ece6;
+  --cta-bg: #d9805f;
+  --cta-fg: #15130f;
+  --muted: 0.5; /* the hero's second line */
+  --vignette: radial-gradient(ellipse 75% 70% at 50% 55%, transparent 55%, rgba(21, 19, 15, 0.6) 100%);
+
+  /* Fonts (all OFL, self-hosted with @fontsource) */
+  --font-head: "Inter Tight", Inter, system-ui, sans-serif;
+  --font-cta: "Google Sans", "Inter Tight", system-ui, sans-serif;
+  --tracking: -0.02em;
+
+  /* Layout */
+  --edge: clamp(20px, 4.167vw, 60px); /* 60 px at 1440 */
+  --header-top: 30px;
+  --logo-w: 130.4px; /* the logo's frame: 24 px high, the SVG overhangs it */
+  --logo-h: 24px;
+  --logo-svg-w: 130.3995px;
+  --logo-svg-h: 31.3172px;
+  --logo-svg-top: -3.427px;
+  --logo-scale: 1;
+  --cta-pad-y: 12px;
+  --cta-pad-x: 24px;
+  --cta-radius: 5px;
+  --cta-size: 20px;
+  --cta-tracking: -0.4px;
+  --hero-top: clamp(104px, 22.33vh, 201px); /* 201 px at 900 tall */
+  --hero-width: clamp(300px, 40.14vw, 578px); /* 578 px at 1440 */
+  --hero-gap: 30px;
+  --hero-gap-phone: 18px;
+  --h1-size: clamp(34px, 4.444vw, 64px); /* 64 px at 1440 */
+  --p-size: clamp(15px, 1.389vw, 20px); /* 20 px at 1440 */
+
+  /* Motion */
+  --scene-fade: 1.2s; /* the canvas fades in once ready */
+  --hero-in: 1s;
+  --hero-in-delay: 0.3s;
+  --hero-out: 0.5s;
+  --hero-out-move: 0.6s;
+  --hero-rise: 8px; /* starts this far down */
+  --hero-lift: -12px; /* leaves this far up */
+  --cta-hover: 0.15s;
+}
+
+@media (max-width: 560px) {
+  :root {
+    --logo-scale: 0.75;
+    --cta-size: 16px;
+    --cta-pad-y: 10px;
+    --cta-pad-x: 18px;
+  }
+}

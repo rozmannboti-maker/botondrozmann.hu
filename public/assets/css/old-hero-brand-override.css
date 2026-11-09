@@ -1,0 +1,1000 @@
+/* ===== Márka tipográfia + globális szivárgás-védelem a klónozott Septiembre hero fölé =====
+   Ez a fájl MINDIG a klónozott CSS-ek (utils/app/styles.min) UTÁN töltődik be, hogy felül tudja
+   írni azok globális html/body szabályait, amik különben az egész oldalra (About, Projektek,
+   Skills, Kapcsolat, Lábléc) is kiszivárognának. */
+
+/* app.css a html{font-size} vw-alapú trükkel méretezi a saját fs--* osztályait (rem-alapon) —
+   ez viszont az EGÉSZ oldal rem-alapú méretezését (a régi hero utáni minden szekcióét) is
+   összezsugorítaná. Visszaállítjuk a böngésző alap 16px-re; a hero saját méretei (fs--210 stb.)
+   ettől fix rem-értékek lesznek a vw-alapú fluid skálázás helyett — ez a kompromisszum ahhoz
+   kellett, hogy a többi szekció ne törjön el. */
+#old-site {
+  font-size: 100% !important;
+}
+
+/* app.css a body alapértelmezett betűjét (adelphi-pe-variable, egy másik cég fizetős Typekit
+   fontja) állítja be — ezt cseréljük a márka Inter-jére. A body háttér/szövegszín
+   (--white-1 / --red-1 = pont a márka világos bg + accent színe) szándékosan marad app.css
+   alapértelmezettként: a hero-nak ez a helyes, világos háttere — a hero UTÁNI szekciók
+   (About, Projektek, Skills, Kapcsolat, Lábléc) mind saját explicit sötét hátteret
+   használnak, azokra ez nem szivárog át. */
+#old-site {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* ===== Villanó piros háttér a hero tetején — végleges, időzítéstől független védelem =====
+   Az app2.js (a klónozott Septiembre-sablon EREDETI "kezdőlap" scriptje) egy görgetés-
+   vezérelt ScrollTrigger-t hoz létre, ami a body hátterét pirosra (#9B0000) váltja, amikor a
+   látogató elér egy `#home-things-that-inspire` nevű, a MI oldalunkon nem létező elemig.
+   A hiányzó trigger-elem miatt a GSAP ScrollTrigger az egész dokumentumra esik vissza, és a
+   beállított "6-8% bottom" tartomány a lap tetejéhez, gyakorlatilag a hero-ba esik — emiatt
+   már egy kis görgetés is aktiválja.
+   A 92265_index.js-ben (killStrayHomeColorTriggers) van egy JS-es takarítás, ami ~1,2 mp
+   után megkeresi és leállítja ezt a ScrollTrigger-t — de mivel az app2.js maga is csak
+   ~0,6-1 mp késve hozza létre, eddig az ablakig, ha a látogató épp akkor görget a hero
+   tetejére, még felvillanhat a piros (ezt a felhasználó élőben is látta). Ez a szabály itt
+   ELTŰNTETI ezt az időzítés-rést: a body háttere innentől MINDIG a márka krém színén marad,
+   akármit is állítana be rá a GSAP inline stílusként — a `!important` egy külső CSS
+   szabályban a specifikusságtól függetlenül felülír egy nem-important inline stílust. */
+#old-site {
+  background-color: #EFECE7 !important;
+}
+
+/* ===== Betűkészlet-aliasok =====
+   A klónozott CSS két külső (nem a tiéd) betűkészletre hivatkozik névvel:
+   - "Gilda Display" — most a márka Instrument Serif (dőlt) fontjára álnevezzük. Korábban
+     (amíg az elrendezés/illesztés még fix pixelértékekre épült) ez elrontotta az igazítást,
+     mert más a karakterszélessége, mint Gilda Displaynek — de a hero-ghost-text-align.js
+     mostantól ÉLŐBEN méri és igazítja a szellemszöveget a látható "Rozmann"-hoz, ezért a
+     betű-metrika változása többé nem töri el az elrendezést.
+   - "adelphi-pe-variable" — a Septiembre cég FIZETŐS Typekit-kitje (isf2bxz), amit jogosan nem
+     tölthetünk be a saját oldaladra — ezt továbbra is a saját Inter-edre álnevezzük. */
+@font-face {
+  font-family: 'Gilda Display';
+  src: url('../fonts/Instrument_Serif_400_italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'adelphi-pe-variable';
+  src: url('../fonts/Inter_400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'adelphi-pe-variable';
+  src: url('../fonts/Inter_600.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'adelphi-pe-variable';
+  src: url('../fonts/Inter_700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+
+/* ===== Eredeti méretarány visszaállítása a hero-ban (kép + szöveg) =====
+   Az app.css az EGÉSZ oldal rem-alapú méretezését a html{font-size} vw-alapú átírásával
+   éri el (pl. .fs--210{font-size:21rem} × html{font-size:.61vw} ≈ 12.8vw a valódi
+   megjelenő méret). Fentebb ezt html-szinten vissza kellett állítanunk 16px-re, különben
+   a hero UTÁNI szekciók (About, Projektek stb.) rem-alapú mérete zsugorodna össze.
+   Emiatt viszont a hero saját elemei (cím, kép, "Botond", menü, logó) most 16px root
+   mellett sokkal nagyobbak lettek, mint az eredeti oldalon.
+   (A `zoom` tulajdonsággal próbáltuk scope-olni ezt, de az itt használt abszolút/sticky
+   pozicionálású, egymásba ágyazott elemeknél rossz, elcsúszott elrendezést okozott —
+   ezért helyette az érintett rem-alapú szabályokat közvetlenül, egyesével írjuk felül
+   a vw-alapú eredeti értékükre.) */
+#old-site {
+  --padding-fluid: 2.44vw;
+  --padding: 0.488vw;
+}
+
+@media only screen and (max-width: 1025px) {
+  #old-site {
+    --padding-fluid: 3.26vw;
+  }
+}
+
+@media only screen and (max-width: 767.98px) {
+  #old-site {
+    --padding-fluid: 5.13vw;
+  }
+}
+
+#old-site .fs--16  { font-size: 0.976vw !important; }
+#old-site .fs--header { font-size: 0.854vw !important; }
+
+@media only screen and (max-width: 1025px) {
+  #old-site .fs--16  { font-size: 2.08vw !important; }
+  #old-site .fs--header { font-size: 1.82vw !important; }
+}
+
+@media only screen and (max-width: 767.98px) {
+  #old-site .fs--16  { font-size: 4.1vw !important; }
+  #old-site .fs--header { font-size: 3.4vw !important; }
+}
+
+#old-site .logo {
+  width: 5.85vw !important;
+  height: 1.83vw !important;
+}
+
+@media only screen and (max-width: 1025px) {
+  #old-site .logo {
+    width: 10.15vw !important;
+    height: 3.9vw !important;
+  }
+}
+
+#old-site .fs--210 { font-size: 12.8vw !important; }
+#old-site .fs--47  { font-size: 2.87vw !important; }
+
+@media only screen and (max-width: 1025px) {
+  #old-site .fs--210 { font-size: 19.5vw !important; }
+  #old-site .fs--47  { font-size: 4.3vw !important; }
+}
+
+@media only screen and (max-width: 767.98px) {
+  #old-site .fs--210 { font-size: 20vw !important; }
+  #old-site .fs--47  { font-size: 4.23vw !important; }
+}
+
+/* Az eredeti oldalon a "Rozmann" annyira széles, hogy a "Botond" mindig a flex-sor alá
+   csordul (majd a negatív margin-top felhúzza közvetlenül alá). A te oldaladon a
+   konténer szélessége miatt ez nem mindig történt meg magától — flex-basis:100%-tal
+   kikényszerítjük, hogy "Botond" mindig saját sorba kerüljön, "Rozmann" alá. */
+#old-site #pg-home .home-intro .intro-row .container-text .text-arquitectura {
+  flex-basis: 100% !important;
+  text-align: right !important;
+  margin-right: 1.22vw !important;
+  margin-top: -1.5vw !important;
+}
+
+#old-site #pg-home .home-intro .initial-img-row .initial-img {
+  width: 18.6vw !important;
+}
+
+/* Az eredeti "-.07em" (nagyon szoros) betűtávolság a Gilda Display összekötött szkript-
+   jellegű betűihez volt hangolva — az Instrument Serif dőlttel túl szorosnak, összefolyónak
+   hat. Kicsit nagyobbra vesszük.
+   FONTOS: a ".invisible-text" (a kép mögötti "szellemszöveg") is ".text-septiembre" osztályú,
+   de EGY MÁSIK, .intro-row-on kívüli DOM-ágban van (.initial-img > .text-spacer), ezért egy
+   .intro-row-ra szűkített szelektor nem érte volna el — emiatt korábban a szellemszöveg a
+   RÉGI, szoros betűtávolsággal jelent meg, míg a látható szöveg már a széllesebbel, és a
+   betűk emiatt nem fedték egymást pontosan (torznak, "extra n-eknek" tűntek a kép alatt).
+   Mindkettőre explicit alkalmazzuk ugyanazt az értéket. */
+#old-site #pg-home .home-intro .intro-row .text-septiembre,
+#old-site .invisible-text.text-septiembre {
+  letter-spacing: 0.01em !important;
+}
+
+/* A nagyobb betűtávolság szélesebbé teszi a "Rozmann"-t, emiatt a jobbra igazított
+   (justify-content:flex-end) konténer kicsit jobbra tolódva jelent meg a középponthoz
+   képest. Kicsit balra igazítjuk, hogy a felirat középen legyen. */
+#old-site #pg-home .home-intro .intro-row .container-text {
+  left: calc(50% - 2.8vw) !important;
+}
+
+/* A ".text-spacer" (a "szellemszöveg" saját pin-spacere) GSAP-transformot kap, ami — mivel
+   transzformált ősként ő lesz a fixre pinnelt ".invisible-text" containing blockja — eltéríti
+   a GSAP által kiszámolt fixed top/left-et a láthatatlan szövegen. Ez az eltolódás a viewport
+   méretétől függ, ezért NEM fix pixelben, hanem futásidőben, JS-ből mérve és korrigálva van —
+   lásd assets/js/hero-ghost-text-align.js. */
+
+/* ===== Galéria (5 munka-kép a hero alján) — "dobókocka 5-ös" elrendezés =====
+   Az eredeti Septiembre-klón nth-child-alapú szabályai aszimmetrikus, egymástól eltérő
+   méretű/arányú képeket helyeztek el (van, ami a viewport szélén levágódik) — ez a saját
+   portfólió-képeknek (mind egyforma, fekvő vázlatkép) nem illik. Négy egyforma méretű
+   kép a sarkokban, egy nagyobb középen, mind AZONOS (fekvő ~16:9-hez közeli) arányban.
+   A .project-0X osztályokat címezzük (nem nth-child-et), mert azok a DOM-sorrendtől
+   függetlenül egyértelműen azonosítják, melyik kártya melyik sarokban volt eredetileg
+   (project-01/02 fent, project-04/05 lent, project-03 középen) — így a data-set-target/
+   href párosítás nem sérül.
+   FONTOS: minden --pt/--pr/--pb/--pl-t explicit értékre (vagy auto-ra) állítunk, mert az
+   egyedi CSS-tulajdonságok (custom properties) elemenként, nem szabály-blokkonként
+   öröklődnek — ha egyet nem írnánk felül, a klónozott alap-szabály értéke (pl. egy régi
+   --pr) érvényben maradna a mi --pl-ünk MELLETT, és mivel az "a" elemnek nincs saját
+   width-je, egyszerre beállított left+right szét is nyújtaná azt a tartalom szélessége
+   fölé. Az !important azért kell, mert az eredeti szabály (.gallery-row .gallery-wrapper
+   .project-item-wrapper:nth-child(n)) 3 osztályból áll, tehát specifikusabb, mint egy
+   sima .gallery-wrapper .project-item-wrapper.project-0X szelektor. */
+/* A sarok-képek méretét a rendelkezésre álló függőleges hely korlátozza: a --pt/--pb
+   margót (a viewport tetejétől/aljától) is csökkentettük (10% → 6% → 4%), hogy a
+   nagyobb képeknek is maradjon hely a középső kép fölött/alatt ütközés nélkül — de a
+   margó így is egyértelműen látható, a kép nem ér a széléhez. */
+#old-site .gallery-wrapper .project-item-wrapper.project-01,
+#old-site .gallery-wrapper .project-item-wrapper.project-02,
+#old-site .gallery-wrapper .project-item-wrapper.project-04,
+#old-site .gallery-wrapper .project-item-wrapper.project-05 {
+  --img-w: 29vw !important;
+  --img-ratio: 0.56 !important;
+}
+
+#old-site .gallery-wrapper .project-item-wrapper.project-03 {
+  --img-w: 32vw !important;
+  --img-ratio: 0.56 !important;
+}
+
+/* Bal-fent */
+#old-site .gallery-wrapper .project-item-wrapper.project-01 {
+  --pt: 4% !important;
+  --pl: var(--padding-fluid) !important;
+  --pr: auto !important;
+  --pb: auto !important;
+}
+
+/* Jobb-fent */
+#old-site .gallery-wrapper .project-item-wrapper.project-02 {
+  --pt: 4% !important;
+  --pr: var(--padding-fluid) !important;
+  --pl: auto !important;
+  --pb: auto !important;
+}
+
+/* Bal-lent */
+#old-site .gallery-wrapper .project-item-wrapper.project-04 {
+  --pb: 4% !important;
+  --pl: var(--padding-fluid) !important;
+  --pr: auto !important;
+  --pt: auto !important;
+}
+
+/* Jobb-lent */
+#old-site .gallery-wrapper .project-item-wrapper.project-05 {
+  --pb: 4% !important;
+  --pr: var(--padding-fluid) !important;
+  --pl: auto !important;
+  --pt: auto !important;
+}
+
+/* Közép, legnagyobb kép — calc()-kal a saját (--img-w × --img-ratio) méretéből számolva
+   pontosan vízszintesen ÉS függőlegesen középre igazítva, hogy ha a méretek később
+   változnak (pl. a valódi munka-képek cseréjekor), a középre igazítás automatikusan
+   követi, nem kell újraszámolni. */
+#old-site .gallery-wrapper .project-item-wrapper.project-03 {
+  --pt: calc(50% - (var(--img-w) * var(--img-ratio) / 2)) !important;
+  --pl: calc(50% - (var(--img-w) / 2)) !important;
+  --pr: auto !important;
+  --pb: auto !important;
+}
+
+/* ===== KÍSÉRLET: About + Projektek szekció (.section-after) világos háttérre állítása =====
+   A klónozott sablon eredetileg minden hero utáni szekciót (About, Projektek, Skills,
+   Kapcsolat, Lábléc) sötét háttérre (#15130F) + krém/fehér szövegre (#F1ECE6 / rgba(255,255,255,*))
+   tervezett — luke-adapted.css-ben ez van hardcode-olva. Első lépésként csak ezt az egy
+   szekciót (.section-after = About + Projektek) állítjuk át a márka VILÁGOS párjára
+   (bg #EFECE7, elsődleges szöveg #1C1A17) — a hozzá tartozó szövegszíneket is át kell
+   hangolni, különben olvashatatlanok lennének a világos háttéren. A többi szekció (Skills,
+   Kapcsolat, Lábléc) egyelőre marad sötét, amíg ezt jóvá nem hagyjuk. */
+#old-site .section-after {
+  background: #EFECE7;
+}
+
+/* Eredetileg (luke-adapted.css) ez egy sötét→áttetsző átmenő sáv volt, ami a
+   sötét hero alját simította a szintén sötét .section-after tetejéhez — majd
+   itt krém verzióra cseréltük, amikor a .section-after világosra váltott.
+   KIDERÜLT (2026-10-19): a hero HÁTTERE is ugyanez a krém (#EFECE7) már, tehát
+   nincs szín-ugrás, amit simítani kellene — ez a 278px-es (30vh) magas,
+   position:absolute, z-index:3 sáv viszont A HERO ALJÁBA LÓGVA (top:-30vh)
+   RÁFESTETT a hero bal alsó sarkába tett szövegre/gombra: a krém→áttetsző
+   gradiens a sötét szöveg-pixelek fölött világosított, lefelé haladva egyre
+   jobban (ez okozta az "elhalványuló utolsó sor" jelenséget — nem CSS-hiba
+   volt a szövegen, hanem ez az idegen réteg festett fölé). Mivel a sáv
+   funkciója megszűnt (nincs már eltérő szín, amit el kéne tüntetni),
+   egyszerűen kikapcsoljuk, ahelyett hogy z-index-háborúba kezdenénk. */
+#old-site .section-after::before {
+  background: none;
+}
+
+#old-site .about-text,
+#old-site .about-sub,
+#old-site .about-version {
+  color: #1C1A17;
+}
+
+#old-site .proj-item {
+  color: rgba(28, 26, 23, 0.25);
+  border-bottom: 1px solid rgba(28, 26, 23, 0.1);
+}
+
+#old-site .proj-item:first-child {
+  border-top: 1px solid rgba(28, 26, 23, 0.1);
+}
+
+#old-site .proj-item.active {
+  color: #1C1A17;
+}
+
+#old-site .proj-date,
+#old-site .proj-label {
+  color: rgba(28, 26, 23, 0.5);
+}
+
+#old-site .proj-cursor {
+  background: #1C1A17;
+  color: #EFECE6;
+}
+
+/* A Projektek szekción végigfutó ív (.fluid-line) a sötét-mód accent-jét (#D9805F) használta —
+   a világos háttéren csak a világos-mód színpár tagjai szerepelhetnek, ez az accent világos
+   változata (#8C3B2A). */
+#old-site .fluid-line {
+  stroke: #8C3B2A;
+  /* Kicsit vékonyabb és áttetszőbb, mint az eredeti tömör 72px-es sötét-mód vastagság. */
+  stroke-width: 58;
+  stroke-opacity: 0.75;
+}
+
+/* KÍSÉRLET VISSZAVONVA: megpróbáltuk a fluid-line-t átvezetni a Munkáim szekción túl a
+   Szolgáltatásokba (megnyújtott path + endTrigger a scroll-animációban + a .section-after
+   z-indexének megemelése, hogy a vonal ne tűnjön el a Szolgáltatások háttere mögött).
+   A z-index-emelés viszont egy MÁSIK, korábban rejtett hibát hozott elő: a .proj-preview
+   (a Munkáim-lista jobb oldali kép-előnézete) `position: fixed`, és a body szintjén, a
+   .section-after-től FÜGGETLEN testvérként él a dokumentumban, saját z-index:30005-tel.
+   Amíg .section-after z-indexe (20010) ez alatt volt, a preview szépen felül úszott rajta.
+   Miután .section-after z-indexét 30020-ra emeltük, a SAJÁT (átlátszatlannak NEM tűnő, de
+   opaque) #EFECE7 háttere immár magasabb rétegben fest, mint a preview — így a
+   kép-előnézet eltűnt mögötte. Mivel ez a fajta réteg-áthúzás minden eddigi próbálkozásnál
+   újabb, máshol jelentkező ütközést hozott elő (ez a sablon sűrűn épít z-index-létrára a
+   pörgetés-animációkhoz), a fluid-line most újra a Munkáim szekción BELÜL fejezi be magát
+   — lásd a path 'd' attribútumát index.html-ben és a scrollTrigger-t 92265_index.js-ben,
+   mindkettő visszaállítva az eredeti (Szolgáltatásokba nem átnyúló) verzióra. */
+
+/* ===== FOLYTATÁS: Gallery, Skills, Elismerések, Kapcsolat, Lábléc világos háttérre =====
+   Az About+Projektek kísérlet jóváhagyva — ugyanazzal a mintával (háttér + hozzá tartozó
+   szöveg/keret/ikon-színek a világos párra) folytatjuk a maradék hero utáni szekciókon. */
+
+#old-site .circle-gallery {
+  background: #EFECE7;
+}
+
+#old-site .cg-phrase {
+  color: #1C1A17;
+}
+
+#old-site .skills {
+  background: #EFECE7;
+}
+
+#old-site .skills-subtitle,
+#old-site .skills-text,
+#old-site .skill-header-title,
+#old-site .skill-group.open .skill-header-title {
+  color: #1C1A17;
+}
+
+#old-site .skill-header-icon::before,
+#old-site .skill-header-icon::after {
+  background: #1C1A17;
+}
+
+#old-site .skills-separator {
+  background: rgba(28, 26, 23, 0.15);
+}
+
+#old-site .skills-arrow {
+  color: #8C3B2A;
+}
+
+#old-site .skill-body-inner li {
+  color: rgba(28, 26, 23, 0.5);
+}
+
+/* A Kapcsolat szekció külön kérésre accent-színű hátteret kap (nem a bg/surface krémet),
+   világos (krém) szöveggel — ez a világos-mód színpár accent-tagja (#8C3B2A) + a hozzá
+   tartozó világos szövegszín (#F1ECE6), nem pedig a sötét-mód párja.
+   FONTOS: a .contact-bg egy JS-vezérelt (92265_index.js) alapréteg, amit a scroll-trigger
+   a kör-animáció (.contact-blob) INDULÁSA előtt azonnal láthatóvá tesz (display:block) —
+   ennek a világos oldal-háttérrel (#EFECE7) kell megegyeznie, KÜLÖNBEN a "növekvő kör"
+   animáció nem látszik, mert a teljes felület már induláskor accent-színű. Csak maga a
+   .contact-blob (a ténylegesen növekvő kör) legyen accent. */
+#old-site .contact-bg {
+  background: #EFECE7;
+}
+
+#old-site .contact-blob {
+  background: #8C3B2A;
+}
+
+#old-site .contact-title,
+#old-site .contact-dispo p,
+#old-site .contact-socials .chr-hover .ch-top,
+#old-site .contact-socials .chr-hover .ch-bot,
+#old-site .contact-mail {
+  color: #F1ECE6;
+}
+
+#old-site .footer {
+  background: #EFECE7;
+}
+
+#old-site .footer-ascii pre {
+  color: #8C3B2A;
+}
+
+#old-site .footer-top-col .chr-hover .ch-top,
+#old-site .footer-top-col .chr-hover .ch-bot,
+#old-site .footer-top-col .footer-date .ch-top,
+#old-site .footer-top-col .footer-date .ch-bot {
+  color: rgba(28, 26, 23, 0.8);
+}
+
+#old-site .footer-name-luke,
+#old-site .footer-name-baffait {
+  color: #1C1A17;
+}
+
+#old-site .footer-name-dot {
+  color: #8C3B2A;
+}
+
+#old-site .awards {
+  background: #EFECE7;
+  /* Az eredeti -15vh (luke-adapted.css) a Gallery UTÁN következő pozícióhoz volt hangolva —
+     mivel a Szolgáltatások szekció most a Munkáim listát követi közvetlenül, ez rálapolt
+     az utolsó projekt-sorra ("Walter Group"). Semlegesítve, majd egy extra tér adva neki,
+     hogy a Munkáim-on végigfutó fluid-line rajzolás-animációja (92265_index.js: a #projects
+     trigger 'bottom 20%'-nál fejezi be a rajzolást, azaz csak akkor, amikor a Munkáim szekció
+     alja már majdnem teljesen kigördült a képernyő tetején) be tudjon fejeződni, MIELŐTT a
+     Szolgáltatások tartalma megjelenne — 12vh ehhez kevésnek bizonyult, 32vh-ra emelve.
+     FONTOS: a margin-top:0 KELL ide is — a luke-adapted.css eredeti .awards szabálya
+     margin-top:-15vh-et ad, ami enélkül visszahatna és ~109px-et "megenne" a lentebbi
+     padding-top-ból, ténylegesen ÁTFEDÉSBE hozva a Szolgáltatások dobozát a Munkáim
+     dobozával — pont ez okozta, hogy a vonal a Szolgáltatások háttere ALÁ csúszott. */
+  margin-top: 0;
+  /* A padding-top adja a tényleges, a doboz SAJÁT #EFECE7 hátterén belül maradó teret —
+     ezért nem margin, hogy ne legyen átlátszó/eltérő színű rés a két szekció között. */
+  padding-top: 32vh;
+}
+
+#old-site .awards-title {
+  /* A "Szolgáltatások" cím eredetileg kis "eyebrow"-címke méretben volt (Képességek/
+     Elismerések helyén ez volt a szerepe) — most viszont ez a szekció fő címe, a Munkáim
+     projekt-nevekkel (.proj-item) egyenrangú vizuális súlyt kell kapnia.
+     Az !important muszáj: luke-adapted.css-ben van egy .awards-title { font-size: ... !important }
+     szabály (eredetileg a kis eyebrow-méretet kényszerítette ki), enélkül az győzött volna. */
+  font-size: clamp(2rem, 4vw, 4rem) !important;
+  margin-bottom: 1rem;
+}
+
+#old-site .award-item {
+  color: rgba(28, 26, 23, 0.35);
+  border-bottom: 1px solid rgba(28, 26, 23, 0.15);
+}
+
+#old-site .award-item:first-child {
+  border-top: 1px solid rgba(28, 26, 23, 0.15);
+}
+
+#old-site .award-item::before {
+  background-color: #8C3B2A;
+}
+
+#old-site .active-award {
+  color: #F1ECE6 !important;
+}
+
+/* ===== Szolgáltatás-sorok kattintásra kinyíló részlete (2026-09-20, kattintásra
+   átállítva 2026-09-21) =====
+   A luke-adapted.css eredetileg egy sima flex sort definiál .award-item-en
+   (cím/alcím/szám egy sorban). Ehhez adunk hozzá egy második, alapból
+   0-magasságú sávot (.award-detail), ami KATTINTÁSRA (nem hoverre — a hover
+   a görgetés-vezérelt .active-award kiemelést zavarta meg, mert a sor
+   magasságának hover közbeni animálása folyamatosan elmozdította az ALATTA
+   lévő sorok ScrollTrigger-pozícióit) lenyílik, pár mondatos szöveggel
+   bővebben leírja az adott szolgáltatást. A .award-item ezért flex helyett
+   block elrendezésre vált, a régi flex sort a most bevezetett
+   .award-item-row veszi át.
+   A luke-adapted.css .award-item-re tett `cursor:none` szabálya (a Septiembre-
+   örökség projekt-borító-kép-kurzorhoz kellett, aminek itt nincs képe
+   beállítva — lásd 92265_index.js AWARDS LOGIC blokk) korábban azt
+   eredményezte, hogy a soroknál EGYÁLTALÁN NEM látszott kurzor, ezért nem
+   volt egyértelmű, hogy kattinthatók — ezt a `cursor:pointer` oldja fel. */
+#old-site .award-item {
+  display: block;
+  padding: 0;
+}
+#old-site .award-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 1rem;
+  cursor: pointer;
+}
+/* A luke-adapted.css eredeti `.award-item > div { flex: 1; }` szabálya a
+   cím/alcím/szám oszlopokat egyenlő szélességre húzta — de mivel ezek most
+   már a .award-item-row gyerekei (nem közvetlenül a .award-item-é), az a
+   szabály többé nem talál rájuk. Enélkül a szövegek a saját tartalmuk
+   szélessége szerint tömörödtek, ezért soronként máshol kezdődtek/végződtek
+   (nem voltak egymás alatt). Ez pótolja — az ikonra (.award-toggle-icon)
+   NEM vonatkozik, az fix méretű marad. */
+#old-site .award-item-row > .award-org,
+#old-site .award-item-row > .award-prize,
+#old-site .award-item-row > .award-date {
+  flex: 1;
+}
+#old-site .award-detail {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0 1rem;
+  transition: max-height .45s cubic-bezier(0.77, 0, 0.175, 1), opacity .3s ease, padding-bottom .45s ease;
+}
+#old-site .award-detail p {
+  max-width: 42rem;
+  margin: 0;
+  padding-bottom: 1.75rem;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: clamp(.85rem, 1.1vw, 1rem);
+  line-height: 1.55;
+  color: rgba(28, 26, 23, 0.7);
+}
+#old-site .active-award .award-detail p {
+  color: rgba(241, 236, 230, 0.85);
+}
+#old-site .award-item.is-detail-open .award-detail {
+  max-height: 12rem;
+  opacity: 1;
+}
+@media (max-width: 768px) {
+  #old-site .award-detail p {
+    font-size: .85rem;
+  }
+}
+
+/* Forgó "+" ikon — szöveges "nyisd meg" felirat nélkül jelzi, hogy a sor
+   kattintható/kinyitható. Két, egymásra merőleges vonalból áll; nyitott
+   állapotban az egész ikon 45°-kal elfordul, a "+" vizuálisan "×"-é válik. */
+#old-site .award-toggle-icon {
+  position: relative;
+  flex: 0 0 auto;
+  width: 1.6rem;
+  height: 1.6rem;
+  margin-left: 1.25rem;
+  border: 1px solid currentColor;
+  border-radius: 9999px;
+  opacity: .55;
+  transition: transform .4s cubic-bezier(0.77, 0, 0.175, 1), opacity .3s ease;
+}
+#old-site .award-toggle-icon span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+#old-site .award-toggle-icon span:first-child {
+  width: .6rem;
+  height: 1px;
+}
+#old-site .award-toggle-icon span:last-child {
+  width: 1px;
+  height: .6rem;
+}
+#old-site .award-item-row:hover .award-toggle-icon {
+  opacity: 1;
+}
+#old-site .award-item.is-detail-open .award-toggle-icon {
+  transform: rotate(45deg);
+  opacity: 1;
+}
+
+/* ===== TIPOGRÁFIAI EGYSÉGESÍTÉS =====
+   A klónozott sablon szekciónként hol Instrument Serif, hol Inter/Instrument Sans-t
+   használt a címeknél (a Kapcsolat cím pl. végig Inter volt, minden más szekció-cím
+   Instrument Serif) — ez volt a vizuálisan érzékelt "ellentét". Mostantól a nagy
+   szekció-címek/kiemelések MIND Instrument Serif-et használnak (ahogy About/Munkáim/
+   Gallery már eddig is), és a sorköz szorosabb. A hero és a lábléc "Rozmann Botond"
+   NÉV-elemei (wordmark/logó) szándékosan KIVÉTELEK — az a dőlt szkript + kövér sans
+   páros a tényleges logó-definíció (lásd Vizuális-Identitás), nem szekció-cím, azt nem
+   bántjuk. A törzsszöveg (About bio + Kapcsolat leírás) mérete egységesítve; a Kapcsolat
+   leírás szándékosan szorosabb sorközű (justify, tömbszerű), azt csak méretben igazítjuk. */
+
+#old-site .contact-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+#old-site .about-text,
+#old-site .about-version {
+  line-height: 1.05;
+}
+
+/* app.css örökölt .word{overflow:hidden} szabálya eredetileg egy
+   lecsúsztatós reveal-animációhoz készült (kompenzáló paddinggel), de itt
+   csak blur+opacity fut rajta (lásd 92265_index.js setupAboutSection) —
+   transform nincs. Szorosabb line-height mellett ez levágta a leszálló
+   szárú betűket (pl. "gy", "j"), ezért itt override-oljuk vissza. */
+#old-site .about-text .word,
+#old-site .about-sub .word,
+#old-site .about-version .word {
+  overflow: visible;
+}
+
+#old-site .proj-item {
+  line-height: 1.15;
+}
+
+#old-site .cg-phrase {
+  line-height: 1.15;
+}
+
+#old-site .about-sub,
+#old-site .contact-dispo p {
+  font-size: clamp(1rem, 1.5vw, 1.35rem);
+}
+
+/* Sub-szöveg szélesítve (380 -> 480px) — a %-os alap (34%) érintetlen,
+   ez csak a szélesebb (>~1410px) nézeteken nyit teret, ahol a fotó
+   (.about-photo-wrap, jobbra igazítva) még így is biztos hézagot hagy. */
+#old-site .about-sub {
+  max-width: 480px;
+}
+
+/* ===== Hero: lebegő projektkártyák eltávolítva (2026-09-02) =====
+   Korábban a hero .gallery-row blokkja 5 lebegő .project-card-ot repített be
+   görgetésre, és ehhez 400svh (mobil: 200svh) görgetési magasságot foglalt.
+   A kártyákkal együtt ez a görgetési zóna is feleslegessé vált — a .gallery-row-t
+   teljesen elrejtjük (display:none), így 0 magasságot foglal, és a hero
+   (Rozmann Botond név + "Scroll" + hero-life.gif) után holt görgetés nélkül
+   jön a Rólam szekció.
+
+   Miért CSS-ből, és miért marad a DOM érintetlen:
+   - az app2.js Ty() függvénye feltétel nélkül a .gallery-row / .gallery-wrapper /
+     .project-0X szelektorokra épít (ScrollTrigger pin + fromTo). Ha a DOM-ból
+     kivennénk, GSAP "target not found" figyelmeztetéseket dobna. display:none
+     mellett az elemek queryelhetők maradnak → nincs új konzol-figyelmeztetés,
+     és a ScrollTrigger a 0 méretű triggeren egyszerűen sosem aktiválódik.
+   - így a változás teljesen visszafordítható (elég ezt a blokkot törölni).
+
+   Geometria: .home-intro = .initial-img-row (100svh, a gif képernyője) + .gallery-row.
+   A .gallery-row most 0 → .home-intro tényleges tartalma 100svh. Az app.css
+   bázis .home-intro{height:500svh} (és @media max-width:1025px alatt 300svh)
+   értékét 100svh-ra visszük — ez a fájl a láncban utolsó, így media query nélkül
+   is felülír mindkét változatot.
+
+   Az app2.js data-sticky rendszere (.intro-row pin) és a lentebbi ScrollTrigger
+   pinek (#section-after, #circle-gallery, #contact-pin, jobb oldali scroll-idővonal)
+   mind trigger-relatívak, ScrollTrigger.refresh()-re maguktól újraszámolnak. */
+#old-site #pg-home .home-intro { height: 100svh; }
+
+/* CTA gombok (2026-09-27 — 2026-10-12) eltávolítva minden fő szekcióból a
+   user kérésére: a `.cta-btn` kitöltött pirula-stílus nem nyerte el a
+   tetszését, helyette keres majd egy jobban tetsző gomb-designt, és
+   pontosan megmondja, hova kerüljenek gombok. */
+
+/* ===== Hero: "Scroll" felirat eltávolítva + meggyőző szöveg bal alsó +
+   "Kapcsolat" gomb jobb alsó sarokban (2026-10-19, 2. kör: mejuma.com
+   kompozíció-mintára) =====
+   A user szerint a hero jelenleg nem konvertál: nincs szöveg, ami meggyőzné
+   az érkezőt, mielőtt görgetne, és nincs azonnali kapcsolatfelvételi gomb.
+   A "Scroll" feliratot (DOM-ból is törölve) lecseréltük egy kétrétegű
+   szövegre (nagyobb, dőlt márka-szerif "lead" sor + kisebb Inter "sub"
+   sor) — ez adja a vizuális hangsúlyt, amit a user "látványosabb" kérésre
+   hiányolt az egyszerű, egyenletes Inter bekezdésből. A gomb a fejlécből
+   (menu-brand.css) ide költözött: mejuma.com "Explore our properties"
+   gombjának mintájára pirula-címke + különálló sötét kör-ikon, jobb alsó
+   sarokban, a bal alsó szöveggel egy vonalban. */
+#old-site #pg-home .home-intro .intro-row .hero-pitch{
+  position:absolute;
+  top:auto; right:auto;
+  bottom:6rem; left:var(--padding-fluid);
+  max-width:34rem;
+  display:flex;
+  flex-direction:column;
+  gap:.75rem;
+}
+#old-site #pg-home .home-intro .intro-row .hero-pitch-lead{
+  font-family:'Instrument Serif', serif;
+  font-style:italic;
+  font-size:2.15rem;
+  line-height:1.15;
+  color:#8C3B2A;
+}
+#old-site #pg-home .home-intro .intro-row .hero-pitch-sub{
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size:.92rem;
+  line-height:1.55;
+  color:#1C1A17;
+}
+@media only screen and (max-width:1025px){
+  #old-site #pg-home .home-intro .intro-row .hero-pitch{ bottom:4rem; max-width:24rem; }
+  #old-site #pg-home .home-intro .intro-row .hero-pitch-lead{ font-size:1.7rem; }
+  #old-site #pg-home .home-intro .intro-row .hero-pitch-sub{ font-size:.85rem; }
+}
+@media only screen and (max-width:767.98px){
+  #old-site #pg-home .home-intro .intro-row .hero-pitch{ bottom:7.5rem; max-width:18rem; }
+  #old-site #pg-home .home-intro .intro-row .hero-pitch-lead{ font-size:1.4rem; }
+  #old-site #pg-home .home-intro .intro-row .hero-pitch-sub{ font-size:.75rem; line-height:1.5; }
+}
+
+/* A gomb stílusa SZÁNDÉKOSAN ugyanaz a doboz-mechanika mint a fejléc
+   hamburgeré (.sm-toggle, menu-brand.css): sötét, áttetsző, blur-ös
+   lekerekített doboz — a user kérésére (2026-10-21), hogy a két fixed/
+   hero-beli gomb egy vizuális családba tartozzon a pirula+kör helyett. */
+#old-site #pg-home .home-intro .intro-row .hero-cta{
+  position:absolute;
+  top:auto; left:auto;
+  bottom:6rem; right:var(--padding-fluid);
+  display:inline-flex;
+  align-items:center;
+  gap:.55rem;
+  height:2.75rem;
+  padding:0 1.1rem;
+  border-radius:6px;
+  background:rgba(28,26,23,.55);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  color:#F1ECE6;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size:.85rem;
+  font-weight:600;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:background-color .3s ease;
+}
+#old-site #pg-home .home-intro .intro-row .hero-cta:hover{ background:rgba(28,26,23,.75); }
+#old-site #pg-home .home-intro .intro-row .hero-cta:focus-visible{ outline:2px solid #D9805F; outline-offset:2px; }
+#old-site #pg-home .home-intro .intro-row .hero-cta-icon{
+  display:flex; align-items:center; justify-content:center;
+  flex:none;
+}
+#old-site #pg-home .home-intro .intro-row .hero-cta-icon svg{ width:.75rem; height:auto; transform:rotate(45deg); }
+@media only screen and (max-width:767.98px){
+  #old-site #pg-home .home-intro .intro-row .hero-cta{ bottom:3rem; left:var(--padding-fluid); right:auto; }
+}
+#old-site #pg-home .home-intro .gallery-row { display: none; }
+
+/* ===== Rólam / Referenciák szétválasztása (2026-10-30, lukebaffait.fr alapján) =====
+   A portré (780px széles, ~1.37 arányú) magasabb, mint Luke-é, és a rejtett "V1.0" sor
+   miatt a Rólam szekció rövidebb, így a fotó alja belelógott a Referenciákba. A szekció
+   most legalább a fotó aljáig + 80vh-ig tart (Luke-nál is kb. ennyi a hézag). */
+#old-site .about {
+  min-height: calc(35vh + min(55vw, 780px) * 1.3704 + 80vh);
+}
+
+/* A vonal vastagsága és telítettsége Luke-éra visszaállítva (a szín marad a márka-accent). */
+#old-site .fluid-line {
+  stroke-width: 72;
+  stroke-opacity: 1;
+}
+
+/* A vonal jobbra kisöprő vége (Luke-féle 4 ívű path) a Referenciák alja alá futott, és a
+   Szolgáltatások háttere eltakarta. A z-index emelése (lásd fent, KÍSÉRLET VISSZAVONVA) nem
+   járható, ezért a Referenciák kap lent helyet, és az SVG a szekció aljánál véget ér: így a
+   teljes ív a .section-after-en belül, üres háttér fölött rajzolódik ki. */
+#old-site .projects {
+  padding-bottom: 60vh;
+}
+
+#old-site .fluid-line-svg {
+  height: calc(100% + 30vh);
+}
+
+/* Az előnézet ki/be halványulása gyorsabb (0.4s helyett 0.25s), hogy a Referenciák végén
+   ne maradjon fent, amíg a következő szekció becsúszik. */
+#old-site .proj-preview {
+  transition: opacity 0.25s ease;
+}
+
+/* ===== Tipográfiai egységesítés (2026-11-02) =====
+   Szabály: címek és nagy kiemelt mondatok = Instrument Serif 400; minden szöveg = Helvetica Neue 400
+   (2026-11-02 óta; korábban Inter, de az Inter-fájlok csak néhány betűs töredékek voltak).
+   Kiemelés csak ugyanannak a betűtípusnak a dőlt változatával, nincs betűtípus-váltás
+   mondat közben és nincs félkövér. */
+
+/* kiemelt szavak: eddig Instrument Sans-ra váltottak mondat közben */
+#old-site .other-accent,
+#old-site .other-accent .word {
+  font-family: inherit !important;
+  font-style: italic;
+}
+
+/* lábléc nagy név: a "Botond." is Serif */
+#old-site .footer-name-baffait,
+#old-site .footer-name-dot {
+  font-family: 'Instrument Serif', Georgia, serif !important;
+}
+
+/* munkafolyamat: lépéscím Serif, a szekciócím egyenes és alapszínű, mint a többi szekciócím */
+#old-site #mf-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-weight: 400;
+}
+#old-site .mf-heading,
+#old-site .mf-heading span {
+  font-style: normal;
+  color: #1C1A17;
+}
+
+/* Kapcsolat: a mondatok és az e-mail cím szöveg, nem cím */
+#old-site .contact-dispo,
+#old-site .contact-dispo p,
+#old-site .contact-mail {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* nincs félkövér */
+#old-site .proj-label,
+#old-site .proj-date,
+#old-site .proj-cursor,
+#old-site .mf-node,
+#old-site #mf-title {
+  font-weight: 400;
+}
+
+/* a munkafolyamat-szekcio.css erősebb szabályát (#mf-section .mf-text h3) is felül kell írni */
+#old-site #mf-section .mf-text h3 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-weight: 400;
+}
+
+#old-site .chr-hover,
+#old-site .chr-hover .ch-top,
+#old-site .chr-hover .ch-bot {
+  font-weight: 400;
+}
+
+#old-site .scroll-pct {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* a munkafolyamat-szekcio.css UTÁN töltődik be, ezért ID-val erősítve */
+#old-site #mf-section .mf-text h3#mf-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-weight: 400;
+}
+
+/* Rólam: a nagy mondat ne fusson a fotó alá (asztali nézet; a fotó jobbra igazítva,
+   min(55vw, 780px) széles, a szekció bal paddingje 4rem, köztük 3rem hézag) */
+@media (min-width: 769px) {
+  #old-site .about-text {
+    max-width: min(640px, calc(100vw - min(55vw, 780px) - 4rem - 3rem));
+  }
+}
+
+/* Rólam: cím + két bekezdés egyszerre férjen ki a képernyőre (2026-11-02). A betűméret a
+   képernyő szélességéhez ÉS magasságához is igazodik, a sorköz szorosabb a korábbi 1.7-nél. */
+#old-site .about-sub {
+  /* a minta szerint: kb. 22px és 1.7-es sorköz; a képernyő magasságához is kötve, hogy a cím és
+     a két bekezdés egy képernyőn elférjen */
+  font-size: clamp(1rem, min(1.5vw, 2.8vh), 1.35rem);
+  line-height: 1.7;
+  max-width: 520px;
+  width: 40%;
+}
+#old-site .about-text {
+  font-size: clamp(1.8rem, min(3.6vw, 6vh), 3.4rem);
+}
+@media (max-width: 768px) {
+  #old-site .about-sub { width: 100%; max-width: none; }
+}
+
+/* ===== Futó szöveg (2026-11-02) =====
+   A bekezdések Helvetica Neue 400-ban (a user mintája: a régi Rólam-szöveg kinézete).
+   Korábban itt egy Inter 500 betöltése volt; kivéve, mert az oldal futó szövege
+   egységesen Helvetica Neue lett. */
+/* a bekezdések (azonos szerepű szövegek egységesen) */
+#old-site .about-sub,
+#old-site .about-sub .word,
+#old-site #mf-section .mf-text p,
+#old-site .award-detail,
+#old-site .award-detail p,
+#old-site .contact-dispo,
+#old-site .contact-dispo p {
+  font-weight: 400;
+}
+
+/* ===== Egységes szövegstílus (2026-11-02) =====
+   Minden nem-cím szöveg ugyanazt a stílust kapja: Helvetica Neue 400, egyenes, 0 betűköz,
+   nincs csupa nagybetű, teljes szín (világos háttéren #1C1A17, sötéten #F1ECE6). Csak a
+   méret térhet el. Kivétel: a Szolgáltatások inaktív sorainak halványítása (görgetés-állapot). */
+#old-site .proj-date,
+#old-site .proj-label,
+#old-site .proj-cursor,
+#old-site .detail-back,
+#old-site .detail-back .ch-top,
+#old-site .detail-back .ch-bot,
+#old-site .scroll-pct,
+#old-site .contact-dispo,
+#old-site .contact-dispo p,
+#old-site .contact-mail,
+#old-site .chr-hover,
+#site-menu .sm-social-title,
+#site-menu .sm-social a {
+  text-transform: none;
+  letter-spacing: 0;
+  font-style: normal;
+}
+
+/* a Kapcsolat mondataiban a kiemelés nem dőlt (dőlt csak címekben lehet) */
+#old-site .contact-dispo .other-accent,
+#old-site .contact-dispo .other-accent .word {
+  font-style: normal;
+}
+
+/* bekezdések: 1.7-es sorköz, mint a Rólamnál */
+#old-site #mf-section .mf-text p,
+#old-site .award-detail,
+#old-site .award-detail p,
+#old-site .contact-dispo p {
+  line-height: 1.7;
+}
+
+/* teljes szín a halványszürkék helyett */
+#old-site #mf-section .mf-text p,
+#old-site .award-detail,
+#old-site .award-detail p,
+#old-site .proj-date,
+#old-site .proj-label {
+  color: #1C1A17;
+}
+#site-menu .sm-social-title {
+  color: #F1ECE6;
+}
+
+/* a később betöltődő menu-brand.css / munkafolyamat-szekcio.css felülírná: erősebb szelektorral */
+#site-menu .sm-panel .sm-social .sm-social-title {
+  text-transform: none;
+  letter-spacing: 0;
+  color: #F1ECE6;
+}
+#old-site #mf-section .mf-text p#mf-desc {
+  color: #1C1A17;
+  line-height: 1.7;
+  letter-spacing: 0;
+}
+#old-site .detail-back .ch-top,
+#old-site .detail-back .ch-bot {
+  color: inherit;
+}
+
+/* ===== Kapcsolat szövegei (2026-11-04) =====
+   A sorkizárt, 12,5%-os keskeny hasáb nagy szóközöket hagyott: balra zárt, szélesebb hasáb,
+   szorosabb sorköz. Asztalin a képkeretek (75% és 50% + 25%) mellett marad hely. */
+@media (min-width: 769px) {
+  #old-site .contact-dispo { width: 18%; text-align: left; }
+  #old-site #contact-dispo { left: 54%; }
+  #old-site #contact-dispo-2 { left: 78.5%; }
+  #old-site .contact-dispo p { line-height: 1.45; text-align: left; }
+}
+
+/* Kapcsolat: egyértelmű kapcsolatfelvételi gomb (2026-11-04), a fejléc Menü gombjának mintájára */
+#old-site .contact-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.85em 1.6em;
+  border-radius: 999px;
+  background: #1C1A17;
+  color: #F1ECE6;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.05rem, 1.4vw, 1.35rem);
+  text-decoration: none;
+  transition: filter 0.3s ease;
+}
+#old-site .contact-cta:hover { filter: brightness(1.25); }
+
+/* "Írj nekem" + e-mail: vágás helyett áttűnés, a JS kapcsolja az .is-shown osztályt (2026-11-05) */
+#old-site .contact-cta,
+#old-site .contact-mail {
+  clip-path: none;
+  opacity: 0;
+  transform: translateY(0.6rem);
+  transition: opacity 0.5s ease, transform 0.5s ease, filter 0.3s ease;
+}
+#old-site .contact-cta.is-shown,
+#old-site .contact-mail.is-shown {
+  opacity: 1;
+  transform: none;
+}

@@ -1,0 +1,37 @@
+/* Pill buttons: header, footer socials, hover info. --pill-ink / --pill-bg let the header
+   invert them over the black section. */
+.pill {
+  height: var(--pill-h);
+  border-radius: calc(var(--pill-h) / 2);
+  padding: 0 calc(var(--u) * 20);
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 6);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  letter-spacing: var(--track-pill);
+  white-space: nowrap;
+  transition:
+    background-color var(--t-color) ease,
+    color var(--t-color) ease,
+    border-color var(--t-color) ease;
+}
+.pill:hover {
+  filter: brightness(1.08);
+}
+.accent {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.ink {
+  background: var(--pill-ink, var(--ink));
+  color: var(--pill-bg, var(--bg));
+}
+.outline {
+  border: 1px solid var(--ink);
+  color: var(--ink);
+}
+.arrow {
+  width: calc(var(--u) * 14);
+  height: calc(var(--u) * 14);
+}

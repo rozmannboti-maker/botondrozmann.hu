@@ -1,0 +1,220 @@
+/* ============================================================================
+   SZOLGÁLTATÁS-KÁRTYÁK  —  a Szolgáltatások lista alatt (2026-11-02)
+   Forrás/inspiráció: fromanother.love "Our team" szekció (kiszedve:
+   Saját projektek/Saját weboldal/inspirációk - teljes html kóddal/szolgáltatás szekcióhoz).
+   Mechanika: bevezető cím (blur → éles) + sticky, görgetés-vezérelt átlós kártya-stack,
+   szürke/halvány inaktív kártyák, szavanként előtűnő leírás, gördülő sorszám.
+   Saját stílus: krém háttér, sötét szöveg, terrakotta fények; címek Instrument Serif,
+   szöveg Helvetica Neue 400. Vezérlő: src/old/svc-stack.ts
+   ============================================================================ */
+
+.svc {
+  /* az eredeti rem-skála (1rem = 10px 1920px szélességnél) saját egységként */
+  --r: 2.6666667vw;
+  --svc-bg: #EFECE7;
+  --svc-ink: #1C1A17;
+  --svc-accent: #8C3B2A;
+  --svc-accent-light: #D9805F;
+  --svc-serif: 'Instrument Serif', Georgia, serif;
+  --svc-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  position: relative;
+  z-index: 20010;
+  background: var(--svc-bg);
+  color: var(--svc-ink);
+  font-family: var(--svc-sans);
+  font-weight: 400;
+  letter-spacing: 0;
+  overflow-x: clip;
+}
+@media (min-width: 768px) { .svc { --r: 1.3020833vw; } }
+@media (min-width: 1200px) { .svc { --r: 0.5208333vw; } }
+
+/* ---------- 1. Bevezető cím ---------- */
+.svc-intro {
+  position: relative;
+  width: 100%;
+  /* rövidebb bevezető (korábban 100svh), hogy a kártyák hamarabb jöjjenek */
+  height: 55svh;
+  /* nincs vágás: a fényfolt folyamatosan átfut a kártyák mögé */
+  overflow: visible;
+  z-index: 0;
+}
+.svc-glow {
+  position: absolute;
+  /* a fénynek a rövidebb bevezetőnél nagyobb terület kell, lefelé a kártyák mögé is */
+  inset: 0 0 -80svh 0;
+  pointer-events: none;
+  filter: blur(60px);
+}
+.svc-glow span {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--svc-accent-light);
+  opacity: 0.35;
+  animation: svc-drift 14s ease-in-out infinite alternate;
+}
+.svc-glow span:nth-child(1) { width: 22vw; height: 40vh; left: 38%; top: 48%; transform: rotate(-30deg); }
+.svc-glow span:nth-child(2) { width: 30vw; height: 22vh; left: 18%; top: 72%; background: var(--svc-accent); opacity: 0.22; animation-duration: 18s; }
+.svc-glow span:nth-child(3) { width: 8vw; height: 12vh; left: 41%; top: 54%; opacity: 0.45; filter: blur(10px); animation-duration: 11s; }
+@keyframes svc-drift { to { translate: 4vw -6vh; rotate: 20deg; } }
+.svc-noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  pointer-events: none;
+  /* 2026-11-03: a szemcse a bevezető fent és lent is éles vonallal ért véget → mindkét szélén kifut */
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 35%, #000 65%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 35%, #000 65%, transparent);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.svc-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: calc(var(--r) * 30);
+  text-align: center;
+  font-family: var(--svc-serif);
+  font-weight: 400;
+  /* 2026-11-03: a Munkafolyamat címével (.mf-heading) azonos méret, a korábbi 12 × --r (1920-on 120 px) túl nagy volt */
+  font-size: clamp(2.25rem, 1.9rem + 1.6vw, 3.75rem);
+  line-height: 1.1;
+}
+@media (min-width: 768px) { .svc-title { max-width: calc(var(--r) * 48); } }
+@media (min-width: 1200px) {
+  .svc-title { max-width: calc(var(--r) * 120); top: 50%; transform: translate(-50%, -50%); }
+}
+.svc-title h2 { font: inherit; margin: 0; }
+.svc-title em { font-style: italic; }
+.svc-title .word { display: inline-block; opacity: 0; filter: blur(12px); transition: opacity 1s ease, filter 1s ease; }
+.svc-intro.is-in .svc-title .word { opacity: 1; filter: blur(0); }
+
+/* ---------- 2. Sticky kártya-stack ---------- */
+.svc-stack {
+  position: relative;
+  width: 100%;
+  height: 300svh;
+}
+.svc-content {
+  z-index: 1;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.svc-index {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--r) * 3.6);
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: calc(var(--r) * 1.2);
+  font-size: calc(var(--r) * 1.6);
+  z-index: 3;
+}
+.svc-index [data-separator] { display: inline-block; height: 1px; width: calc(var(--r) * 1.6); background: currentColor; }
+@media (min-width: 1200px) { .svc-index { font-size: calc(var(--r) * 1.8); } }
+@media (max-width: 1199px) { .svc-index { top: calc(var(--r) * 8); left: 50%; transform: translateX(-50%); } }
+
+/* kártyaméret a referencia szerint: álló, 504 : 550 (1920px-en 504 × 550 px) */
+.svc-cards {
+  --width: calc(var(--r) * 25.5);
+  --height: calc(var(--r) * 27.8);
+  --stack-gap: calc(var(--r) * 2.4);
+  width: var(--width);
+  height: var(--height);
+  display: grid;
+  margin-bottom: calc(var(--r) * 1.6);
+  position: relative;
+  z-index: 1;
+}
+@media (min-width: 768px) { .svc-cards { --width: calc(var(--r) * 33.3); --height: calc(var(--r) * 36.4); --stack-gap: calc(var(--r) * 3.2); margin-bottom: calc(var(--r) * 3.2); } }
+@media (min-width: 1200px) { .svc-cards { --width: calc(var(--r) * 50.4); --height: calc(var(--r) * 55); --stack-gap: calc(var(--r) * 3.2); } }
+.svc-cards > * { grid-column: 1 / -1; grid-row: 1 / -1; }
+
+/* --rel-pos = index - aktív index → átlós eltolás x/y-ban egyszerre */
+.svc-card {
+  --offset-step: calc(100% + var(--stack-gap));
+  width: var(--width);
+  height: var(--height);
+  position: relative;
+  transform: translateX(calc(var(--offset-step) * var(--rel-pos, 0))) translateY(calc(var(--offset-step) * var(--rel-pos, 0))) translateZ(0);
+}
+.svc-card-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: clip;
+  box-shadow: 0 calc(var(--r) * 1.2) calc(var(--r) * 4) rgba(28, 26, 23, calc(0.18 * var(--active, 0)));
+}
+.svc-card-obj {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  opacity: var(--o, 0.3);
+  filter: grayscale(var(--g, 100%));
+  transform: translateX(calc(var(--scroll-velocity, 0) * 0.9px)) translateY(calc(var(--scroll-velocity, 0) * 0.9px)) translateZ(0) scale(1.1);
+}
+.svc-card-obj img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* leírás — asztalin jobbra, kisebb képernyőn a kártyák alatt */
+.svc-desc {
+  display: grid;
+  width: calc(var(--r) * 30);
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+.svc-desc > * { grid-column: 1 / -1; grid-row: 1 / -1; }
+.svc-desc h3 {
+  font-family: var(--svc-serif);
+  font-weight: 400;
+  font-size: calc(var(--r) * 2.6);
+  line-height: 1.05;
+  margin: 0 0 0.6em;
+}
+.svc-desc p {
+  font-size: calc(var(--r) * 1.4);
+  line-height: 1.7;
+  margin: 0;
+}
+@media (min-width: 768px) { .svc-desc { width: calc(var(--r) * 40); } .svc-desc p { font-size: calc(var(--r) * 1.6); } }
+@media (min-width: 1200px) {
+  .svc-desc { position: absolute; top: calc(var(--r) * 26.7); left: calc(var(--r) * 146); width: calc(var(--r) * 30); text-align: left; }
+  .svc-desc h3 { font-size: calc(var(--r) * 4.4); }
+  .svc-desc p { font-size: calc(var(--r) * 2.1); }
+}
+.svc-desc .word { display: inline-block; opacity: 0; }
+
+/* nagy, gördülő sorszám (01, 02, …) */
+.svc-counter { display: none; }
+@media (min-width: 1200px) {
+  .svc-counter {
+    position: absolute;
+    display: flex;
+    bottom: calc(var(--r) * 7.6);
+    left: calc(var(--r) * 14);
+    font-family: var(--svc-serif);
+    font-weight: 400;
+    font-size: calc(var(--r) * 24);
+    line-height: 0.9em;
+    color: var(--svc-accent);
+    z-index: 2;
+  }
+}
+.svc-counter-viewport { overflow: hidden; height: 0.9em; }
+.svc-counter-strip { transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1); }
+.svc-counter-strip div { height: 0.9em; line-height: 0.9em; }
+
+@media (prefers-reduced-motion: reduce) {
+  .svc-glow span { animation: none; }
+  .svc-counter-strip { transition: none; }
+}

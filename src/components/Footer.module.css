@@ -1,0 +1,66 @@
+.footer {
+  position: absolute;
+  left: var(--edge);
+  right: var(--edge);
+  bottom: var(--edge);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  z-index: 3;
+  pointer-events: none;
+}
+.footer > * {
+  pointer-events: auto;
+}
+
+.note {
+  white-space: nowrap;
+  width: calc(var(--u) * 300);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--track-body);
+}
+
+.socials {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: calc(var(--u) * 12);
+  width: calc(var(--u) * 324);
+}
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--ink);
+  letter-spacing: var(--track-body);
+}
+.labels span {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+/* "Visit our socials:" starts right-aligned (--slide 1) and slides to the left (0) at the grid;
+   the row is 324 u wide and a translate percentage is the label's own width, so nothing is measured */
+.visit {
+  translate: calc(var(--slide, 1) * (var(--u) * 324 - 100%)) 0;
+}
+
+.btns {
+  display: flex;
+}
+
+/* phone: the note above the socials, both left-aligned */
+@media (orientation: portrait) {
+  .footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: calc(var(--u) * 24);
+  }
+  .socials {
+    width: calc(var(--u) * 324);
+    align-items: flex-start;
+  }
+}

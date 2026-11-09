@@ -1,0 +1,85 @@
+.nav {
+  position: fixed;
+  top: var(--edge);
+  left: var(--edge);
+  right: var(--edge);
+  height: var(--pill-h);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* a régi szekciók (#old-site) z-indexei 20010–30035 közöttiek: a fejléc mindegyik fölött marad */
+  z-index: 40000;
+  pointer-events: none;
+  --nav-ink: var(--ink);
+  --nav-bg: var(--bg);
+  --pill-ink: var(--nav-ink);
+  --pill-bg: var(--nav-bg);
+}
+.nav[data-inverted="true"] {
+  --nav-ink: var(--inv-ink);
+  --nav-bg: var(--inv-bg);
+}
+.nav > * {
+  pointer-events: auto;
+}
+
+.logo {
+  opacity: 0;
+  width: var(--pill-h);
+  height: var(--pill-h);
+  display: block;
+  color: var(--nav-ink);
+  transition: color var(--t-color) ease;
+}
+.logo svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.toggle {
+  width: calc(var(--u) * 36);
+  height: calc(var(--u) * 36);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--nav-ink) 25%, transparent);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  transition: background-color var(--t-color) ease;
+}
+
+/* sun on a light header, moon on a dark one */
+.icon {
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 20);
+  height: calc(var(--u) * 20);
+}
+.icon svg {
+  width: 100%;
+  height: 100%;
+}
+.moon {
+  display: none;
+}
+:global(:root[data-theme="dark"]) .nav:not([data-inverted="true"]) .sun,
+:global(:root:not([data-theme="dark"])) .nav[data-inverted="true"] .sun {
+  display: none;
+}
+:global(:root[data-theme="dark"]) .nav:not([data-inverted="true"]) .moon,
+:global(:root:not([data-theme="dark"])) .nav[data-inverted="true"] .moon {
+  display: grid;
+}
+
+/* a Kapcsolat terrakotta hátterén a terrakotta "Beszéljünk" gomb beleolvadna: ott sötét
+   (az attribútumot az OldSections állítja, amíg a #contact a fejléc alatt van) */
+.nav[data-on-accent="true"] > .actions > a:first-child {
+  background: var(--ink);
+  color: var(--bg);
+}

@@ -1,0 +1,73 @@
+/* Design tokens. --u = 1 px of the 1440 × 900 layout, scaled by the smaller side;
+   on portrait screens 1 px of a 390 × 760 phone layout. The engine reads --u from a probe. */
+@font-face { font-family: "Instrument Serif"; src: url("/assets/Instrument_Serif_400.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: "Instrument Serif"; src: url("/assets/Instrument_Serif_400_italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: block; }
+
+:root {
+  --u: calc(min(100vw, 100svh * 1440 / 900) / 1440);
+
+  --bg: #efece7;
+  --ink: #1c1a17;
+  --muted: #6e6860;
+  --accent: #8c3b2a;
+  --on-accent: #efece7;
+  /* the "inverted" black section (blinds, final): ink on paper in light, always near-black in dark */
+  --inv-bg: var(--ink);
+  --inv-ink: var(--bg);
+
+  /* futó szöveg és feliratok: Helvetica Neue (a korábbi Inter-fájlok csak néhány betűs töredékek voltak) */
+  --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --serif: "Instrument Serif", Georgia, serif;
+
+  --edge: calc(var(--u) * 20);
+  --pill-h: calc(var(--u) * 38);
+
+  /* type */
+  --fs-body: calc(var(--u) * 16);
+  /* egységes szövegstílus: minden bekezdés 1.7-es sorközzel, 0 betűközzel (2026-11-02) */
+  --lh-body: calc(var(--u) * 16 * 1.7);
+  --fs-small: calc(var(--u) * 14);
+  --fs-name: calc(var(--u) * 24);
+  --fs-lead: calc(var(--u) * 80);
+  --lh-lead: calc(var(--u) * 72);
+  --track-body: 0;
+  --track-pill: 0;
+
+  /* hero: the lines' baselines, sizes and tracking. The baselines hang off the screen's centre like the
+     subheading (379.313 u and 647.313 u from the top at 16:10 and wider), so taller screens keep the composition */
+  --hero-size: calc(var(--u) * 180);
+  --hero-serif-size: calc(var(--u) * 200);
+  --hero-track: -0.05em;
+  --hero-serif-track-1: -0.04em;
+  --hero-serif-track-2: -0.01em;
+  --hero-b1: calc(50% - var(--u) * 30);
+  --hero-b2: calc(50% + var(--u) * 165);
+
+  /* motion */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease: cubic-bezier(0.44, 0, 0.56, 1);
+  --t-color: 0.35s;
+}
+
+:root[data-theme="dark"] {
+  --bg: #15130f;
+  --ink: #f1ece6;
+  --muted: #9c948a;
+  --accent: #d9805f;
+  --on-accent: #15130f;
+  --inv-bg: #0a0908;
+  --inv-ink: #f1ece6;
+}
+
+@media (orientation: portrait) {
+  :root {
+    --u: calc(min(100vw, 100svh * 390 / 760) / 390);
+    --fs-lead: calc(var(--u) * 25);
+    --lh-lead: calc(var(--u) * 23);
+    --hero-size: calc(var(--u) * 84);
+    --hero-serif-size: calc(var(--u) * 93.33);
+    /* phone: around the subheading, which sits at the screen's centre */
+    --hero-b1: calc(50% - var(--u) * 47);
+    --hero-b2: calc(50% + var(--u) * 50);
+  }
+}

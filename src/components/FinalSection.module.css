@@ -1,0 +1,89 @@
+.final {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  color: var(--inv-ink);
+  pointer-events: none;
+  visibility: hidden;
+}
+.final[data-active="true"] {
+  pointer-events: auto;
+}
+
+.crumb {
+  position: absolute;
+  left: var(--edge);
+  top: calc(var(--u) * 176);
+  font-size: var(--fs-small);
+  line-height: var(--lh-body);
+  letter-spacing: var(--track-body);
+  white-space: nowrap;
+  display: flex;
+  gap: calc(var(--u) * 10);
+}
+.star {
+  color: var(--muted);
+}
+
+.aside {
+  position: absolute;
+  right: var(--edge);
+  top: calc(var(--u) * 176);
+  width: calc(var(--u) * 280);
+  font-size: var(--fs-small);
+  line-height: var(--lh-body);
+  letter-spacing: var(--track-body);
+  white-space: nowrap;
+}
+
+.lead {
+  position: absolute;
+  left: var(--edge);
+  top: calc(var(--u) * 305);
+  font-size: var(--fs-lead);
+  line-height: var(--lh-lead);
+  letter-spacing: var(--track-body);
+  font-weight: 400;
+  white-space: nowrap;
+}
+/* room for the aberration's colour shifts inside the line masks */
+.lead :global(.line-mask) {
+  padding: 0 0.2em 0.08em;
+  margin: 0 -0.2em -0.08em;
+}
+
+/* the phrase with the cinematic aberration (the SVG filter switches on only on a jerk) */
+.phrase {
+  display: inline-block;
+  will-change: filter;
+}
+
+.scroll {
+  position: absolute;
+  left: var(--edge);
+  bottom: calc(var(--u) * 20);
+  font-size: var(--fs-body);
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 8);
+}
+.arrow {
+  width: calc(var(--u) * 13);
+  height: calc(var(--u) * 13);
+}
+
+/* phone: the aside under the crumb; the lead keeps its five lines, smaller */
+@media (orientation: portrait) {
+  .crumb {
+    top: calc(var(--u) * 110);
+  }
+  .aside {
+    left: var(--edge);
+    right: auto;
+    top: calc(var(--u) * 146);
+  }
+  .lead {
+    top: calc(var(--u) * 250);
+  }
+}

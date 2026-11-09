@@ -1,0 +1,99 @@
+@font-face { font-family: "Instrument Serif"; src: url("/assets/Instrument_Serif_400.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Instrument Serif"; src: url("/assets/Instrument_Serif_400_italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
+
+/* a főoldal fejlécével azonos méretek és színek (src/styles/tokens.css + Navigation.module.css) */
+.top {
+  --u: calc(min(100vw, 100svh * 1440 / 900) / 1440);
+  --pill-h: calc(var(--u) * 38);
+  --fs-body: calc(var(--u) * 16);
+  --track-pill: 0;
+  --t-color: 0.35s;
+  --accent: #8c3b2a;
+  --on-accent: #efece7;
+  --pill-ink: #1c1a17;
+  --pill-bg: #efece7;
+  --nav-edge: calc(var(--u) * 20);
+  position: absolute;
+  top: var(--nav-edge);
+  left: var(--nav-edge);
+  right: var(--nav-edge);
+  height: var(--pill-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+@media (orientation: portrait) {
+  .top { --u: calc(min(100vw, 100svh * 390 / 760) / 390); }
+}
+.actions {
+  display: flex;
+  align-items: center;
+  pointer-events: auto;
+}
+.actions a {
+  text-decoration: none;
+}
+.actions button {
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* The logo's 24 px frame; the SVG overhangs it (descender, mark) as in the design. */
+.logo {
+  position: relative;
+  flex: none;
+  width: calc(var(--logo-w) * var(--logo-scale));
+  height: calc(var(--logo-h) * var(--logo-scale));
+  pointer-events: auto;
+}
+
+.logo img {
+  position: absolute;
+  left: 0;
+  top: calc(var(--logo-svg-top) * var(--logo-scale));
+  width: calc(var(--logo-svg-w) * var(--logo-scale));
+  height: calc(var(--logo-svg-h) * var(--logo-scale));
+  max-width: none;
+}
+
+.cta {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--cta-pad-y) var(--cta-pad-x);
+  border-radius: var(--cta-radius);
+  background: var(--cta-bg);
+  color: var(--cta-fg);
+  font: 500 var(--cta-size) / 1 var(--font-cta);
+  letter-spacing: var(--cta-tracking);
+  white-space: nowrap;
+  text-decoration: none;
+  pointer-events: auto;
+  transition: opacity var(--cta-hover) ease;
+}
+
+.cta:hover {
+  opacity: 0.86;
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 3px;
+}
+
+/* vissza a főoldalra (2026-11-06) */
+.home {
+  flex: none;
+  color: var(--fg);
+  font: 400 var(--fs-body) / 1 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-decoration: none;
+  pointer-events: auto;
+  opacity: 0.86;
+  transition: opacity var(--cta-hover) ease;
+}
+.home:hover {
+  opacity: 1;
+}

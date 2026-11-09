@@ -1,0 +1,96 @@
+/* Above the grid, spanning its width (--grid-left / --grid-right come from the engine). */
+.info {
+  position: absolute;
+  top: calc(var(--u) * 118);
+  left: var(--grid-left, var(--edge));
+  right: var(--grid-right, var(--edge));
+  height: calc(var(--u) * 54);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.title {
+  position: absolute;
+  left: 0;
+  top: calc(var(--u) * 4);
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--u) * 8);
+  overflow: hidden;
+}
+.idx {
+  font-size: var(--fs-body);
+  color: color-mix(in srgb, var(--ink) 50%, transparent);
+  letter-spacing: var(--track-body);
+}
+.name {
+  font-size: var(--fs-name);
+  letter-spacing: var(--track-body);
+  font-weight: 400;
+}
+
+.desc {
+  position: absolute;
+  left: calc(var(--u) * 225);
+  top: 0;
+  width: calc(var(--u) * 205);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--track-body);
+}
+
+.btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  pointer-events: auto;
+}
+
+/* the lines leave their masks */
+.title,
+.desc,
+.btn {
+  transition:
+    opacity 0.35s ease,
+    transform 0.5s var(--ease-out);
+}
+.info:not(.visible) .title,
+.info:not(.visible) .desc {
+  opacity: 0;
+  transform: translateY(calc(var(--u) * -6));
+}
+.info:not(.visible) .btn {
+  opacity: 0;
+  transform: translateY(calc(var(--u) * 6));
+  pointer-events: none;
+}
+
+.anim {
+  display: block;
+  animation: rise 0.55s var(--ease-out) both;
+}
+.animDesc {
+  animation-delay: 0.04s;
+}
+@keyframes rise {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* phone: the description under the title, full width */
+@media (orientation: portrait) {
+  .info {
+    top: calc(var(--u) * 92);
+    height: auto;
+  }
+  .desc {
+    position: relative;
+    left: 0;
+    top: calc(var(--u) * 46);
+    width: 100%;
+  }
+}

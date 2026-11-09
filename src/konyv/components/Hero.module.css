@@ -1,0 +1,62 @@
+.hero {
+  position: absolute;
+  top: var(--hero-top);
+  left: var(--edge);
+  width: var(--hero-width);
+  display: flex;
+  flex-direction: column;
+  gap: var(--hero-gap);
+  font-family: var(--font-head);
+  line-height: 1;
+}
+
+.hidden {
+  opacity: 0;
+  transform: translateY(var(--hero-rise));
+}
+
+/* Fades in once the scene is ready, and back in when the book closes. */
+.shown {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--hero-in) ease var(--hero-in-delay),
+    transform var(--hero-in) ease var(--hero-in-delay);
+}
+
+/* Steps aside while the book is open. */
+.away {
+  opacity: 0;
+  transform: translateY(var(--hero-lift));
+  transition:
+    opacity var(--hero-out) ease,
+    transform var(--hero-out-move) ease;
+}
+
+.hero h1 {
+  font-weight: 500;
+  font-size: var(--h1-size);
+  letter-spacing: var(--tracking);
+  line-height: 1;
+}
+
+.hero p {
+  font-weight: 400;
+  font-size: var(--p-size);
+  letter-spacing: var(--tracking);
+  line-height: 1;
+  opacity: var(--muted);
+}
+
+@media (max-width: 560px) {
+  .hero {
+    width: auto;
+    right: var(--edge);
+    gap: var(--hero-gap-phone);
+  }
+
+  .hero p {
+    line-height: 1.25;
+  }
+}
+

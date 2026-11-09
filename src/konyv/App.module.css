@@ -1,0 +1,16 @@
+/* The first screen: the scene (canvas + vignette) and the headline live in this wrapper and scroll away with it. */
+.heroWrap {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+}
+
+/* The fixed top bar: only its link takes the pointer. */
+.ui {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  pointer-events: none;
+}

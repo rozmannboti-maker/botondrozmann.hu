@@ -1,0 +1,256 @@
+/* ============================================================================
+   MENÜ  —  jobb-felső hamburger + sarokból kinyíló panel
+   ----------------------------------------------------------------------------
+   Forrás/inspiráció: pensatori-irrazionali.com header-menüje; a mechanikát
+   (hamburger → oktogon-panel kinyílás, lépcsőzetes menüpont-reveal, elválasztó
+   vonalak, teljes képernyős sötétítő) tiszta GSAP-timeline-ként építettük újra.
+
+   Minden szabály #site-menu (ill. #header > #site-menu) alá van scope-olva, hogy
+   a Septiembre-sablon globális CSS-ét ne törje. A színek és betűk a SAJÁT márka
+   rendszere (01-Sajat-Brand/Vizualis-Identitas.md):
+     - panel: sötét felület (#1C1A17 / #211D18), backdrop-blur
+     - accent (interakció): terrakotta-bordó #8C3B2A / világosabb #D9805F
+     - menüpontok: Instrument Serif, dőlt
+     - címkék / social: Inter
+   A self-hosted fontok a luke-adapted.css @font-face-eiből jönnek.
+   ============================================================================ */
+
+/* --- a régi Septiembre #header semlegesítése: ne fogjon kattintást, ne rakjon
+   sávot a lap tetejére; a benne élő #site-menu a saját fixed rétege --- */
+
+#site-menu{
+  --sm-surface:      #1C1A17;
+  --sm-surface-2:    #211D18;
+  --sm-text:         #F1ECE6;
+  --sm-text-dim:     #9C948A;
+  --sm-accent:       #8C3B2A;
+  --sm-accent-light: #D9805F;
+  --sm-line:         #3A322A;
+
+  position:fixed;
+  inset:0;
+  z-index:999999;                   /* a nagy z-index-ű szekciók (20010+) fölé */
+  pointer-events:none;              /* csak az interaktív gyerekek élők */
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+#site-menu *,
+#site-menu *::before,
+#site-menu *::after{ box-sizing:border-box; }
+
+/* ---------- hamburger gomb (mindig a jobb felső sarokban, a panel fölött) ---------- */
+#site-menu .sm-toggle{
+  position:absolute;
+  right:clamp(1.25rem, 3vw, 3rem);
+  top:clamp(1.25rem, 2.4vw, 2.25rem);
+  width:2.75rem;
+  height:2.75rem;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  margin:0;
+  border:0;
+  border-radius:50%;
+  background:rgba(28,26,23,.55);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  cursor:pointer;
+  pointer-events:auto;
+  color:var(--sm-text);
+  -webkit-tap-highlight-color:transparent;
+  transition:background-color .3s ease;
+}
+#site-menu .sm-toggle:hover{ background:rgba(28,26,23,.75); }
+#site-menu .sm-toggle:focus-visible{ outline:2px solid var(--sm-accent-light); outline-offset:2px; }
+
+/* A fejlécbe tett "Kapcsolat" gomb (2026-10-19) innen átköltözött a hero
+   aljára (.hero-cta, hero-brand-override.css) — a fixed fejléc-gombbal két
+   gond is volt: rácsúszott a nyitott hamburger-panelra, és furcsán pattant
+   be/ki a panel záródásakor. A hero-beli elhelyezés (mejuma.com-mintára)
+   ezt elkerüli, mert csak a hero-val együtt görgethető el. */
+
+#site-menu .sm-bars{ position:relative; width:20px; height:14px; }
+#site-menu .sm-bars i{
+  position:absolute;
+  left:0;
+  width:20px;
+  height:2px;
+  background:currentColor;
+  border-radius:2px;
+  transform-origin:center;
+  transition:transform .4s cubic-bezier(0,0,0,1), top .4s cubic-bezier(0,0,0,1);
+}
+#site-menu .sm-bars i:nth-child(1){ top:3px; }
+#site-menu .sm-bars i:nth-child(2){ top:9px; }
+#site-menu.is-open .sm-bars i:nth-child(1){ top:6px; transform:rotate(45deg); }
+#site-menu.is-open .sm-bars i:nth-child(2){ top:6px; transform:rotate(-45deg); }
+
+/* ---------- a kinyíló panel ---------- */
+#site-menu .sm-panel{
+  position:absolute;
+  right:clamp(1.25rem, 3vw, 3rem);
+  top:clamp(1.25rem, 2.4vw, 2.25rem);
+  width:2.75rem;
+  height:2.75rem;
+  z-index:19;
+  overflow:hidden;
+  pointer-events:none;             /* nyitáskor a JS auto-ra váltja */
+  background:color-mix(in srgb, var(--sm-surface) 92%, transparent);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  transform-origin:top right;
+  will-change:width, height;
+  /* 2026-11-04: a korábbi oktogon (8px-es levágott sarok) helyett a fejléc-gombokkal
+     (Beszéljünk / Menü) azonos lekerekítés */
+  border-radius:calc(var(--pill-h) / 2);
+}
+
+#site-menu .sm-nav{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding:5rem 1.75rem 2rem 2rem;
+  min-width:22rem;
+}
+@media (min-width:768px){
+  #site-menu .sm-nav{ padding:5.5rem 3rem 2.5rem 2.75rem; min-width:26rem; }
+}
+
+/* ---------- menüpontok — Instrument Serif, dőlt ---------- */
+#site-menu .sm-links{
+  display:flex;
+  flex-direction:column;
+  gap:.85rem;
+  margin-top:1rem;
+}
+#site-menu .sm-link{
+  display:flex;
+  flex-direction:column;
+  gap:.7rem;
+  width:100%;
+  color:var(--sm-text-dim);
+  text-decoration:none;
+  cursor:pointer;
+  opacity:0;                       /* GSAP innen animál */
+  will-change:transform, opacity;
+  -webkit-tap-highlight-color:transparent;
+}
+#site-menu .sm-link-row{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:1rem;
+}
+#site-menu .sm-link .sm-label{
+  font-family:'Instrument Serif', Georgia, 'Times New Roman', serif;
+  font-style:italic;
+  font-weight:400;
+  letter-spacing:0;
+  line-height:1;
+  font-size:clamp(2rem, 1.4rem + 2.2vw, 3.5rem);
+  transition:color .22s ease, transform .22s ease;
+  transform-origin:left;
+}
+#site-menu .sm-link .sm-arrow{
+  flex:0 0 auto;
+  width:.8rem;
+  transform:rotate(45deg);
+  color:var(--sm-line);
+  transition:color .22s ease, transform .22s ease;
+}
+#site-menu .sm-link .sm-arrow svg{ display:block; width:100%; height:auto; }
+#site-menu .sm-link:hover .sm-label,
+#site-menu .sm-link:focus-visible .sm-label{ color:var(--sm-accent-light); transform:scale(1.03); }
+#site-menu .sm-link:hover .sm-arrow,
+#site-menu .sm-link:focus-visible .sm-arrow{ color:var(--sm-accent-light); transform:rotate(45deg) translateX(2px); }
+#site-menu .sm-link:focus-visible{ outline:none; }
+
+#site-menu .sm-line{
+  width:100%;
+  height:1px;
+  background:var(--sm-line);
+  transform:scaleX(0);             /* GSAP innen animál */
+  transform-origin:left;
+  will-change:transform;
+}
+
+/* ---------- social / lábrész ---------- */
+#site-menu .sm-social{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:.35rem;
+  letter-spacing:-.01em;
+}
+#site-menu .sm-social .sm-social-title{
+  color:var(--sm-text-dim);
+  font-size:.8rem;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  margin-bottom:.9rem;
+  opacity:0;                       /* GSAP innen animál */
+  will-change:transform, opacity;
+}
+#site-menu .sm-social a{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:.4rem;
+  color:var(--sm-text);
+  text-decoration:none;
+  font-size:1rem;
+  padding-right:1rem;
+  opacity:0;                       /* GSAP innen animál */
+  will-change:transform, opacity;
+}
+#site-menu .sm-social a .sm-social-caret{
+  display:block;
+  width:.5rem;
+  color:var(--sm-accent-light);
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform .2s ease;
+}
+#site-menu .sm-social a .sm-social-caret svg{ display:block; width:100%; height:auto; }
+#site-menu .sm-social a:hover{ color:var(--sm-accent-light); }
+#site-menu .sm-social a:hover .sm-social-caret{ transform:scaleX(1); }
+
+/* ---------- teljes képernyős sötétítő ---------- */
+#site-menu .sm-overlay{
+  position:fixed;
+  inset:0;
+  z-index:1;
+  background:rgba(21,19,15,.72);
+  opacity:0;                       /* GSAP innen animál */
+  pointer-events:none;             /* nyitáskor a JS auto-ra váltja */
+}
+
+
+/* reduced-motion: nincs staggered animáció, csak azonnali megjelenés */
+@media (prefers-reduced-motion:reduce){
+  #site-menu .sm-bars i{ transition:none; }
+}
+
+/* ===== rb-oldal illesztés (2026-11-02) =====
+   A menüt a fejléc "Menü" gombja nyitja (window.__siteMenu). A régi hamburger zárt
+   állapotban rejtve van, nyitva bezáró X-ként látszik a panel sarkában. A panel és az X
+   a fejléc szélére (--edge) igazodik, hogy a Menü gomb helyéről nyíljon ki. */
+#site-menu .sm-toggle,
+#site-menu .sm-panel{
+  top:var(--edge);
+  right:var(--edge);
+}
+#site-menu .sm-toggle{
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .3s ease, background-color .3s ease;
+}
+#site-menu.is-open .sm-toggle{
+  opacity:1;
+  pointer-events:auto;
+}
+/* zárt állapotban a 44px-es összecsukott panel se látszódjon (a JS kapcsolja) */
+#site-menu .sm-panel{ visibility:hidden; }

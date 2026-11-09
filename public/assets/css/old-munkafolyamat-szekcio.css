@@ -1,0 +1,179 @@
+/* ============================================================================
+   MUNKAFOLYAMAT-SZEKCIÓ  —  görgetés-vezérelt köríves lépés-animáció
+   ----------------------------------------------------------------------------
+   Forrás/inspiráció: hear.ai „Think Different" szekció; a mechanikát tiszta
+   GSAP + ScrollTrigger alapon építettük újra. Vázlat + dokumentáció:
+   ../../komponens-vazlatok/munkafolyamat-szekcio.html
+
+   Minden szabály #mf-section alá van scope-olva, hogy a Septiembre-sablon
+   globális CSS-e (section/h2/h3/p/div szabályok) ne érjen bele.
+   A színek a márka VILÁGOS palettája (Vizualis-Identitas.md), fixen — az oldalon
+   nincs téma-kapcsoló. A betűk a self-hosted 'Instrument Serif' + 'Inter'
+   (luke-adapted.css @font-face).
+   ============================================================================ */
+
+#old-site #mf-section{
+  --mf-bg:      #EFECE7;
+  --mf-text:    #1C1A17;
+  --mf-text-2:  #6E6860;
+  --mf-border:  #D2CABE;
+  --mf-accent:  #8C3B2A;
+  --mf-count:   4;   /* a lépések száma — a szkript is felülírja a STEPS.length-ből */
+
+  position:relative;
+  /* görgetési hossz: 1 képernyő pinnelt „beérkezés" + lépésenként 1.
+     A .mf-stage-et a szkript ScrollTrigger `pin`-nel rögzíti (NEM position:sticky —
+     az itt nem megy, mert a <body>-n overflow-y:auto van; lásd a #circle-gallery mintát). */
+  height:calc((var(--mf-count) + 1) * 100vh);
+  background:var(--mf-bg);
+  overflow:hidden;
+}
+
+#old-site #mf-section *,
+#old-site #mf-section *::before,
+#old-site #mf-section *::after{ box-sizing:border-box; }
+
+#old-site #mf-section .mf-sticky{
+  position:relative;
+  width:100%;
+  height:100vh;
+  padding:6rem 1rem 0;
+  overflow:hidden;
+}
+@media (min-width:1024px){ #old-site #mf-section .mf-sticky{ padding-top:7rem; } }
+@media (min-width:1024px) and (min-height:1050px){ #old-site #mf-section .mf-sticky{ padding-top:26rem; } }
+
+/* nagy cím — Instrument Serif, dőlt, accent szín (Vizualis-Identitas) */
+#old-site #mf-section .mf-heading{
+  position:relative;
+  z-index:20;
+  margin:0;
+  padding:0;
+  text-align:center;
+  font-family:'Instrument Serif', Georgia, 'Times New Roman', serif;
+  font-style:italic;
+  font-weight:400;
+  color:var(--mf-accent);
+  line-height:1.1;
+  letter-spacing:0;
+  text-transform:none;
+  font-size:clamp(2.25rem, 1.9rem + 1.6vw, 3.75rem);
+}
+#old-site #mf-section .mf-heading span{ display:block; }
+
+#old-site #mf-section .mf-stage{
+  position:relative;
+  width:100%;
+  height:100%;
+  padding-top:2.5rem;
+}
+@media (min-width:768px){ #old-site #mf-section .mf-stage{ padding-top:0; } }
+
+/* a kör (csak a felső íve látszik, a többi a hajtás alatt) */
+#old-site #mf-section .mf-circle{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  border:1px solid var(--mf-border);
+  border-radius:9999px;
+  pointer-events:none;
+}
+
+/* csillag + tű a tetőponton */
+#old-site #mf-section .mf-star{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  will-change:opacity;
+}
+#old-site #mf-section .mf-star svg{ display:block; }
+#old-site #mf-section .mf-star svg path{ fill:var(--mf-accent); }
+#old-site #mf-section .mf-star-inner{ position:relative; z-index:10; display:block; }
+#old-site #mf-section .mf-needle{
+  position:absolute;
+  left:50%;
+  top:0;
+  width:2px;
+  z-index:20;
+  background:var(--mf-accent);
+  transform:translateX(-50%) translateY(5%) translateY(-100%);
+  transform-origin:bottom;
+}
+
+/* számozott csomópontok */
+#old-site #mf-section .mf-node{
+  position:absolute;
+  left:50%;
+  top:0;
+  margin:0;
+  width:3.75rem;
+  height:3.75rem;
+  border:1px solid var(--mf-border);
+  border-radius:9999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--mf-text);
+  background:var(--mf-bg);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size:1.5rem;
+  line-height:1;
+  will-change:transform, opacity;
+  transition:background-color .35s ease, border-color .35s ease, color .35s ease;
+}
+@media (min-width:1536px){
+  #old-site #mf-section .mf-node{ width:4.5rem; height:4.5rem; font-size:2rem; }
+}
+#old-site #mf-section .mf-node.is-active{
+  background:var(--mf-accent);
+  border-color:var(--mf-accent);
+  color:var(--mf-bg);
+}
+/* A nem-aktív csomópontok számai elfordulnak a körrel (mint az eredetin).
+   Ha inkább mindig függőlegesen álljanak: a JS render()-ében a
+   node.style.transform végéről vedd ki a ` rotate(...)` részt, és ide:
+     #mf-section .mf-node > span{ display:inline-block; } */
+
+/* középső szöveg */
+#old-site #mf-section .mf-text{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  width:100%;
+  max-width:40rem;
+  padding:0 1.5rem;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.75rem;
+  text-align:center;
+}
+#old-site #mf-section .mf-text h3{
+  margin:0;
+  padding:0;
+  z-index:20;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight:500;
+  color:var(--mf-text);
+  letter-spacing:-.01em;
+  text-transform:none;
+  font-size:clamp(1.35rem, 1.05rem + 1.4vw, 2.25rem);
+  line-height:1.2;
+  will-change:opacity, filter, transform;
+}
+#old-site #mf-section .mf-text p{
+  margin:0;
+  padding:0;
+  z-index:20;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight:400;
+  color:var(--mf-text-2);
+  font-size:clamp(.95rem, 0.85rem + 0.45vw, 1.15rem);
+  line-height:1.6;
+  will-change:opacity, filter, transform;
+}
+
+/* mobil: a kör alját levágjuk, hogy ne lógjon szét */
+@media (max-width:767.98px){
+  #old-site #mf-section .mf-circle{ clip-path:inset(0 0 55% 0); }
+}

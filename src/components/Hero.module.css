@@ -1,0 +1,68 @@
+/* The DOM source of the WebGL type (it is drawn in the scene, so the DOM text is transparent). */
+.dom {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.line {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  line-height: 1;
+  font-size: var(--hero-size);
+  letter-spacing: var(--hero-track);
+  color: transparent;
+  user-select: none;
+}
+/* each line's baseline sits on the design value; --base-off (the baseline's offset inside the
+   line box) is measured by the engine once the fonts have loaded */
+.line1 {
+  top: calc(var(--hero-b1) - var(--base-off, 0px));
+}
+.line2 {
+  top: calc(var(--hero-b2) - var(--base-off, 0px));
+}
+
+/* a hero csak az Instrument Serifet használja: a nem kiemelt szó egyenes, a kiemelt dőlt */
+.sans {
+  font-family: var(--serif);
+  font-style: normal;
+  font-weight: 400;
+  font-size: var(--hero-serif-size);
+  letter-spacing: var(--hero-serif-track-1);
+}
+.serif {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--hero-serif-size);
+  letter-spacing: var(--hero-serif-track-1);
+}
+.line2 .serif {
+  letter-spacing: var(--hero-serif-track-2);
+}
+
+.sub {
+  position: absolute;
+  left: calc(50% + var(--u) * 0.5);
+  top: calc(50% - var(--u) * 27);
+  transform: translateX(-50%);
+  width: calc(var(--u) * 211);
+  text-align: center;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--track-body);
+  z-index: 0;
+  color: transparent;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* no WebGL: the DOM shows the type itself */
+:global(.no-webgl) .line,
+:global(.no-webgl) .sub {
+  color: var(--ink);
+}
