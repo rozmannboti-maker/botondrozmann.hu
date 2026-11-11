@@ -375,6 +375,48 @@ function setupProjectsSection() {
 
   
   const linePath = document.getElementById('fluid-line');
+  // 2026-11-11: telefonon/tableten (keskeny, nagyon magas SVG) a 1400×1400-as asztali görbe
+  // "slice" módban jobbra kilógott, csak a bal széle látszott. Ott a görbe a tényleges
+  // pixelméretre épül: kígyózva, szélről szélre fut végig a referencialista mögött, és a vonal
+  // vége görgetés közben a képernyő ~60%-ánál jár (nem marad le a képernyő fölé).
+  const narrowLine = window.matchMedia('(max-width: 768px)').matches;
+  const svgEl = document.getElementById('fluid-line-svg');
+  const svgBox = svgEl.getBoundingClientRect();
+  if (narrowLine && svgBox.width > 0 && svgBox.height > 0) {
+    const w = svgBox.width, h = svgBox.height;
+    const y0 = window.innerHeight * 0.3; // az SVG 30vh-val a szekció fölött kezdődik: a vonal a szekció tetején indul
+    const X = (f) => (f * w).toFixed(1), Y = (f) => (y0 + f * (h - y0)).toFixed(1);
+    svgEl.setAttribute('viewBox', `0 0 ${w.toFixed(1)} ${h.toFixed(1)}`);
+    linePath.setAttribute('d',
+      `M ${X(-0.15)},${Y(0.0)} C ${X(0.55)},${Y(0.0)} ${X(1.15)},${Y(0.1)} ${X(0.8)},${Y(0.22)} ` +
+      `S ${X(-0.15)},${Y(0.36)} ${X(0.25)},${Y(0.5)} ` +
+      `S ${X(1.15)},${Y(0.66)} ${X(0.72)},${Y(0.8)} ` +
+      `S ${X(0.0)},${Y(0.93)} ${X(1.2)},${Y(1.0)}`);
+    linePath.style.strokeWidth = String(Math.round(Math.min(48, Math.max(26, w * 0.08))));
+    const len = linePath.getTotalLength();
+    // hossz → magasság táblázat (a görbe lefelé haladva egyre hosszabb)
+    const N = 240, ys = [];
+    for (let i = 0; i <= N; i++) ys.push(linePath.getPointAtLength((i / N) * len).y);
+    for (let i = 1; i <= N; i++) ys[i] = Math.max(ys[i], ys[i - 1]);
+    const lengthAtY = (y) => {
+      if (y <= ys[0]) return 0;
+      if (y >= ys[N]) return len;
+      let i = 1; while (ys[i] < y) i++;
+      const t = (y - ys[i - 1]) / Math.max(1e-6, ys[i] - ys[i - 1]);
+      return ((i - 1 + t) / N) * len;
+    };
+    gsap.set(linePath, { strokeDasharray: len, strokeDashoffset: len });
+    const toOffset = gsap.quickTo(linePath, 'strokeDashoffset', { duration: 0.6, ease: 'power2.out' });
+    ScrollTrigger.create({
+      trigger: '#projects',
+      start: 'top bottom',
+      end: 'bottom top',
+      onUpdate: () => {
+        const tipY = window.innerHeight * 0.6 - svgEl.getBoundingClientRect().top;
+        toOffset(len - lengthAtY(tipY));
+      },
+    });
+  } else {
   const lineLen = linePath.getTotalLength();
 
   
@@ -392,6 +434,7 @@ function setupProjectsSection() {
       scrub: 1,
     },
   });
+  }
 
   
   ; (function () {
