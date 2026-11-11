@@ -161,10 +161,10 @@
 @media (max-width: 1199px) {
   .svc-card { transform: translateX(calc(var(--offset-step) * var(--rel-pos, 0))) translateZ(0); }
 }
-@media (max-width: 767px) {
-  /* és telefonon nagyobbak: 68vw helyett 76vw széles */
-  .svc-cards { --width: calc(var(--r) * 28.5); --height: calc(var(--r) * 31.1); }
-}
+/* lapozó: csak telefonon látszik */
+.svc-nav { display: none; }
+
+
 .svc-card-scene {
   position: relative;
   width: 100%;
@@ -234,4 +234,87 @@
 @media (prefers-reduced-motion: reduce) {
   .svc-glow span { animation: none; }
   .svc-counter-strip { transition: none; }
+}
+
+/* (a fájl végén, hogy az alapszabályokat — .svc-desc, .svc-card-obj — biztosan felülírja) */
+/* ---------- Telefon: lapozós karusszel (2026-11-11) ----------
+   A görgetésre oldalra mozgó kártyák telefonon akadoztak, és nem volt egyértelmű, hogy van még
+   szolgáltatás. Itt nincs sticky görgetés: kártya, alatta a leírás, legalul nyilak + pöttyök,
+   és ujjal is lapozható. Vezérlő: src/old/svc-stack.ts (mobil mód). */
+@media (max-width: 767px) {
+  #old-site .svc-stack { height: auto; }
+  #old-site .svc-content {
+    position: relative;
+    height: auto;
+    overflow: visible;
+    display: block;
+    padding: 0 24px 12vh;
+  }
+  #old-site .svc-cards {
+    --width: 100%;
+    --height: auto;
+    --stack-gap: 16px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 504 / 550;
+    margin: 0 0 28px;
+    touch-action: pan-y;
+  }
+  #old-site .svc-card {
+    height: 100%;
+    transform: translateX(calc(var(--offset-step) * var(--rel-pos, 0))) translateZ(0);
+    transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  #old-site .svc-card-scene { border-radius: 20px; }
+  #old-site .svc-card-obj { transition: opacity 0.6s ease, filter 0.6s ease; transform: scale(1.1); }
+  #old-site .svc-desc { width: 100%; text-align: left; }
+  #old-site .svc-desc h3 { font-size: 2rem; margin-bottom: 0.4em; }
+  #old-site .svc-desc p { font-size: 1rem; }
+  #old-site .svc-desc h3, .svc-desc .word { transition: opacity 0.5s ease; }
+
+  #old-site .svc-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 32px;
+  }
+  #old-site .svc-arrow {
+    width: 52px;
+    height: 52px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #1C1A17;
+    background: #1C1A17;
+    color: #F1ECE6;
+    cursor: pointer;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+  }
+  #old-site .svc-arrow:active { transform: scale(0.96); }
+  #old-site .svc-arrow:disabled {
+    background: transparent;
+    color: #1C1A17;
+    border-color: rgba(28, 26, 23, 0.2);
+    opacity: 0.45;
+    cursor: default;
+  }
+  #old-site .svc-dots { display: flex; gap: 2px; }
+  #old-site .svc-dots button {
+    border: 0;
+    background: none;
+    padding: 12px 3px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #old-site .svc-dots button span {
+    display: block;
+    width: 14px;
+    height: 3px;
+    border-radius: 3px;
+    background: rgba(28, 26, 23, 0.22);
+    transition: width 0.4s ease, background 0.4s ease;
+  }
+  #old-site .svc-dots button[aria-current="true"] span { width: 32px; background: var(--svc-accent); }
 }

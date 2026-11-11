@@ -57,7 +57,83 @@ export function initSvcStack() {
     target = clamp(-r.top / (r.height - window.innerHeight));
   };
 
+  // ---- telefon: lapozós mód (2026-11-11) ----
+  // 767 px alatt nincs görgetés-vezérelt mozgás: nyilak, pöttyök és ujjal húzás lapoz.
+  const mq = window.matchMedia("(max-width: 767px)");
+  let mobile = mq.matches;
+  let index = 0;
+  const prevBtn = root.querySelector<HTMLButtonElement>('.svc-arrow[data-dir="-1"]')!;
+  const nextBtn = root.querySelector<HTMLButtonElement>('.svc-arrow[data-dir="1"]')!;
+  const dotsEl = root.querySelector<HTMLElement>(".svc-dots")!;
+  const dots = descs.map((d, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.setAttribute("aria-label", `${i + 1}. szolgáltatás: ${d.head.textContent ?? ""}`);
+    b.innerHTML = "<span></span>";
+    b.addEventListener("click", () => go(i));
+    dotsEl.appendChild(b);
+    return b;
+  });
+
+  // a lapozóban a kártyák képernyőn kívül várnak: a lusta betöltés miatt lapozáskor üresek lennének
+  const eagerImages = () => cards.forEach((c) => c.querySelector("img")?.setAttribute("loading", "eager"));
+  const showIndex = () => {
+    eagerImages();
+    cards.forEach((c, i) => {
+      const on = i === index;
+      c.style.setProperty("--rel-pos", String(i - index));
+      c.style.setProperty("--active", on ? "1" : "0");
+      c.style.setProperty("--o", on ? "1" : "0.3");
+      c.style.setProperty("--g", on ? "0%" : "100%");
+      c.setAttribute("aria-hidden", on ? "false" : "true");
+    });
+    descs.forEach(({ head, words }, i) => {
+      const o = i === index ? "1" : "0";
+      head.style.opacity = o;
+      words.forEach((w) => (w.style.opacity = o));
+    });
+    dots.forEach((d, i) => d.setAttribute("aria-current", String(i === index)));
+    prevBtn.disabled = index === 0;
+    nextBtn.disabled = index === n - 1;
+  };
+  const go = (i: number) => {
+    index = Math.max(0, Math.min(n - 1, i));
+    showIndex();
+  };
+  prevBtn.addEventListener("click", () => go(index - 1));
+  nextBtn.addEventListener("click", () => go(index + 1));
+
+  // ujjal húzás a kártyán: csak a vízszintes mozdulat lapoz, a függőleges görgetés marad
+  const cardsEl = root.querySelector<HTMLElement>(".svc-cards")!;
+  let sx = 0, sy = 0, tracking = false;
+  cardsEl.addEventListener("touchstart", (e) => {
+    if (!mobile) return;
+    sx = e.touches[0].clientX;
+    sy = e.touches[0].clientY;
+    tracking = true;
+  }, { passive: true });
+  cardsEl.addEventListener("touchend", (e) => {
+    if (!mobile || !tracking) return;
+    tracking = false;
+    const dx = e.changedTouches[0].clientX - sx;
+    const dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2) go(index + (dx < 0 ? 1 : -1));
+  }, { passive: true });
+
+  mq.addEventListener("change", () => {
+    mobile = mq.matches;
+    if (mobile) showIndex();
+    else {
+      cards.forEach((c) => c.removeAttribute("aria-hidden"));
+      if (visible && !raf) raf = requestAnimationFrame(frame);
+    }
+  });
+
   const frame = () => {
+    if (mobile) {
+      raf = 0;
+      return;
+    }
     readScroll();
     progress += (target - progress) * 0.1; // simítás
     const dy = window.scrollY - lastY;
@@ -104,5 +180,6 @@ export function initSvcStack() {
 
   readScroll();
   progress = target;
-  frame();
+  if (mobile) showIndex();
+  else frame();
 }
