@@ -131,8 +131,11 @@ function setupAboutSection() {
        mint az about-sub (a legalul, legkésőbb megjelenő szövegblokk) saját
        reveal-je — így a kép pontosan akkorra tisztul ki, amikor az összes szöveg
        már látszik. */
-    gsap.fromTo(photo, { y: '-50%' }, {
-      y: '50%',
+    // 2026-11-11: telefonon (egymás alatt a szöveg és a kép) a ±50%-os parallax a kép felét a
+    // bekezdésre tolta; ott csak egy enyhe mozgás marad
+    const narrow = window.matchMedia('(max-width: 768px)').matches;
+    gsap.fromTo(photo, { y: narrow ? '-6%' : '-50%' }, {
+      y: narrow ? '6%' : '50%',
       ease: 'none',
       scrollTrigger: {
         trigger: photoWrap,
@@ -235,7 +238,8 @@ function setupProjectsSection() {
       const itemCy = rect.top + rect.height / 2;
       const dist = Math.abs(itemCy - cy);
       
-      itemQuickX[i](Math.min(dist / halfH, 1) * 80);
+      // telefonon kisebb az ív (80 px a 390 px-es képernyőn a hosszú neveket kitolta a szélén túl)
+      itemQuickX[i](Math.min(dist / halfH, 1) * (window.innerWidth <= 768 ? 24 : 80));
       
       if (dist < closestDist) { closestDist = dist; closestIdx = i; }
     });

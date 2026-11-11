@@ -64,10 +64,12 @@
     --u: calc(min(100vw, 100svh * 390 / 760) / 390);
     --fs-lead: calc(var(--u) * 25);
     --lh-lead: calc(var(--u) * 23);
-    --hero-size: calc(var(--u) * 84);
-    --hero-serif-size: calc(var(--u) * 93.33);
+    /* 2026-11-11: a „Weboldalkészítés” 93 u-val 479 px széles volt egy 390-es telefonon (kilógott);
+       68 u-val ~350 px, így két oldalt marad 20 px. A sorköz arányosan szűkült. */
+    --hero-size: calc(var(--u) * 61);
+    --hero-serif-size: calc(var(--u) * 68);
     /* phone: around the subheading, which sits at the screen's centre */
-    --hero-b1: calc(50% - var(--u) * 47);
-    --hero-b2: calc(50% + var(--u) * 50);
+    --hero-b1: calc(50% - var(--u) * 34.5);
+    --hero-b2: calc(50% + var(--u) * 36.5);
   }
 }

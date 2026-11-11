@@ -156,6 +156,15 @@
   position: relative;
   transform: translateX(calc(var(--offset-step) * var(--rel-pos, 0))) translateY(calc(var(--offset-step) * var(--rel-pos, 0))) translateZ(0);
 }
+/* 2026-11-11: telefonon a kártyák vízszintesen sorakoznak (nem átlósan): az átlós stackben a
+   következő kártya sarka rácsúszott az alatta lévő leírásra. 1199 px-ig, ameddig a leírás a kártyák alatt van. */
+@media (max-width: 1199px) {
+  .svc-card { transform: translateX(calc(var(--offset-step) * var(--rel-pos, 0))) translateZ(0); }
+}
+@media (max-width: 767px) {
+  /* és telefonon nagyobbak: 68vw helyett 76vw széles */
+  .svc-cards { --width: calc(var(--r) * 28.5); --height: calc(var(--r) * 31.1); }
+}
 .svc-card-scene {
   position: relative;
   width: 100%;

@@ -998,3 +998,31 @@
   opacity: 1;
   transform: none;
 }
+
+/* ===== Lábléc szövegszín + telefonos elrendezés (2026-11-11) =====
+   A lábléc háttere világos lett (#EFECE7), de a linkek (LinkedIn, Munkáim, e-mail, ©) az eredeti
+   sötét lábléc fehér/krém színét örökölték: szinte láthatatlanok voltak (asztalin és telefonon is). */
+#old-site .footer-top-col a,
+#old-site .footer-top-col span,
+#old-site .footer-top-col .chr-hover .ch-top,
+#old-site .footer-top-col .chr-hover .ch-bot {
+  color: rgba(28, 26, 23, 0.8);
+}
+/* asztalin is a fejléc gombjai alá (a jobb oszlop eddig a Beszéljünk / Menü mögé esett) */
+@media (min-width: 769px) {
+  #old-site .footer-top { padding-top: 5.5rem; }
+}
+/* telefonon a két felső oszlop a fejléc gombjai alá kerül (eddig mögéjük csúszott) */
+@media (max-width: 768px) {
+  #old-site .footer-top-col:nth-child(2),
+  #old-site .footer-top-col:nth-child(3) {
+    top: 6rem;
+  }
+  #old-site .footer-top-col:nth-child(2) { right: 1.5rem; }
+  #old-site .footer-top-col:nth-child(3) { left: 1.5rem; }
+}
+
+/* telefonon és tableten a referencianevek a barna vonal fölött (eddig a vonal áthúzta a neveket) */
+@media (max-width: 768px) {
+  #old-site .projects-inner { z-index: 2; }
+}
