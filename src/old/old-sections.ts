@@ -385,14 +385,15 @@ function setupProjectsSection() {
   if (narrowLine && svgBox.width > 0 && svgBox.height > 0) {
     const w = svgBox.width, h = svgBox.height;
     const y0 = window.innerHeight * 0.3; // az SVG 30vh-val a szekció fölött kezdődik: a vonal a szekció tetején indul
-    const X = (f) => (f * w).toFixed(1), Y = (f) => (y0 + f * (h - y0)).toFixed(1);
+    // a görbe az SVG aljáig érne (a lista alatt még ~1,5 képernyőnyi üres hely): 85%-ánál véget ér
+    const X = (f) => (f * w).toFixed(1), Y = (f) => (y0 + f * (h - y0) * 0.85).toFixed(1);
     svgEl.setAttribute('viewBox', `0 0 ${w.toFixed(1)} ${h.toFixed(1)}`);
     linePath.setAttribute('d',
       `M ${X(-0.15)},${Y(0.0)} C ${X(0.55)},${Y(0.0)} ${X(1.15)},${Y(0.1)} ${X(0.8)},${Y(0.22)} ` +
       `S ${X(-0.15)},${Y(0.36)} ${X(0.25)},${Y(0.5)} ` +
       `S ${X(1.15)},${Y(0.66)} ${X(0.72)},${Y(0.8)} ` +
       `S ${X(0.0)},${Y(0.93)} ${X(1.2)},${Y(1.0)}`);
-    linePath.style.strokeWidth = String(Math.round(Math.min(48, Math.max(26, w * 0.08))));
+    linePath.style.strokeWidth = String(Math.round(Math.min(70, Math.max(44, w * 0.13)))); // 425 px-en ~55 px
     const len = linePath.getTotalLength();
     // hossz → magasság táblázat (a görbe lefelé haladva egyre hosszabb)
     const N = 240, ys = [];
