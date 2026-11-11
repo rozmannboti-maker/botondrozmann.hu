@@ -137,7 +137,10 @@ export class CoffeeCup {
     this.camera.updateMatrixWorld();
     this.ray.setFromCamera(new THREE.Vector2(0, 0), this.camera);
     const vt = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
-    const depth = CUP_H / (2 * vt * SCREEN_H);
+    // álló telefonon a magasság 42%-a szélesebb lenne a képernyőnél: ott a szélességhez igazodik
+    // (felülről a csésze pereme nagynak hat → a magasság a szélesség ~30%-a)
+    const share = Math.min(SCREEN_H, 0.3 * this.camera.aspect);
+    const depth = CUP_H / (2 * vt * share);
     const fwd = this.camera.getWorldDirection(new THREE.Vector3());
     cam.copy(this.ray.ray.origin).addScaledVector(this.ray.ray.direction, depth / this.ray.ray.direction.dot(fwd));
     cam.y -= CUP_H * 0.5; // a csésze talppontja: így a csésze közepe kerül a képernyő közepére

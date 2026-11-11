@@ -581,7 +581,9 @@ function succulent() {
 
 // ---------------------------------------------------------------- arrange
 
-export function createProps({ paper, renderer, copy, faces }: { brand: Brand; paper: THREE.Texture; renderer: THREE.WebGLRenderer; copy: PropCopy; faces: CardFaces }) {
+// compact (2026-11-11): álló telefonon a könyv a képernyő szélességének ~70%-át tölti ki, így a
+// tárgyak a könyv két oldalán (x ≈ ±2,1) kiesnének a képből: ott a könyv fölé és alá kerülnek.
+export function createProps({ paper, renderer, copy, faces, compact = false }: { brand: Brand; paper: THREE.Texture; renderer: THREE.WebGLRenderer; copy: PropCopy; faces: CardFaces; compact?: boolean }) {
   const env = studioEnvironment(renderer);
   const group = new THREE.Group();
 
@@ -599,6 +601,15 @@ export function createProps({ paper, renderer, copy, faces }: { brand: Brand; pa
   const cards = businessCards(paper, env, copy, faces);
   cards.position.set(2.06, 0, 0.36);
   cards.rotation.y = -0.18;
+
+  if (compact) {
+    cup.position.set(0.62, 0, -1.22);
+    plant.position.set(-0.78, 0, -1.18);
+    pen.position.set(-0.62, 0, 1.08);
+    pen.rotation.y = 0.35;
+    cards.position.set(0.6, 0, 1.05);
+    cards.rotation.y = 0.12;
+  }
 
   group.add(cup, plant, pen, cards);
   group.userData.card = cards.userData.card;

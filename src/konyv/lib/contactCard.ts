@@ -40,6 +40,7 @@ export class ContactCard {
   private box: HTMLDivElement;
   private closeBtn: HTMLButtonElement;
   private shown = false;
+  private openedAt = 0;
   private lastFocus: Element | null = null;
   private tmp = { p: new THREE.Vector3(), q: new THREE.Quaternion(), pq: new THREE.Quaternion(), fwd: new THREE.Vector3(), ndc: new THREE.Vector2() };
   private ray = new THREE.Raycaster();
@@ -89,7 +90,12 @@ export class ContactCard {
     this.layer.hidden = true;
     const backdrop = document.createElement("div");
     backdrop.className = "cc-backdrop";
-    backdrop.addEventListener("click", () => this.close());
+    // 2026-11-11: érintőképernyőn a koppintás után a böngésző még egy „click”-et is küld, ami már a
+    // közben megjelent háttérre esik, és azonnal bezárta a kártyát: a nyitás utáni pillanatban nem zár
+    backdrop.addEventListener("click", () => {
+      if (performance.now() - this.openedAt < 600) return;
+      this.close();
+    });
     this.box = document.createElement("div");
     this.box.className = "cc-card";
     this.box.setAttribute("role", "dialog");
@@ -142,6 +148,7 @@ export class ContactCard {
   open() {
     if (this.target === 1) return;
     this.target = 1;
+    this.openedAt = performance.now();
     this.hoverTarget = 0;
     this.lastFocus = document.activeElement;
     this.layer.hidden = false;

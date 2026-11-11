@@ -13,7 +13,10 @@ import { quality } from "./quality";
 const ASPECT = 16 / 10; // every page is 16:10, like the videos
 // Share of the screen width the open spread would span: wide while the book is
 // closed (table and objects in view), then the camera pushes in as it opens.
-const SHARE = { closed: 0.56, open: 0.86, phoneClosed: 0.62, phoneOpen: 0.94, phoneBelow: 700 };
+// a share a NYITOTT könyv (két lap) szélessége a képernyőéhez képest; a csukott könyv ennek a fele.
+// 2026-11-11: telefonon a csukott könyv 0.62-vel a képernyő harmadát sem töltötte ki → 1.4 (~70%).
+// phoneRead: álló telefonon kinyitva egyszerre egy lap tölti ki a képernyőt (olvasómód, lásd focus).
+const SHARE = { closed: 0.56, open: 0.86, phoneClosed: 1.4, phoneOpen: 0.96, phoneRead: 1.95, phoneBelow: 700 };
 const ELEVATION = THREE.MathUtils.degToRad(60); // camera angle above the table
 const CLOSED_YAW = 0.12; // closed book sits slightly turned
 const TILT_YAW = 0.13; // POV orbit range following the mouse (rad)
@@ -178,7 +181,8 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   const paper = Pages.paperTexture();
   const book = new Book({ aspect: ASPECT, sheets, covers, edge: Pages.edgeTexture(), paper });
   scene.add(book.root);
-  const props = createProps({ brand, paper, renderer, copy: o.print, faces: { light: cardFaces[0], dark: cardFaces[1] } });
+  const compact = window.innerWidth < SHARE.phoneBelow && window.innerWidth < window.innerHeight;
+  const props = createProps({ brand, paper, renderer, copy: o.print, faces: { light: cardFaces[0], dark: cardFaces[1] }, compact });
   scene.add(props);
   scene.add(camera); // az elsötétítő sík a kamerához van kötve
   const card = new ContactCard(props.userData.card, props.userData.cardTargets, camera, canvas, o.print.card, () => {
@@ -192,6 +196,15 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   const cardEnabled = () => book.target === 0 && !book.busy && book.openness < 0.02 && !card.isOpen;
   const cupEnabled = () => cardEnabled() && !coffee.busy;
   let cardPress: { x: number; y: number; what: "card" | "cup" } | null = null;
+
+  // Olvasómód (2026-11-11): álló telefonon a nyitott könyvből egyszerre egy lap látszik, a kamera
+  // a bal (-1) vagy a jobb (+1) lapra áll. Koppintás a képernyő jobb / bal felére vagy vízszintes
+  // húzás: előbb a szomszéd lapra lép, a lap végén lapoz.
+  let focus = -1;
+  let focusX = 0;
+  let readPress: { x: number; y: number; entry: number } | null = null;
+  const reading = () => size.w < SHARE.phoneBelow && size.w < size.h;
+  const bookOpen = () => book.target > 0 && book.target < book.NI;
 
   // Soft contact shadow where the book meets the wood.
   const blob = new THREE.Mesh(
@@ -217,7 +230,18 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   }
 
   function go(n: number) {
-    if (book.goTo(n, now())) onSpreadChange();
+    const from = book.target;
+    if (book.goTo(n, now())) {
+      focus = n > from ? -1 : 1; // előre: a bal lapon kezd, vissza: a jobbon
+      onSpreadChange();
+    }
+  }
+  // olvasómód: egy lépés előre (+1) vagy vissza (-1)
+  function step(dir: number) {
+    if (dir > 0 && focus < 0) focus = 1;
+    else if (dir < 0 && focus > 0) focus = -1;
+    else return go(book.target + dir);
+    invalidate(30);
   }
 
   const onHash = () => {
@@ -310,6 +334,10 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   const onDown = (e: PointerEvent) => {
     if (e.button !== 0) return;
     const hit = toBook(e);
+    if (reading() && bookOpen() && !card.isOpen) {
+      readPress = { x: e.clientX, y: e.clientY, entry: focus < 0 ? contentsEntry() : -1 };
+      return;
+    }
     if (cardEnabled() && card.hit(raycaster)) {
       cardPress = { x: e.clientX, y: e.clientY, what: "card" };
       return;
@@ -352,6 +380,21 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   };
 
   const onUp = (e: PointerEvent) => {
+    if (readPress) {
+      const dx = e.clientX - readPress.x, dy = e.clientY - readPress.y;
+      const entry = readPress.entry;
+      readPress = null;
+      if (book.busy) return;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2) step(dx < 0 ? 1 : -1);
+      else if (Math.hypot(dx, dy) < 10) {
+        if (entry >= 0) {
+          const i = entry;
+          go(caseSpread(i));
+          focus = i % 2 === 0 ? 1 : -1; // páros eset a jobb lapon, páratlan a balon
+        } else step(e.clientX > size.w / 2 ? 1 : -1);
+      }
+      return;
+    }
     if (cardPress) {
       const tap = Math.hypot(e.clientX - cardPress.x, e.clientY - cardPress.y) < 8;
       const what = cardPress.what;
@@ -427,9 +470,13 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
     open = damp(open, book.openness, DAMP.open, dt);
     const { w, h } = size;
     const vt = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    const read = reading();
     const share = w < SHARE.phoneBelow
-      ? THREE.MathUtils.lerp(SHARE.phoneClosed, SHARE.phoneOpen, open)
+      ? THREE.MathUtils.lerp(SHARE.phoneClosed, read ? SHARE.phoneRead : SHARE.phoneOpen, open)
       : THREE.MathUtils.lerp(SHARE.closed, SHARE.open, open);
+    // olvasómódban a kamera a kiválasztott lap közepére áll
+    focusX = damp(focusX, read ? focus * (book.Wc / 2) * open : 0, DAMP.open, dt);
+    target.x = focusX;
     const halfW = book.Wc + 0.08;
     const halfD = (book.Hc / 2) * Math.sin(ELEVATION) + 0.06;
     const stage = { top: THREE.MathUtils.lerp(bounds.closedTop, bounds.openTop, open), bottom: h - STAGE.bottom };
