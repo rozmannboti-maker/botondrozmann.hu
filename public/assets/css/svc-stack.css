@@ -161,6 +161,9 @@
 @media (max-width: 1199px) {
   .svc-card { transform: translateX(calc(var(--offset-step) * var(--rel-pos, 0))) translateZ(0); }
 }
+/* csak felolvasónak (a szavakra bontott leírás teljes szövege) */
+.svc-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
 /* lapozó: csak telefonon látszik */
 .svc-nav { display: none; }
 
@@ -300,11 +303,16 @@
     opacity: 0.45;
     cursor: default;
   }
-  #old-site .svc-dots { display: flex; gap: 2px; }
+  /* az érintési felület legalább 24 × 24 px (a csíkok mérete változatlan) */
+  #old-site .svc-dots { display: flex; gap: 0; }
   #old-site .svc-dots button {
     border: 0;
     background: none;
-    padding: 12px 3px;
+    min-width: 24px;
+    min-height: 27px;
+    display: grid;
+    place-items: center;
+    padding: 12px 5px;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }

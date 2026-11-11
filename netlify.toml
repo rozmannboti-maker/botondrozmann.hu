@@ -5,3 +5,15 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+# 2026-11-11 (PageSpeed: gyorsítótár-élettartam): a képek, videók, betűk és a buildelt JS/CSS
+# 30 napig a böngészőben maradnak. A HTML nem (az mindig friss, és a CSS már benne van).
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+
+[[headers]]
+  for = "/konyv/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"

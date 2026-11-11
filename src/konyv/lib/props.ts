@@ -2,7 +2,7 @@
 // a pencil, a couple of business cards and a succulent. All modelled here, at
 // the book's scale (1 unit ≈ the book's depth, about 22 cm).
 import * as THREE from "three";
-import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
+import { crease, type CreaseInput, type CreaseOutput } from "./crease";
 import type { Brand } from "./pages";
 import type { CardCopy } from "./contactCard";
 
@@ -302,7 +302,38 @@ function cappuccino(env: THREE.Texture) {
 // Surface of revolution around +x: radius(x, θ) per ring. θ = 0 is straight up;
 // v runs so text on the top face reads upright from above.
 type Extra = (x: number, th: number, r: number) => { color: number[]; rough: number };
-function sweptX(xs: number[], segs: number, radius: (x: number, th: number) => number, extra?: Extra) {
+
+// Az élsimított normálok háttérszálon készülnek (crease.ts), hogy a betöltés ne akadjon meg;
+// ha a Worker nem érhető el, ugyanaz a számítás a fő szálon fut.
+let creaseWorker: Worker | null | undefined;
+let creaseSeq = 0;
+const creasePending = new Map<number, { input: CreaseInput; resolve: (o: CreaseOutput) => void }>();
+function creaseAsync(input: CreaseInput): Promise<CreaseOutput> {
+  if (creaseWorker === undefined) {
+    try {
+      creaseWorker = new Worker(new URL("./creaseWorker.ts", import.meta.url), { type: "module" });
+      creaseWorker.onmessage = (e: MessageEvent<{ id: number; out: CreaseOutput }>) => {
+        creasePending.get(e.data.id)?.resolve(e.data.out);
+        creasePending.delete(e.data.id);
+      };
+      creaseWorker.onerror = () => {
+        creaseWorker = null;
+        creasePending.forEach(({ input, resolve }) => resolve(crease(input)));
+        creasePending.clear();
+      };
+    } catch {
+      creaseWorker = null;
+    }
+  }
+  if (!creaseWorker) return Promise.resolve(crease(input));
+  const id = ++creaseSeq;
+  return new Promise((resolve) => {
+    creasePending.set(id, { input, resolve });
+    creaseWorker!.postMessage({ id, input });
+  });
+}
+
+async function sweptX(xs: number[], segs: number, radius: (x: number, th: number) => number, extra?: Extra) {
   const pos: number[] = [], uvs: number[] = [], col: number[] = [], rough: number[] = [], idx: number[] = [];
   const x0 = xs[0], x1 = xs[xs.length - 1];
   xs.forEach((x, i) => {
@@ -322,20 +353,22 @@ function sweptX(xs: number[], segs: number, radius: (x: number, th: number) => n
       }
     }
   });
-  const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  g.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  const attrs: CreaseInput["attrs"] = { uv: { array: new Float32Array(uvs), itemSize: 2 } };
   if (extra) {
-    g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
-    g.setAttribute("aRough", new THREE.Float32BufferAttribute(rough, 1));
+    attrs.color = { array: new Float32Array(col), itemSize: 3 };
+    attrs.aRough = { array: new Float32Array(rough), itemSize: 1 };
   }
-  g.setIndex(idx);
-  return toCreasedNormals(g, Math.PI / 5);
+  const out = await creaseAsync({ position: new Float32Array(pos), index: new Uint32Array(idx), attrs, angle: Math.PI / 5 });
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(out.position, 3));
+  for (const [name, a] of Object.entries(out.attrs)) g.setAttribute(name, new THREE.BufferAttribute(a.array, a.itemSize));
+  g.setAttribute("normal", new THREE.BufferAttribute(out.normal, 3));
+  return g;
 }
 
 const range = (a: number, b: number, n: number) => Array.from({ length: n + 1 }, (_, i) => a + ((b - a) * i) / n);
 
-function pencil(env: THREE.Texture, copy: PropCopy) {
+async function pencil(env: THREE.Texture, copy: PropCopy) {
   const R = 0.0175, AP = R * Math.cos(Math.PI / 6);
   const hex = (th: number) => {
     const t = ((((th + Math.PI / 6) % (Math.PI / 3)) + Math.PI / 3) % (Math.PI / 3)) - Math.PI / 6;
@@ -356,8 +389,35 @@ function pencil(env: THREE.Texture, copy: PropCopy) {
     ctx.fillText(copy.pencil, w * 0.16, h / 2);
     ctx.fillText("HB", w * 0.62, h / 2);
   });
-  const body = new THREE.Mesh(
+  // a négy rész geometriája egyszerre készül (háttérszálon)
+  const cone = (x: number) => (x < LEAD
+    ? THREE.MathUtils.lerp(R * 1.02, 0.0042, (x - SHARP) / (LEAD - SHARP))
+    : THREE.MathUtils.lerp(0.0042, 0.0004, (x - LEAD) / (TIP - LEAD)));
+  const tipXs = [...range(SHARP, LEAD, 60), ...range(LEAD, TIP, 8).slice(1)];
+  const FER0 = -0.397, FER1 = BODY0 + 0.002;
+  const ferrule = (x: number) => {
+    const t = (x - FER0) / (FER1 - FER0);
+    const crimp = [0.18, 0.3, 0.7, 0.82].reduce((s, c) => s + Math.exp(-(((t - c) / 0.035) ** 2)), 0);
+    return AP * 1.03 - 0.0009 * crimp - 0.0012 * (Math.exp(-((t / 0.04) ** 2)) + Math.exp(-(((1 - t) / 0.04) ** 2)));
+  };
+  const ER0 = -0.433, ER1 = FER0 + 0.002, RE = AP * 0.94;
+  const [bodyGeo, tipGeo, ferruleGeo, eraserGeo] = await Promise.all([
     sweptX(range(BODY0, SHARP, 2), 72, (_x, th) => hex(th)),
+    sweptX(tipXs, 72, (x, th) => Math.min(hex(th), cone(x)), (x, th) => {
+      if (x >= LEAD) return { color: [0.045, 0.045, 0.05], rough: 0.4 };          // graphite
+      if (hex(th) <= cone(x) + 1e-5) return { color: [0.008, 0.008, 0.008], rough: 0.3 }; // paint
+      const grain = 0.92 + 0.08 * Math.sin(x * 900 + th * 3);
+      return { color: [0.62 * grain, 0.41 * grain, 0.25 * grain], rough: 0.85 };   // cedar
+    }),
+    sweptX(range(FER0, FER1, 80), 48, ferrule),
+    sweptX(range(ER0, ER1, 30), 48, (x) => {
+      const d = (x - ER0) / 0.009;
+      return d >= 1 ? RE : RE * Math.sqrt(Math.max(0, 1 - (1 - d) ** 2));
+    }),
+  ]);
+
+  const body = new THREE.Mesh(
+    bodyGeo,
     new THREE.MeshPhysicalMaterial({
       map: texture(foil(true)), metalnessMap: texture(foil(false), false), metalness: 1,
       roughness: 0.3, clearcoat: 0.8, clearcoatRoughness: 0.15, envMap: env, envMapIntensity: 1,
@@ -366,17 +426,8 @@ function pencil(env: THREE.Texture, copy: PropCopy) {
   group.add(body);
 
   // Sharpened end: the cone cuts the hex, leaving the classic scalloped edge.
-  const cone = (x: number) => (x < LEAD
-    ? THREE.MathUtils.lerp(R * 1.02, 0.0042, (x - SHARP) / (LEAD - SHARP))
-    : THREE.MathUtils.lerp(0.0042, 0.0004, (x - LEAD) / (TIP - LEAD)));
-  const tipXs = [...range(SHARP, LEAD, 60), ...range(LEAD, TIP, 8).slice(1)];
   const tip = new THREE.Mesh(
-    sweptX(tipXs, 72, (x, th) => Math.min(hex(th), cone(x)), (x, th) => {
-      if (x >= LEAD) return { color: [0.045, 0.045, 0.05], rough: 0.4 };          // graphite
-      if (hex(th) <= cone(x) + 1e-5) return { color: [0.008, 0.008, 0.008], rough: 0.3 }; // paint
-      const grain = 0.92 + 0.08 * Math.sin(x * 900 + th * 3);
-      return { color: [0.62 * grain, 0.41 * grain, 0.25 * grain], rough: 0.85 };   // cedar
-    }),
+    tipGeo,
     new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.6, envMap: env, envMapIntensity: 0.8 }),
   );
   tip.material.onBeforeCompile = (sh) => {
@@ -390,22 +441,12 @@ function pencil(env: THREE.Texture, copy: PropCopy) {
   group.add(tip);
 
   // Crimped brass ferrule and a rounded eraser.
-  const FER0 = -0.397, FER1 = BODY0 + 0.002;
-  const ferrule = (x: number) => {
-    const t = (x - FER0) / (FER1 - FER0);
-    const crimp = [0.18, 0.3, 0.7, 0.82].reduce((s, c) => s + Math.exp(-(((t - c) / 0.035) ** 2)), 0);
-    return AP * 1.03 - 0.0009 * crimp - 0.0012 * (Math.exp(-((t / 0.04) ** 2)) + Math.exp(-(((1 - t) / 0.04) ** 2)));
-  };
   group.add(new THREE.Mesh(
-    sweptX(range(FER0, FER1, 80), 48, ferrule),
+    ferruleGeo,
     new THREE.MeshPhysicalMaterial({ color: 0xc9a35a, metalness: 1, roughness: 0.26, envMap: env, envMapIntensity: 1.6 }),
   ));
-  const ER0 = -0.433, ER1 = FER0 + 0.002, RE = AP * 0.94;
   group.add(new THREE.Mesh(
-    sweptX(range(ER0, ER1, 30), 48, (x) => {
-      const d = (x - ER0) / 0.009;
-      return d >= 1 ? RE : RE * Math.sqrt(Math.max(0, 1 - (1 - d) ** 2));
-    }),
+    eraserGeo,
     new THREE.MeshStandardMaterial({ color: 0x141414, roughness: 0.92 }),
   ));
 
@@ -583,7 +624,7 @@ function succulent() {
 
 // compact (2026-11-11): álló telefonon a könyv a képernyő szélességének ~70%-át tölti ki, így a
 // tárgyak a könyv két oldalán (x ≈ ±2,1) kiesnének a képből: ott a könyv fölé és alá kerülnek.
-export function createProps({ paper, renderer, copy, faces, compact = false }: { brand: Brand; paper: THREE.Texture; renderer: THREE.WebGLRenderer; copy: PropCopy; faces: CardFaces; compact?: boolean }) {
+export async function createProps({ paper, renderer, copy, faces, compact = false }: { brand: Brand; paper: THREE.Texture; renderer: THREE.WebGLRenderer; copy: PropCopy; faces: CardFaces; compact?: boolean }) {
   const env = studioEnvironment(renderer);
   const group = new THREE.Group();
 
@@ -594,7 +635,7 @@ export function createProps({ paper, renderer, copy, faces, compact = false }: {
   const plant = succulent();
   plant.position.set(-2.12, 0, -0.68);
 
-  const pen = pencil(env, copy);
+  const pen = await pencil(env, copy);
   pen.position.set(-2.02, 0, 0.42);
   pen.rotation.y = 1.05;
 

@@ -13,9 +13,10 @@ export function initSvcStack() {
 
   // szavakra bontás (az eredeti SplitText-et utánozza)
   root.querySelectorAll<HTMLElement>("[data-split]").forEach((el) => {
-    el.setAttribute("aria-label", (el.textContent ?? "").replace(/\s+/g, " ").trim());
+    // a felolvasó a teljes mondatot egy rejtett szövegből kapja (az aria-label <p>-n nem megengedett)
+    const full = (el.textContent ?? "").replace(/\s+/g, " ").trim();
     const parts = el.innerHTML.split(/(<br\s*\/?>)/i);
-    el.innerHTML = parts
+    el.innerHTML = `<span class="svc-sr">${full}</span>` + parts
       .map((p) =>
         /^<br/i.test(p)
           ? p

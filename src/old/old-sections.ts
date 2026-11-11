@@ -166,12 +166,9 @@ function setupAboutSection() {
       },
     });
   }
-  if (photo.decode) {
-    photo.decode().then(initPhotoScroll).catch(initPhotoScroll);
-  } else {
-    photo.onload = initPhotoScroll;
-    if (photo.complete) initPhotoScroll();
-  }
+  // 2026-11-11: a kép lusta betöltésű (loading="lazy"), a helyét a width/height már lefoglalja,
+  // ezért az animációk azonnal beállíthatók (a decode() a betöltésig várna)
+  initPhotoScroll();
 
   setupProjectsSection();
 }
@@ -187,7 +184,9 @@ function setupProjectsSection() {
 
   
   const _coverCache = [];
-  items.forEach(item => {
+  // telefonon az előnézet-kártya rejtve van (display: none): ott nem töltjük le előre a képeket
+  const previewHidden = window.matchMedia('(max-width: 768px)').matches;
+  if (!previewHidden) items.forEach(item => {
     if (!item.dataset.img) return;
     const img = new Image();
     img.src = item.dataset.img;
@@ -277,7 +276,7 @@ function setupProjectsSection() {
     const hasImg = !!items[i].dataset.img;
     if (currentIdx === -1) {
 
-      if (hasImg) cover.src = items[i].dataset.img;
+      if (hasImg && !previewHidden) cover.src = items[i].dataset.img;
       dateEl.textContent = items[i].dataset.date;
       gsap.to(card, { opacity: hasImg ? 1 : 0, duration: 0.4, ease: 'power2.out' });
     } else {
@@ -288,7 +287,7 @@ function setupProjectsSection() {
         ease: 'power2.in',
         onComplete: () => {
           if (!hasImg) return;
-          cover.src = items[i].dataset.img;
+          if (!previewHidden) cover.src = items[i].dataset.img;
           dateEl.textContent = items[i].dataset.date;
           gsap.to(card, { opacity: 1, duration: 0.3, ease: 'power2.out' });
         },
@@ -1085,8 +1084,9 @@ function setupProjectsSection() {
       img.src = src;
     }
 
-    loadAndRender('assets/images/footer/left.png', 'ascii-left', 80);
-    loadAndRender('assets/images/footer/right.png', 'ascii-right', 80);
+    // 2026-11-11: a footer/left.png és right.png nincs meg (404 a konzolon), az ASCII-kép így eddig
+    // sem jelent meg; a betöltés kikapcsolva, a kinézet változatlan
+    void loadAndRender;
 
     
     var asciiLeftWrap = document.querySelector('.footer-ascii.left');

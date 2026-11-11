@@ -103,6 +103,15 @@ export class Engine {
   private flex = 0;
   private readonly timer = new THREE.Timer();
   private raf = 0;
+  // Takarékmód (2026-11-11): ha a gép a képkockákat lassan rajzolja (nincs videókártya, szoftveres
+  // WebGL, pl. a PageSpeed tesztgépe), az állandó szalag-hullámzás minden képkockája hosszú feladat
+  // lenne és megakasztaná az oldalt. Ilyenkor a jelenet csak görgetés / érintés után rajzol (még
+  // ~1,5 mp-ig, hogy a mozgás lecsengjen). Normál telefonon és gépen ez sosem kapcsol be.
+  private lowPower = false;
+  private frameCosts: number[] = [];
+  private awakeUntil = 0;
+  private lastDrawn = 0;
+  private lastInput = 0;
 
   W = 1;
   H = 1;
@@ -164,6 +173,7 @@ export class Engine {
     m.inside = true;
     m.moved = true;
     m.isMouse = e.pointerType === "mouse";
+    this.lastInput = performance.now();
     // over UI buttons / links the sheets under them don't react
     const t = e.target;
     m.overUI = t instanceof Element && t.closest("a,button") !== null;
@@ -405,11 +415,24 @@ export class Engine {
     this.lastS = s;
     this.scrollVel += ((dt > 0 ? ds / dt : 0) - this.scrollVel) * 0.12;
 
+    const now = performance.now();
+    if (changed || this.dirty || now - this.lastInput < 100) this.awakeUntil = now + 1500;
+    if (this.lowPower && now > this.awakeUntil) return; // takarékmód: nyugalomban nem rajzol
+
     const active = this.update(s, dt);
     if (changed || active || this.dirty) {
       this.renderFrame();
       this.dirty = false;
-    }
+      // a rajzolás valódi ára a képkocka végén jelentkezik: két egymást követő rajzolt képkocka közti
+      // idő mutatja meg (normál gépen ~16 ms, szoftveres WebGL-lel 50–100+ ms)
+      if (!this.lowPower && this.lastDrawn > 0) {
+        const costs = this.frameCosts;
+        costs.push(now - this.lastDrawn);
+        if (costs.length > 10) costs.shift();
+        if (costs.length === 10 && costs.filter((c) => c > 45).length >= 6) this.lowPower = true;
+      }
+      this.lastDrawn = now;
+    } else this.lastDrawn = 0;
   };
 
   /** the headline layer, then the ribbon / sheets over it */

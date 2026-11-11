@@ -182,7 +182,7 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   const book = new Book({ aspect: ASPECT, sheets, covers, edge: Pages.edgeTexture(), paper });
   scene.add(book.root);
   const compact = window.innerWidth < SHARE.phoneBelow && window.innerWidth < window.innerHeight;
-  const props = createProps({ brand, paper, renderer, copy: o.print, faces: { light: cardFaces[0], dark: cardFaces[1] }, compact });
+  const props = await createProps({ brand, paper, renderer, copy: o.print, faces: { light: cardFaces[0], dark: cardFaces[1] }, compact });
   scene.add(props);
   scene.add(camera); // az elsötétítő sík a kamerához van kötve
   const card = new ContactCard(props.userData.card, props.userData.cardTargets, camera, canvas, o.print.card, () => {
@@ -504,9 +504,10 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
     fog.far = dist + 18;
 
     const yaw = damp(book.root.rotation.y, CLOSED_YAW * (1 - open), DAMP.yaw, dt);
-    const turned = Math.abs(yaw - book.root.rotation.y) > 1e-6;
+    // 2026-11-11: a fordulás vége 2e-5 rad alatt már a pixel törtrésze: ott leáll a rajzolás
+    const turned = Math.abs(yaw - book.root.rotation.y) > 2e-5;
     book.root.rotation.y = yaw;
-    const moved = camera.position.distanceToSquared(lastCam) > 1e-10;
+    const moved = camera.position.distanceToSquared(lastCam) > 1e-8; // ~0,1 mm a jelenetben: nem látható
     lastCam.copy(camera.position);
     return moved || turned;
   }
@@ -595,6 +596,32 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   onSpreadChange();
   resize();
   book.update(now(), 0);
+  // 2026-11-11 (PageSpeed): a shaderek előre, a böngésző párhuzamos fordításával készülnek el,
+  // így az első képkocka nem blokkolja a fő szálat (ugyanazok az anyagok, ugyanaz a kép)
+  try {
+    await renderer.compileAsync(scene, camera);
+  } catch {
+    /* régebbi böngésző: az első képkocka fordít, mint eddig */
+  }
+  // a textúrák egyenként kerülnek a videókártyára, közben a böngésző levegőhöz jut
+  // (eddig mind egyszerre, az első képkockában: egy hosszú, akadó feladat)
+  const textures = new Set<THREE.Texture>();
+  scene.traverse((obj) => {
+    if (!(obj instanceof THREE.Mesh)) return;
+    const mats: THREE.Material[] = Array.isArray(obj.material) ? obj.material : [obj.material];
+    mats.forEach((m) => {
+      for (const v of Object.values(m)) if (v instanceof THREE.Texture && !(v instanceof THREE.VideoTexture)) textures.add(v);
+    });
+  });
+  for (const t of textures) {
+    if (cancelled()) break;
+    renderer.initTexture(t);
+    await new Promise((r) => setTimeout(r, 0));
+  }
+  if (cancelled()) {
+    free();
+    return () => {};
+  }
   frame();
   o.onReady();
 
