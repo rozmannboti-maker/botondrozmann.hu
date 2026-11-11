@@ -551,7 +551,11 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
     wanted.clear();
     for (let s = book.target - 1; s <= book.target + 1; s++) book.spreadFaces(s).forEach((id) => wanted.add(id));
     playing.clear();
-    if (canHover) {
+    if (reading() && bookOpen()) {
+      // olvasómód (2026-11-11): csak a képernyőn lévő lap videója fut, a szomszéd lapé nem
+      const f = book.faceOn(focus);
+      if (f >= 0) playing.add(f);
+    } else if (canHover) {
       if (hoveredFace >= 0) playing.add(hoveredFace);
     } else visible.forEach((id) => playing.add(id)); // touch screens: no hover, so just play
     pool.update(visible, wanted, playing);
