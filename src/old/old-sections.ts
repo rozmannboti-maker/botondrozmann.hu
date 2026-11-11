@@ -145,6 +145,15 @@ function setupAboutSection() {
       },
     });
 
+    // telefonon a kép jobbról csúszik be a helyére, mint asztalin a jobb szélhez simuló portré
+    if (narrow) {
+      gsap.fromTo(photoWrap, { xPercent: 40 }, {
+        xPercent: 0,
+        ease: 'none',
+        scrollTrigger: { trigger: photoWrap, start: 'top bottom', end: 'top 40%', scrub: true },
+      });
+    }
+
     gsap.fromTo(photo, { opacity: 0, filter: 'blur(20px)' }, {
       opacity: 1,
       filter: 'blur(0px)',

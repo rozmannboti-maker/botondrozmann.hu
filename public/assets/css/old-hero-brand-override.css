@@ -1026,3 +1026,18 @@
 @media (max-width: 768px) {
   #old-site .projects-inner { z-index: 2; }
 }
+
+/* Rólam, telefon (2026-11-11): a portré a jobb szélhez simul, mint asztalin, és szabálytalan,
+   organikus kontúrt kap (#about-blob a jelölésben); görgetéskor jobbról csúszik be */
+@media (max-width: 768px) {
+  #old-site .about { overflow-x: clip; }
+  #old-site .about-photo-wrap {
+    width: 88vw;
+    margin-left: auto;
+    margin-right: -1.5rem;
+  }
+  #old-site .about-photo {
+    border-radius: 0;
+    clip-path: url(#about-blob);
+  }
+}
