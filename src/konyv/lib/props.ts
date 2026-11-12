@@ -17,7 +17,9 @@ function canvas(w: number, h: number, draw: (ctx: CanvasRenderingContext2D, w: n
   const c = document.createElement("canvas");
   c.width = w;
   c.height = h;
-  const ctx = c.getContext("2d");
+  // 2026-11-12 (PageSpeed): processzoros 2D vászon: textúraként feltöltve nem kell a videókártyától
+  // visszaolvasni (az szinkron vár, szoftveres WebGL-en mp-ekig). A rajzolat ugyanaz.
+  const ctx = c.getContext("2d", { willReadFrequently: true });
   if (!ctx) throw new Error("2D canvas unavailable");
   draw(ctx, w, h);
   return c;

@@ -51,7 +51,7 @@
      tölthetünk be a saját oldaladra — ezt továbbra is a saját Inter-edre álnevezzük. */
 @font-face {
   font-family: 'Gilda Display';
-  src: url('../fonts/Instrument_Serif_400_italic.woff2') format('woff2');
+  src: url('../Instrument_Serif_400_italic.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: block;

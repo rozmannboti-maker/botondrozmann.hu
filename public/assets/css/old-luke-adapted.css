@@ -12,7 +12,7 @@
 
 @font-face {
   font-family: 'Instrument Serif';
-  src: url('../fonts/Instrument_Serif_400.woff2') format('woff2');
+  src: url('../Instrument_Serif_400.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: block;
@@ -20,7 +20,7 @@
 
 @font-face {
   font-family: 'Instrument Serif';
-  src: url('../fonts/Instrument_Serif_400_italic.woff2') format('woff2');
+  src: url('../Instrument_Serif_400_italic.woff2') format('woff2');
   font-weight: 400;
   font-style: italic;
   font-display: block;

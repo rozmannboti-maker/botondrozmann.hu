@@ -8,6 +8,7 @@ import { createProps, type PropCopy } from "./props";
 import { createTable } from "./table";
 import { ContactCard } from "./contactCard";
 import { CoffeeCup } from "./coffee";
+import { gpuWarm } from "../../lib/gpuWarm";
 import { quality } from "./quality";
 
 const ASPECT = 16 / 10; // every page is 16:10, like the videos
@@ -61,6 +62,8 @@ export function startScene(o: SceneOptions) {
 }
 
 async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => void> {
+  await gpuWarm(); // lásd src/lib/gpuWarm.ts
+  if (cancelled()) return () => {};
   const canvas = document.createElement("canvas");
   canvas.className = o.canvasClass;
   canvas.setAttribute("aria-label", o.label);
@@ -73,6 +76,9 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
   let pixelRatio = Math.min(window.devicePixelRatio, quality.maxPixelRatio);
   renderer.setPixelRatio(pixelRatio);
+  // 2026-11-12 (PageSpeed): a végleges méret rögtön, még a fénytérkép (props.ts, PMREM) előtt.
+  // Később átméretezni szinkron megvárja a videókártya addigi munkáját (szoftveres WebGL-en mp-ek).
+  renderer.setSize(window.innerWidth, window.innerHeight, false);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.NeutralToneMapping; // keeps video colours, rolls off lamp highlights
   renderer.shadowMap.enabled = true;
@@ -445,7 +451,9 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
     const w = window.innerWidth, h = window.innerHeight;
     if (w === size.w && h === size.h) return;
     size = { w, h };
-    renderer.setSize(w, h, false);
+    // azonos méretre ne foglaljuk újra a rajzfelületet (a canvas.width írása mindig újrafoglal)
+    const c = renderer.domElement, pr = renderer.getPixelRatio();
+    if (c.width !== Math.floor(w * pr) || c.height !== Math.floor(h * pr)) renderer.setSize(w, h, false);
     camera.aspect = w / h;
     const heroBottom = o.hero.offsetTop + o.hero.offsetHeight;
     const headerBottom = o.header.getBoundingClientRect().bottom;

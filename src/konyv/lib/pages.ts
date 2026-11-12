@@ -57,7 +57,9 @@ function canvas(w: number, h: number) {
 }
 
 function context(c: HTMLCanvasElement) {
-  const ctx = c.getContext("2d");
+  // 2026-11-12 (PageSpeed): processzoros 2D vászon: textúraként feltöltve nem kell a videókártyától
+  // visszaolvasni (az szinkron vár, szoftveres WebGL-en mp-ekig). A rajzolat ugyanaz.
+  const ctx = c.getContext("2d", { willReadFrequently: true });
   if (!ctx) throw new Error("2D canvas unavailable");
   return ctx;
 }

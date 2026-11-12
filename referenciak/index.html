@@ -3,6 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // A 3D jelenet grafikus folyamatát háttérszálon előmelegíti: a böngésző első WebGL-indítása
+      // (főleg videókártya nélküli gépen) így nem a fő szálat fogja meg. A láthatón nem változtat.
+      window.__gpuWarm = new Promise(function (done) {
+        try {
+          if (!window.OffscreenCanvas || !window.Worker) return done();
+          var u = URL.createObjectURL(new Blob(['try{new OffscreenCanvas(1,1).getContext("webgl2")}catch(e){}postMessage(0)'], { type: "text/javascript" }));
+          var w = new Worker(u);
+          w.onmessage = function () { w.terminate(); URL.revokeObjectURL(u); done(); };
+          w.onerror = function () { done(); };
+          setTimeout(done, 3000);
+        } catch (e) { done(); }
+      });
+    </script>
     <meta name="theme-color" content="#15130f" />
     <title>Referenciák | Rozmann Botond</title>
     <meta

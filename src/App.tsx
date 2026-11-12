@@ -7,6 +7,7 @@ import { OldSections } from "./components/OldSections";
 import { Footer } from "./components/Footer";
 import { HoverInfo } from "./components/HoverInfo";
 import { createScrollController } from "./lib/scroll";
+import { gpuWarm } from "./lib/gpuWarm";
 import { setupIntro } from "./lib/intro";
 import { Engine, type HeroState } from "./gl/engine";
 import { T } from "./gl/timeline";
@@ -128,7 +129,9 @@ export default function App() {
       });
     };
     // no WebGL (the renderer throws right away) or a failed load: the DOM shows the type itself
-    new Promise<Engine>((resolve) => {
+    gpuWarm()
+      .then(() => new Promise<Engine>((resolve, reject) => {
+      if (!alive) return reject(new Error("unmounted"));
       engine = new Engine({
         canvas,
         heroRoot,
@@ -147,10 +150,11 @@ export default function App() {
       engineRef.current = engine;
       if (import.meta.env.DEV) (window as Window & { __engine?: Engine }).__engine = engine;
       resolve(engine);
-    })
+    }))
       .then((e) => e.init())
       .then(start)
       .catch((err: unknown) => {
+        if (!alive) return;
         console.error(err);
         document.documentElement.classList.add("no-webgl");
         navLogo.style.opacity = "1";

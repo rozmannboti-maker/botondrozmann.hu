@@ -5,6 +5,8 @@ import { TextPlane } from "./textPlane";
 import { computeLayout, type Layout } from "./layout";
 import { T, range, clamp, lerp, easeOutCubic, smooth } from "./timeline";
 import { PHYS } from "./physics";
+
+const yieldTask = () => new Promise<void>((r) => setTimeout(r, 0));
 import { WorkSphere, type PointerN } from "./workSphere";
 
 const FOV = 30;
@@ -190,8 +192,13 @@ export class Engine {
       t.minFilter = THREE.LinearMipmapLinearFilter;
       t.generateMipmaps = true;
     });
-    // upload the textures now: no flicker when they first show
-    textures.forEach((t) => this.renderer.initTexture(t));
+    // upload the textures now: no flicker when they first show. One per task, so the main
+    // thread is never blocked for long (PageSpeed: total blocking time)
+    for (const t of textures) {
+      this.renderer.initTexture(t);
+      await yieldTask();
+      if (this.disposed) return;
+    }
     this.textures = textures;
     this.setupPicking();
     // the final section's sphere: the 12 textures are here, 11 more works load in the
@@ -207,7 +214,10 @@ export class Engine {
     await this.o.fonts;
     if (this.disposed) return;
     this.resize();
-    this.renderer.compile(this.scene, this.camera);
+    // shaders compile in parallel where the GPU allows it (KHR_parallel_shader_compile)
+    // instead of one long block on the first frame
+    await this.renderer.compileAsync(this.scene, this.camera);
+    if (this.disposed) return;
     this.ready = true;
     this.timer.update();
     this.loop();
@@ -322,11 +332,13 @@ export class Engine {
         more.forEach((t) => t.dispose());
         return;
       }
-      more.forEach((t) => {
+      for (const t of more) {
         t.colorSpace = THREE.SRGBColorSpace;
         t.anisotropy = Math.min(8, maxAniso);
         this.renderer.initTexture(t);
-      });
+        await yieldTask();
+        if (this.disposed) return;
+      }
       this.sphereTextures = more;
       this.sphere = new WorkSphere([...this.textures, ...more]);
       this.sphere.layout(this.W, this.H, this.layout.portrait);
