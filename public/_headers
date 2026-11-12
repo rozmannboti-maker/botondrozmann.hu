@@ -1,0 +1,6 @@
+# 2026-11-12: Cloudflare Pages gyorsítótár-szabályok (a netlify.toml [[headers]] megfelelője).
+# A képek, videók, betűk és a buildelt JS/CSS 30 napig a böngészőben maradnak; a HTML mindig friss.
+/assets/*
+  Cache-Control: public, max-age=2592000
+/konyv/*
+  Cache-Control: public, max-age=2592000
