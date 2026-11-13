@@ -198,8 +198,8 @@ async function init(o: SceneOptions, cancelled: () => boolean): Promise<() => vo
     invalidate(4);
   });
   const coffee = new CoffeeCup(props.userData.coffee, camera);
-  // Csak csukott könyvnél kattinthatók (a névjegy és a kávé).
-  const cardEnabled = () => book.target === 0 && !book.busy && book.openness < 0.02 && !card.isOpen;
+  // Csak csukott könyvnél kattinthatók (a névjegy és a kávé): elölről vagy hátulról becsukva is.
+  const cardEnabled = () => (book.target === 0 || book.target === book.NI) && !book.busy && book.openness < 0.02 && !card.isOpen;
   const cupEnabled = () => cardEnabled() && !coffee.busy;
   let cardPress: { x: number; y: number; what: "card" | "cup" } | null = null;
 
