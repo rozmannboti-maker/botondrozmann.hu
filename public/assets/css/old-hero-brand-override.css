@@ -1031,9 +1031,12 @@
    organikus kontúrt kap (#about-blob a jelölésben); görgetéskor jobbról csúszik be */
 @media (max-width: 768px) {
   #old-site .about { overflow-x: clip; }
+  /* 2026-11-15: a "width: 88vw + margin-left: auto + margin-right: -1.5rem" Safariban (WebKit)
+     24 px-re a jobb széltől állt meg, mert a negatív margót figyelmen kívül hagyta. Most a
+     szélesség auto, a két margó konkrét: így minden böngészőben 88vw széles és a szélhez ér. */
   #old-site .about-photo-wrap {
-    width: 88vw;
-    margin-left: auto;
+    width: auto;
+    margin-left: calc(12vw - 1.5rem);
     margin-right: -1.5rem;
   }
   #old-site .about-photo {
