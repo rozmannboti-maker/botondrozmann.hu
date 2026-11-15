@@ -13,6 +13,7 @@ import { Engine, type HeroState } from "./gl/engine";
 import { T } from "./gl/timeline";
 import { works, sphereExtras, posterUrl, posterWidth, videoUrl } from "./data/projects";
 import styles from "./App.module.css";
+import { LITE_HERO, PORTRAIT_HERO } from "./lib/liteHero";
 
 type Theme = "light" | "dark";
 
@@ -21,8 +22,20 @@ const loadFonts = () =>
     document.fonts.load('italic 400 1em "Instrument Serif"'),
   ]);
 
-// the type + ribbon hero is the default; ?hero=portre brings the portrait variant back
-const PORTRAIT_HERO = new URLSearchParams(location.search).get("hero") === "portre";
+// the type + ribbon hero is the default; ?hero=portre brings the portrait variant back,
+// LITE_HERO (phones) drops the WebGL ribbon
+// the engine's baseline measurement (Engine.layoutText), for the lite hero without the engine
+function setBaseOff(heroRoot: HTMLElement, line1: HTMLElement) {
+  const first = line1.querySelector("span");
+  const ctx = document.createElement("canvas").getContext("2d");
+  if (!first || !ctx) return;
+  const cs = getComputedStyle(first);
+  ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  const m = ctx.measureText(first.textContent ?? "");
+  const r = first.getBoundingClientRect();
+  const base = r.top + (r.height - (m.fontBoundingBoxAscent + m.fontBoundingBoxDescent)) / 2 + m.fontBoundingBoxAscent;
+  heroRoot.style.setProperty("--base-off", `${base - line1.getBoundingClientRect().top}px`);
+}
 
 export default function App() {
   const [hovered, setHovered] = useState<number | null>(null);
@@ -76,6 +89,7 @@ export default function App() {
         document.documentElement.toggleAttribute("data-ptop", out < 0.55);
       }
       // the stage is done once the ribbon has left: hide it so the old sections scroll over a clean page
+      if (LITE_HERO) return;
       const gone = s >= T.total - 0.001;
       if (gone !== stageGone) {
         stageGone = gone;
@@ -83,6 +97,14 @@ export default function App() {
       }
     });
     scroll.lenis.on("scroll", ({ scroll: y }: { scroll: number }) => {
+      // lite hero: the stage hides once the old sections have covered it
+      if (LITE_HERO) {
+        const gone = y >= window.innerHeight;
+        if (gone !== stageGone) {
+          stageGone = gone;
+          stage.style.visibility = gone ? "hidden" : "visible";
+        }
+      }
       // past the stage the page is light again: the header is not on the black section any more
       if (y > spacer.offsetHeight - window.innerHeight * 0.5 && navInverted) {
         navInverted = false;
@@ -128,6 +150,25 @@ export default function App() {
         gsap.to(heroState, { peek: 0.33, duration: 2.6, ease: "power2.out", delay: 0.8 });
       });
     };
+    if (LITE_HERO) {
+      document.documentElement.classList.add("no-webgl", "lite-hero");
+      canvas.remove();
+      navLogo.style.opacity = "1";
+      loadFonts()
+        .catch(() => {})
+        .then(() => {
+          if (!alive) return;
+          setBaseOff(heroRoot, line1);
+          start();
+          // a cheap entrance instead of the ribbon: the lines and the subheading rise in
+          ctx.add(() => {
+            // the CSS centres them with translateX(-50%): keep that as a percentage, not as px
+            gsap.set([line1, line2, sub], { xPercent: -50, x: 0 });
+            gsap.fromTo([line1, line2], { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 1.1, ease: "power3.out", stagger: 0.12, delay: 0.3 });
+            gsap.fromTo(sub, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.9, ease: "power2.out", delay: 0.7 });
+          });
+        });
+    } else
     // no WebGL (the renderer throws right away) or a failed load: the DOM shows the type itself
     gpuWarm()
       .then(() => new Promise<Engine>((resolve, reject) => {
@@ -161,7 +202,10 @@ export default function App() {
         start();
       });
 
-    const onResize = () => scroll.refresh();
+    const onResize = () => {
+      if (LITE_HERO) setBaseOff(heroRoot, line1);
+      scroll.refresh();
+    };
     window.addEventListener("resize", onResize);
     return () => {
       alive = false;
@@ -190,7 +234,7 @@ export default function App() {
         <HoverInfo hovered={hovered} works={works} />
         <Footer ref={footerRef} />
       </main>
-      <div className={styles.spacer} ref={spacerRef} style={{ height: `${(T.total + 1) * 100}vh` }} />
+      <div className={styles.spacer} ref={spacerRef} style={{ height: LITE_HERO ? "100svh" : `${(T.total + 1) * 100}vh` }} />
       <OldSections />
       <div className={styles.probe} ref={probeRef} aria-hidden="true" />
     </>

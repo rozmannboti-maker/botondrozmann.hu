@@ -6,6 +6,7 @@ import { initOldSections } from "../old/old-sections";
 import menuHtml from "../old/site-menu.html?raw";
 import { initSiteMenu } from "../old/site-menu";
 import { initSvcStack } from "../old/svc-stack";
+import { LITE_HERO } from "../lib/liteHero";
 
 // A régi oldal (botondrozmann.hu) hero utáni szekciói: Rólam, Munkáim, Szolgáltatások,
 // Galéria, Kapcsolat, Lábléc. A CSS #old-site alá van szűkítve (public/assets/css/old-*.css).
@@ -79,7 +80,7 @@ export function OldSections() {
   }, []);
   return (
     <>
-      <div id="old-site" style={{ marginTop: "-50vh" }} dangerouslySetInnerHTML={{ __html: html }} />
+      <div id="old-site" style={{ marginTop: LITE_HERO ? 0 : "-50vh" }} dangerouslySetInnerHTML={{ __html: html }} />
       {/* a régi oldal menüje (#site-menu, fixed); a fejléc Menü gombja nyitja */}
       <div dangerouslySetInnerHTML={{ __html: menuHtml }} />
     </>
