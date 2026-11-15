@@ -4,6 +4,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { T } from "../gl/timeline";
 
 gsap.registerPlugin(ScrollTrigger);
+// telefonon a címsor mozgása (csak magasság-változás) ne számoltassa újra az összes animációt
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 export interface ScrollController {
   state: { progress: number };

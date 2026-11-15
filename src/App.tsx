@@ -202,7 +202,12 @@ export default function App() {
         start();
       });
 
+    // 2026-11-15: telefonon a címsor be- és kicsúszása is resize-t küld (csak a magasság változik).
+    // Ilyenkor nem számoljuk újra az összes görgetés-animációt, mert az görgetés közben megakasztja.
+    let lastW = window.innerWidth;
     const onResize = () => {
+      if (window.innerWidth === lastW && matchMedia("(pointer: coarse)").matches) return;
+      lastW = window.innerWidth;
       if (LITE_HERO) setBaseOff(heroRoot, line1);
       scroll.refresh();
     };

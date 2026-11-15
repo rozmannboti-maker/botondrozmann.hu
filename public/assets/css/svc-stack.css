@@ -326,3 +326,15 @@
   }
   #old-site .svc-dots button[aria-current="true"] span { width: 32px; background: var(--svc-accent); }
 }
+
+/* 2026-11-15: telefonon a teljes képernyős, 60 px-es elmosás (filter: blur) az animált fényfoltok
+   miatt minden képkockánál újraszámolódott. Ott a foltok eleve lágy szélű színátmenetek, szűrő nélkül. */
+@media (max-width: 768px) {
+  .svc-glow { filter: none; }
+  .svc-glow span {
+    background: radial-gradient(closest-side, var(--svc-accent-light) 30%, transparent);
+    scale: 1.6;
+  }
+  .svc-glow span:nth-child(2) { background: radial-gradient(closest-side, var(--svc-accent) 30%, transparent); }
+  .svc-glow span:nth-child(3) { filter: none; }
+}

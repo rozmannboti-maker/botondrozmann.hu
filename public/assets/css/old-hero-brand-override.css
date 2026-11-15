@@ -1066,3 +1066,18 @@
   #old-site .fluid-line-svg { will-change: transform; }
   #old-site .proj-item { will-change: transform; }
 }
+
+/* 2026-11-15 (2. kör): további telefonos könnyítések.
+   - Rólam-kép: a kontúrt a JS path()-ként adja meg (GPU-n vágódik), az url(#about-blob) csak tartalék.
+   - Kapcsolat-képkeretek: a will-change-ből kikerül a filter (nincs is szűrő rajtuk).
+   - Menü: a homályosító háttér (backdrop-filter) a fix gombon görgetéskor minden képkockánál újraszámolódott. */
+@media (max-width: 768px) {
+  #old-site .contact-frame { will-change: transform; }
+  html #site-menu .sm-toggle,
+  html #site-menu .sm-panel {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  html #site-menu .sm-toggle { background: rgba(28,26,23,.82); }
+  html #site-menu .sm-panel { background: var(--sm-surface); }
+}

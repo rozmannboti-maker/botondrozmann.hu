@@ -134,8 +134,27 @@ function setupAboutSection() {
     // 2026-11-11: telefonon (egymás alatt a szöveg és a kép) a ±50%-os parallax a kép felét a
     // bekezdésre tolta; ott csak egy enyhe mozgás marad
     const narrow = window.matchMedia('(max-width: 768px)').matches;
-    gsap.fromTo(photo, { y: narrow ? '-6%' : '-50%' }, {
-      y: narrow ? '6%' : '50%',
+    if (narrow) {
+      // 2026-11-15: a Safari az url(#about-blob) SVG-vágást nem a grafikus chipen végzi, hanem minden
+      // képkockánál újrarajzolja a képet. Ugyanaz a kontúr pixelben, path()-ként a GPU-n vágódik.
+      // A kép belső parallaxa telefonon kikapcsolva: így görgetés közben semmi nem rajzolódik újra.
+      const BLOB = [[1,0],[0.5,0],[0.27,0.01,0.1,0.09,0.09,0.23],[0.08,0.33,0.17,0.38,0.12,0.48],[0.06,0.58,0,0.64,0.02,0.76],[0.05,0.9,0.2,0.99,0.42,1],[1,1]];
+      const setClip = () => {
+        const w = photo.offsetWidth, h = photo.offsetHeight;
+        if (!w || !h) return;
+        const P = (x, y) => (x * w).toFixed(1) + ',' + (y * h).toFixed(1);
+        let d = 'M' + P(1, 0) + ' L' + P(0.5, 0);
+        for (const seg of BLOB.slice(2, 6)) d += ' C' + P(seg[0], seg[1]) + ' ' + P(seg[2], seg[3]) + ' ' + P(seg[4], seg[5]);
+        d += ' L' + P(1, 1) + ' Z';
+        photo.style.clipPath = "path('" + d + "')";
+      };
+      setClip();
+      let lastW = window.innerWidth;
+      window.addEventListener('resize', () => { if (window.innerWidth !== lastW) { lastW = window.innerWidth; setClip(); } });
+      photo.addEventListener('load', setClip);
+    } else
+    gsap.fromTo(photo, { y: '-50%' }, {
+      y: '50%',
       ease: 'none',
       scrollTrigger: {
         trigger: photoWrap,
@@ -408,14 +427,46 @@ function setupProjectsSection() {
       const t = (y - ys[i - 1]) / Math.max(1e-6, ys[i] - ys[i - 1]);
       return ((i - 1 + t) / N) * len;
     };
-    gsap.set(linePath, { strokeDasharray: len, strokeDashoffset: len });
-    const toOffset = gsap.quickTo(linePath, 'strokeDashoffset', { duration: 0.6, ease: 'power2.out' });
+    // 2026-11-15: telefonon a vonal nem SVG-ben, hanem egy vászonon (canvas) rajzolódik, legfeljebb
+    // 1,5-szörös pixelsűrűséggel. Az SVG minden képkockánál a teljes, több képernyő magas rajzot
+    // háromszoros felbontásban rajzolta újra, ettől akadozott.
+    const canvas = document.createElement('canvas');
+    canvas.className = 'fluid-line-canvas';
+    canvas.setAttribute('aria-hidden', 'true');
+    const dpr = Math.min(1.5, window.devicePixelRatio || 1, Math.sqrt(14e6 / (w * h)));
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+    // (az <svg>-nek nincs offsetTop-ja: a helyét a szülőhöz mérjük)
+    const parentBox = svgEl.parentElement.getBoundingClientRect();
+    Object.assign(canvas.style, { position: 'absolute', left: (svgBox.left - parentBox.left) + 'px', top: (svgBox.top - parentBox.top) + 'px', width: w + 'px', height: h + 'px', pointerEvents: 'none', zIndex: '1' });
+    const stroke = getComputedStyle(linePath).stroke || '#D9805F';
+    const lw = parseFloat(linePath.style.strokeWidth) || 55;
+    const path2d = new Path2D(linePath.getAttribute('d'));
+    svgEl.parentNode.insertBefore(canvas, svgEl);
+    svgEl.style.display = 'none';
+    const ctx = canvas.getContext('2d');
+    const proxy = { o: len };
+    let drawn = -1;
+    const draw = () => {
+      const o = Math.round(proxy.o);
+      if (o === drawn) return;
+      drawn = o;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (o >= len) return;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.setLineDash([len, len + lw]);
+      ctx.lineDashOffset = o;
+      ctx.stroke(path2d);
+    };
+    draw();
+    const toOffset = (v) => gsap.to(proxy, { o: v, duration: 0.6, ease: 'power2.out', overwrite: true, onUpdate: draw });
     ScrollTrigger.create({
       trigger: '#projects',
       start: 'top bottom',
       end: 'bottom top',
       onUpdate: () => {
-        const tipY = window.innerHeight * 0.6 - svgEl.getBoundingClientRect().top;
+        const tipY = window.innerHeight * 0.6 - canvas.getBoundingClientRect().top;
         toOffset(len - lengthAtY(tipY));
       },
     });
