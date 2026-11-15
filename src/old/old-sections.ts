@@ -154,9 +154,12 @@ function setupAboutSection() {
       });
     }
 
-    gsap.fromTo(photo, { opacity: 0, filter: 'blur(20px)' }, {
+    // 2026-11-15: telefonon az elmosás (blur) képkockánként újrarajzoltatta a nagy képet, ettől
+    // akadozott a megjelenése; ott csak halványan tűnik elő
+    if (narrow) photo.style.filter = 'none';
+    gsap.fromTo(photo, narrow ? { opacity: 0 } : { opacity: 0, filter: 'blur(20px)' }, {
       opacity: 1,
-      filter: 'blur(0px)',
+      ...(narrow ? {} : { filter: 'blur(0px)' }),
       ease: 'none',
       scrollTrigger: {
         trigger: aboutSub,
@@ -852,11 +855,31 @@ function setupProjectsSection() {
     });
 
     
+    // 2026-11-15: telefonon a 300vmax-os kör nagyítása (kb. 2500 px, háromszoros pixelsűrűséggel
+    // több száz MB grafikus memória) akadozott. Ott egy képernyőnyi réteg kap kör alakú vágást,
+    // ugyanabból a középpontból (a képernyő alja közepe) nő ki.
+    var lowBlob = window.matchMedia('(max-width: 768px)').matches;
+    if (lowBlob) {
+      blob.classList.add('is-clip');
+      var blobR = { r: 0 };
+      var maxR = function () { return Math.hypot(window.innerWidth / 2, window.innerHeight * 1.1) + 4; };
+      var applyR = function () {
+        blob.style.clipPath = 'circle(' + blobR.r.toFixed(1) + 'px at 50% 100%)';
+        blob.dataset.r = String(blobR.r);
+      };
+      applyR();
+      tl.fromTo(blobR,
+        { r: 0 },
+        { r: maxR, duration: 0.6, ease: 'none', onUpdate: applyR },
+        0
+      );
+    } else {
     tl.fromTo(blob,
       { scale: 0 },
       { scale: 1, duration: 0.6, ease: 'none' },
       0
     );
+    }
 
     
     tl.to([stTimeline, pctEl], { opacity: 0, duration: 0.08 }, 0.1);
@@ -1280,6 +1303,9 @@ function setupProjectsSection() {
       borderRadius: '0 0 50px 50px',
       duration: 0.15, ease: 'power2.out'
     }, 0);
+    // a felhúzódó réteg saját grafikus rétegen mozog (telefonon így nem rajzolódik újra)
+    contactBlobWrap.style.willChange = 'transform';
+    contactPin.style.willChange = 'transform';
 
     ftl.to(contactBlobWrap, {
       y: function () { return -(window.innerHeight * 1.8 + 400); },

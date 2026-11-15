@@ -1044,3 +1044,25 @@
     clip-path: url(#about-blob);
   }
 }
+
+/* 2026-11-15: telefonos akadozás csökkentése.
+   - Kapcsolat: a 300vmax-os kör helyett egy képernyőnyi réteg, kör alakú vágással (JS: .is-clip).
+   - Rólam-kép: elmosás nélkül, saját rétegen halványul elő.
+   - Referenciák: a vonal és a sorok saját rétegen, így a vonal rajzolása nem rajzolja újra a szöveget. */
+@media (max-width: 768px) {
+  #old-site .contact-blob.is-clip {
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 110vh;
+    border-radius: 0;
+    transform: none;
+    will-change: auto;
+  }
+  #old-site .about-photo {
+    filter: none;
+    will-change: transform, opacity;
+  }
+  #old-site .fluid-line-svg { will-change: transform; }
+  #old-site .proj-item { will-change: transform; }
+}
