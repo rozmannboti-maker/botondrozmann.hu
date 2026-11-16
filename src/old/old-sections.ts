@@ -925,11 +925,31 @@ function setupProjectsSection() {
       var blobW = window.innerWidth;
       window.addEventListener('resize', function () { if (window.innerWidth !== blobW) { blobW = window.innerWidth; sizeBlob(); } });
       blob.classList.add('is-grow');
+      // 2026-11-16: lefelé görgetve akkor nyílik, amikor a Kapcsolat teteje a képernyő alsó
+      // negyedéhez ér; visszafelé viszont már akkor zárul, amikor a teteje a felső negyed alá
+      // csúszik (különben a terrakotta kör az előző szekciót is eltakarta, míg a cím lent járt)
+      var contactEl = document.getElementById('contact');
+      var blobOpen = false;
+      var setBlob = function (on) {
+        if (on === blobOpen) return;
+        blobOpen = on;
+        blob.classList.toggle('is-open', on);
+      };
+      var syncBlob = function (dir) {
+        var top = contactEl.getBoundingClientRect().top;
+        var ih = window.innerHeight;
+        if (top < ih * 0.25) setBlob(true);
+        else if (top < ih * 0.75) { if (dir > 0) setBlob(true); else if (dir < 0) setBlob(false); }
+        else setBlob(false);
+      };
       ScrollTrigger.create({
         trigger: '#contact',
-        start: 'top 75%',
-        onEnter: function () { blob.classList.add('is-open'); },
-        onLeaveBack: function () { blob.classList.remove('is-open'); },
+        start: 'top bottom',
+        endTrigger: '#footer-transition',
+        end: 'bottom top',
+        onUpdate: function (self) { syncBlob(self.direction); },
+        onToggle: function (self) { syncBlob(self.direction); },
+        onRefresh: function () { syncBlob(0); },
       });
     } else {
     tl.fromTo(blob,

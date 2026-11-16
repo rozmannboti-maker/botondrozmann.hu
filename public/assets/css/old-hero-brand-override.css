@@ -1061,6 +1061,11 @@
   #old-site .contact-blob.is-grow.is-open {
     transform: translate(-50%, 50%) scale(1);
   }
+  /* bezáráskor gyorsabban húzódik vissza, hogy az előző szekció hamar előtűnjön */
+  #old-site .contact-blob.is-grow:not(.is-open) {
+    transition-duration: 0.7s;
+    transition-timing-function: cubic-bezier(0.55, 0, 0.45, 1);
+  }
   /* Rólam-kép: a látótérbe érve jobbról becsúszik és előtűnik (időre, nem görgetéshez kötve) */
   #old-site .about-photo-wrap.rv {
     transform: translateX(40%);
