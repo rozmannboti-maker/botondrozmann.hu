@@ -39,13 +39,8 @@ export function OldSections() {
         const check = () => {
           const b = btn.getBoundingClientRect();
           const c = blob.getBoundingClientRect();
-          // telefonon a kör egy képernyőnyi rétegre vágott kör (circle() clip-path), középpontja
-          // a réteg alja közepe, sugara a data-r-ben
-          const clipR = blob.dataset.r;
-          const r = clipR !== undefined ? parseFloat(clipR) : c.width / 2;
-          const ccx = clipR !== undefined ? c.left + c.width / 2 : c.left + r;
-          const ccy = clipR !== undefined ? c.bottom : c.top + c.height / 2;
-          const inside = r > 0 && Math.hypot(b.left + b.width / 2 - ccx, b.top + b.height / 2 - ccy) < r;
+          const r = c.width / 2;
+          const inside = r > 0 && Math.hypot(b.left + b.width / 2 - (c.left + r), b.top + b.height / 2 - (c.top + c.height / 2)) < r;
           // a kört a #contact-blob-wrap vágja; a végén ez húzódik fel a világos lábléc fölül,
           // ott újra a terrakotta gomb kell
           const w = wrap.getBoundingClientRect();

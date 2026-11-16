@@ -1046,19 +1046,33 @@
 }
 
 /* 2026-11-15: telefonos akadozás csökkentése.
-   - Kapcsolat: a 300vmax-os kör helyett egy képernyőnyi réteg, kör alakú vágással (JS: .is-clip).
+   - Kapcsolat: a 300vmax-os kör helyett egy épp képernyőnyi kör, időre nyílik (JS: .is-grow).
    - Rólam-kép: elmosás nélkül, saját rétegen halványul elő.
    - Referenciák: a vonal és a sorok saját rétegen, így a vonal rajzolása nem rajzolja újra a szöveget. */
 @media (max-width: 768px) {
-  #old-site .contact-blob.is-clip {
-    left: 0;
+  /* 2026-11-16: a kör mérete JS-ből (épp lefedi a képernyőt), a nyílás időre, CSS-átmenettel */
+  #old-site .contact-blob.is-grow {
+    left: 50%;
     bottom: 0;
-    width: 100%;
-    height: 110vh;
-    border-radius: 0;
-    transform: none;
-    will-change: auto;
+    border-radius: 50%;
+    transform: translate(-50%, 50%) scale(0);
+    transition: transform 1.1s cubic-bezier(0.65, 0, 0.35, 1);
   }
+  #old-site .contact-blob.is-grow.is-open {
+    transform: translate(-50%, 50%) scale(1);
+  }
+  /* Rólam-kép: a látótérbe érve jobbról becsúszik és előtűnik (időre, nem görgetéshez kötve) */
+  #old-site .about-photo-wrap.rv {
+    transform: translateX(40%);
+    transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  #old-site .about-photo-wrap.rv .about-photo {
+    opacity: 0;
+    transition: opacity 1s ease 0.1s;
+  }
+  #old-site .about-photo-wrap.rv.is-in { transform: none; }
+  #old-site .about-photo-wrap.rv.is-in .about-photo { opacity: 1; }
   #old-site .about-photo {
     filter: none;
     will-change: transform, opacity;

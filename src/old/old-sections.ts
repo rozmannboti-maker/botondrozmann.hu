@@ -164,21 +164,25 @@ function setupAboutSection() {
       },
     });
 
-    // telefonon a kép jobbról csúszik be a helyére, mint asztalin a jobb szélhez simuló portré
+    // telefonon a kép jobbról csúszik be a helyére, mint asztalin a jobb szélhez simuló portré.
+    // 2026-11-16: nem a görgetéshez kötve (az iPhone lendületes görgetésnél nem minden képkockánál
+    // adja át a helyzetet, ettől lépcsőzött), hanem a látótérbe érve időre, CSS-átmenettel
+    // (.about-photo-wrap.rv / .is-in), amit a Safari a grafikus chipen futtat.
     if (narrow) {
-      gsap.fromTo(photoWrap, { xPercent: 40 }, {
-        xPercent: 0,
-        ease: 'none',
-        scrollTrigger: { trigger: photoWrap, start: 'top bottom', end: 'top 40%', scrub: true },
+      photo.style.filter = 'none';
+      photoWrap.classList.add('rv');
+      ScrollTrigger.create({
+        trigger: photoWrap,
+        start: 'top 85%',
+        onEnter: () => photoWrap.classList.add('is-in'),
+        onLeaveBack: () => photoWrap.classList.remove('is-in'),
       });
+      return;
     }
 
-    // 2026-11-15: telefonon az elmosás (blur) képkockánként újrarajzoltatta a nagy képet, ettől
-    // akadozott a megjelenése; ott csak halványan tűnik elő
-    if (narrow) photo.style.filter = 'none';
-    gsap.fromTo(photo, narrow ? { opacity: 0 } : { opacity: 0, filter: 'blur(20px)' }, {
+    gsap.fromTo(photo, { opacity: 0, filter: 'blur(20px)' }, {
       opacity: 1,
-      ...(narrow ? {} : { filter: 'blur(0px)' }),
+      filter: 'blur(0px)',
       ease: 'none',
       scrollTrigger: {
         trigger: aboutSub,
@@ -896,34 +900,37 @@ function setupProjectsSection() {
     });
     blobWrap.style.visibility = 'hidden';
 
+    var lowBlob = window.matchMedia('(max-width: 768px)').matches;
     var tl = gsap.timeline({
       scrollTrigger: {
         trigger: '#contact',
         start: 'top bottom',
         end: 'bottom bottom',
-        scrub: true,
+        // telefonon kis utókövetés: a szövegek képkockánként haladnak, nem lépcsőzve
+        scrub: lowBlob ? 0.4 : true,
       }
     });
 
     
-    // 2026-11-15: telefonon a 300vmax-os kör nagyítása (kb. 2500 px, háromszoros pixelsűrűséggel
-    // több száz MB grafikus memória) akadozott. Ott egy képernyőnyi réteg kap kör alakú vágást,
-    // ugyanabból a középpontból (a képernyő alja közepe) nő ki.
-    var lowBlob = window.matchMedia('(max-width: 768px)').matches;
+    // 2026-11-15/16: telefonon a 300vmax-os kör görgetéshez kötött nagyítása akadozott. Ott a kör
+    // pont akkora, hogy a képernyőt lefedje, és a Kapcsolat elérésekor időre, CSS-átmenettel nyílik
+    // ki (.is-grow / .is-open), a grafikus chipen; visszagörgetve bezárul.
     if (lowBlob) {
-      blob.classList.add('is-clip');
-      var blobR = { r: 0 };
-      var maxR = function () { return Math.hypot(window.innerWidth / 2, window.innerHeight * 1.1) + 4; };
-      var applyR = function () {
-        blob.style.clipPath = 'circle(' + blobR.r.toFixed(1) + 'px at 50% 100%)';
-        blob.dataset.r = String(blobR.r);
+      var sizeBlob = function () {
+        var d = Math.ceil(2 * Math.hypot(window.innerWidth / 2, window.innerHeight * 1.1) + 8);
+        blob.style.width = d + 'px';
+        blob.style.height = d + 'px';
       };
-      applyR();
-      tl.fromTo(blobR,
-        { r: 0 },
-        { r: maxR, duration: 0.6, ease: 'none', onUpdate: applyR },
-        0
-      );
+      sizeBlob();
+      var blobW = window.innerWidth;
+      window.addEventListener('resize', function () { if (window.innerWidth !== blobW) { blobW = window.innerWidth; sizeBlob(); } });
+      blob.classList.add('is-grow');
+      ScrollTrigger.create({
+        trigger: '#contact',
+        start: 'top 75%',
+        onEnter: function () { blob.classList.add('is-open'); },
+        onLeaveBack: function () { blob.classList.remove('is-open'); },
+      });
     } else {
     tl.fromTo(blob,
       { scale: 0 },
