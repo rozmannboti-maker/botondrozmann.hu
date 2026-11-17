@@ -24,7 +24,7 @@ export const FOOTER = {
   visit: "Itt találsz meg:",
   subscribe: { label: "Írj nekem", href: MAILTO },
   socials: [
-    { label: "LinkedIn", href: "https://www.linkedin.com/in/rozmannbotond/" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/botond-rozmann-4ba3093b3/" },
     { label: "Facebook", href: "https://www.facebook.com/share/1Mas7NhFbR/" },
     { label: "Insta", href: "https://www.instagram.com/rozmannboti/" },
   ],
