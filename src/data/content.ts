@@ -36,7 +36,7 @@ export const CONTACT = {
   email: "rozmann.boti@gmail.com",
   socials: [
     { label: "LinkedIn", href: "https://www.linkedin.com/in/rozmannbotond/" },
-    { label: "Behance", href: "https://www.behance.net/rozmannbotond" },
-    { label: "Instagram", href: "https://www.instagram.com/rozmannbotond/" },
+    { label: "Facebook", href: "https://www.facebook.com/share/1Mas7NhFbR/" },
+    { label: "Instagram", href: "https://www.instagram.com/rozmannboti/" },
   ],
 };

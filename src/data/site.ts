@@ -25,8 +25,8 @@ export const FOOTER = {
   subscribe: { label: "Írj nekem", href: MAILTO },
   socials: [
     { label: "LinkedIn", href: "https://www.linkedin.com/in/rozmannbotond/" },
-    { label: "Behance", href: "https://www.behance.net/rozmannbotond" },
-    { label: "Insta", href: "https://www.instagram.com/rozmannbotond/" },
+    { label: "Facebook", href: "https://www.facebook.com/share/1Mas7NhFbR/" },
+    { label: "Insta", href: "https://www.instagram.com/rozmannboti/" },
   ],
 };
 
