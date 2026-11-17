@@ -975,15 +975,21 @@
   gap: 0.6em;
   padding: 0.85em 1.6em;
   border-radius: 999px;
-  background: #1C1A17;
+  /* 2026-11-17: a sötét háttér gradiens, hoverre jobbról balra eltűnik (lásd lent) */
+  background: linear-gradient(#1C1A17, #1C1A17) left center / 100% 100% no-repeat;
   color: #F1ECE6;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 400;
   font-size: clamp(1.05rem, 1.4vw, 1.35rem);
   text-decoration: none;
-  transition: filter 0.3s ease;
 }
-#old-site .contact-cta:hover { filter: brightness(1.25); }
+@media (hover: hover) {
+  #old-site .contact-cta:hover {
+    background-size: 0% 100%;
+    color: #1C1A17;
+    box-shadow: inset 0 0 0 1px #1C1A17;
+  }
+}
 
 /* "Írj nekem" + e-mail: vágás helyett áttűnés, a JS kapcsolja az .is-shown osztályt (2026-11-05) */
 #old-site .contact-cta,
@@ -991,7 +997,8 @@
   clip-path: none;
   opacity: 0;
   transform: translateY(0.6rem);
-  transition: opacity 0.5s ease, transform 0.5s ease, filter 0.3s ease;
+  transition: opacity 0.5s ease, transform 0.5s ease,
+    background-size 0.5s cubic-bezier(0.65, 0, 0.35, 1), color 0.14s linear 0.18s, box-shadow 0.3s ease;
 }
 #old-site .contact-cta.is-shown,
 #old-site .contact-mail.is-shown {

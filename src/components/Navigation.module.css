@@ -80,6 +80,6 @@
 /* a Kapcsolat terrakotta hátterén a terrakotta "Beszéljünk" gomb beleolvadna: ott sötét
    (az attribútumot az OldSections állítja, amíg a #contact a fejléc alatt van) */
 .nav[data-on-accent="true"] > .actions > a:first-child {
-  background: var(--ink);
-  color: var(--bg);
+  --fill: var(--ink);
+  --fill-text: var(--bg);
 }

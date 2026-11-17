@@ -11,25 +11,50 @@
   font-weight: 400;
   letter-spacing: var(--track-pill);
   white-space: nowrap;
+  /* 2026-11-17 hover: a kitöltött gombok háttere jobbról balra eltűnik (balra húzódik össze),
+     a háttér nélküliek balról jobbra feltöltődnek terrakottával. A kitöltés egy háttér-gradiens,
+     aminek a szélessége animálódik (--fill: a gomb színe, --fill-text: a szöveg színe rajta). */
+  background-repeat: no-repeat;
+  background-position: left center;
   transition:
-    background-color var(--t-color) ease,
-    color var(--t-color) ease,
-    border-color var(--t-color) ease;
+    background-size 0.5s cubic-bezier(0.65, 0, 0.35, 1),
+    /* a szöveg akkor vált színt, amikor a kitöltés széle épp a közepén jár */
+    color 0.14s linear 0.18s,
+    border-color var(--t-color) ease,
+    box-shadow var(--t-color) ease;
 }
-.pill:hover {
-  filter: brightness(1.08);
+.accent,
+.ink {
+  background-image: linear-gradient(var(--fill), var(--fill));
+  background-size: 100% 100%;
+  color: var(--fill-text);
 }
 .accent {
-  background: var(--accent);
-  color: var(--on-accent);
+  --fill: var(--accent);
+  --fill-text: var(--on-accent);
 }
 .ink {
-  background: var(--pill-ink, var(--ink));
-  color: var(--pill-bg, var(--bg));
+  --fill: var(--pill-ink, var(--ink));
+  --fill-text: var(--pill-bg, var(--bg));
 }
 .outline {
   border: 1px solid var(--ink);
   color: var(--ink);
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 0% 100%;
+}
+@media (hover: hover) {
+  .accent:hover,
+  .ink:hover {
+    background-size: 0% 100%;
+    color: var(--fill);
+    box-shadow: inset 0 0 0 1px var(--fill);
+  }
+  .outline:hover {
+    background-size: 100% 100%;
+    color: var(--on-accent);
+    border-color: var(--accent);
+  }
 }
 .arrow {
   width: calc(var(--u) * 14);
