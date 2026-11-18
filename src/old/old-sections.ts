@@ -1002,10 +1002,12 @@ function setupProjectsSection() {
 
     
     gsap.set(frame, { yPercent: -50, y: frameY });
-    gsap.set(frameImg, { yPercent: -30 });
+    // 2026-11-18: a keretekben saját fotók vannak, ezért a belső csúszás kicsi (a kép 120% magas,
+    // -16% → 0%): így az arc és a képernyő végig a kereten belül marad, és felül sincs rés
+    gsap.set(frameImg, { yPercent: -16 });
 
     tl.to(frame, { y: frameYEnd, duration: frameDur, ease: 'none' }, pairStart);
-    tl.to(frameImg, { yPercent: 30, duration: frameDur, ease: 'none' }, pairStart);
+    tl.to(frameImg, { yPercent: 0, duration: frameDur, ease: 'none' }, pairStart);
 
     gsap.set(dispo, { yPercent: -50, y: dispoY, opacity: 1, clipPath: 'inset(0% 0 0% 0)' });
     tl.to(dispo, { y: dispoYEnd, duration: frameDur, ease: 'none' }, pairStart);
@@ -1013,10 +1015,10 @@ function setupProjectsSection() {
 
     
     gsap.set(frame2, { yPercent: -50, y: function () { return window.innerHeight * 1.3; } });
-    gsap.set(frameImg2, { yPercent: -30 });
+    gsap.set(frameImg2, { yPercent: -16 });
 
     tl.to(frame2, { y: frameYEnd, duration: frameDur, ease: 'none' }, pairStart + 0.07);
-    tl.to(frameImg2, { yPercent: 30, duration: frameDur, ease: 'none' }, pairStart + 0.07);
+    tl.to(frameImg2, { yPercent: 0, duration: frameDur, ease: 'none' }, pairStart + 0.07);
 
     gsap.set(dispo2, { yPercent: -50, y: frameY, opacity: 1, clipPath: 'inset(0% 0 0% 0)' });
     tl.to(dispo2, { y: frameYEnd, duration: frameDur, ease: 'none' }, pairStart);

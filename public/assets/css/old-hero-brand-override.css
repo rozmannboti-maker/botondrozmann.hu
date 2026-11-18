@@ -1107,3 +1107,12 @@
   html #site-menu .sm-toggle { background: rgba(28,26,23,.82); }
   html #site-menu .sm-panel { background: var(--sm-surface); }
 }
+
+/* 2026-11-18: Kapcsolat-képkeretek: saját fotók, kisebb belső csúszással (a JS -16% → 0%) */
+#old-site .contact-frame-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 120%;
+}
