@@ -993,6 +993,77 @@ function setupProjectsSection() {
       onLeaveBack: function () { ctaEls.forEach(function (el) { el.classList.remove('is-shown'); }); },
     });
 
+    // 2026-11-19: Kapcsolat-űrlap. Az "Írj nekem" gomb egy natív <dialog>-ot nyit (lásd old-sections.html),
+    // a beküldés a /api/kapcsolat Worker-végpontra megy (worker/index.ts → Brevo e-mail).
+    ; (function () {
+      var dlg = document.getElementById('contact-form-dialog') as HTMLDialogElement | null;
+      var openBtn = document.getElementById('contact-cta');
+      var form = document.getElementById('cf-form') as HTMLFormElement | null;
+      if (!dlg || !openBtn || !form) return;
+      var closeBtn = document.getElementById('cf-close');
+      var errEl = document.getElementById('cf-error') as HTMLElement;
+      var doneEl = document.getElementById('cf-done') as HTMLElement;
+      var submitBtn = document.getElementById('cf-submit') as HTMLButtonElement;
+      var openedAt = 0;
+      var lenis = function () { return (window as any).__scroll && (window as any).__scroll.lenis; };
+      var FALLBACK = 'Most nem sikerült elküldeni. Írj inkább <a href="https://wa.me/36707722277" target="_blank" rel="noopener noreferrer">WhatsAppon</a>, vagy hívj: <a href="tel:+36707722277">+36 70 772 2277</a>.';
+
+      var open = function () {
+        if (dlg!.open) return;
+        openedAt = Date.now();
+        dlg!.showModal();
+        var l = lenis(); if (l) l.stop();
+      };
+      var close = function () { dlg!.close(); };
+      dlg.addEventListener('close', function () { var l = lenis(); if (l) l.start(); });
+      openBtn.addEventListener('click', open);
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      // a sötét háttérre kattintva is bezárul
+      dlg.addEventListener('click', function (e) { if (e.target === dlg) close(); });
+
+      var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      var PHONE_RE = /^\+?[0-9 ()\/-]{7,20}$/;
+      var showErr = function (html: string) { errEl.innerHTML = html; errEl.hidden = false; };
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var f = form!;
+        var nameIn = f.elements.namedItem('name') as HTMLInputElement;
+        var contactIn = f.elements.namedItem('contact') as HTMLInputElement;
+        var name = nameIn.value.trim();
+        var contact = contactIn.value.trim();
+        nameIn.closest('.cf-field')!.classList.toggle('is-invalid', !name);
+        var contactOk = EMAIL_RE.test(contact) || PHONE_RE.test(contact);
+        contactIn.closest('.cf-field')!.classList.toggle('is-invalid', !contactOk);
+        if (!name) { showErr('Kérlek, add meg a neved.'); nameIn.focus(); return; }
+        if (!contactOk) { showErr('Kérlek, adj meg egy telefonszámot vagy e-mail-címet, hogy vissza tudjalak keresni.'); contactIn.focus(); return; }
+        errEl.hidden = true;
+
+        var needs: string[] = [];
+        f.querySelectorAll<HTMLInputElement>('input[name="needs"]:checked').forEach(function (c) { needs.push(c.value); });
+        submitBtn.disabled = true;
+        fetch('/api/kapcsolat', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            name: name,
+            contact: contact,
+            needs: needs,
+            message: (f.elements.namedItem('message') as HTMLTextAreaElement).value,
+            website: (f.elements.namedItem('website') as HTMLInputElement).value,
+            elapsed: Date.now() - openedAt,
+          }),
+        })
+          .then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
+          .then(function (d: any) {
+            if (d && d.ok) { f.hidden = true; doneEl.hidden = false; f.reset(); }
+            else showErr(FALLBACK);
+          })
+          .catch(function () { showErr(FALLBACK); })
+          .finally(function () { submitBtn.disabled = false; });
+      });
+    })();
+
     var pairStart = 0.22;
     var frameDur = 0.65;
     var frameY = function () { return window.innerHeight * 1.1; };

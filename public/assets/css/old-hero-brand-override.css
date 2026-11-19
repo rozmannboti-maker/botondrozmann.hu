@@ -1116,3 +1116,211 @@
   width: 100%;
   height: 120%;
 }
+
+/* ===== Kapcsolat-űrlap (2026-11-19) =====
+   Az "Írj nekem" gomb most <button>, egy jobbról becsúszó <dialog>-ot nyit.
+   Alatta a közvetlen elérhetőségek sora: WhatsApp · telefon · e-mail. */
+#old-site .contact-cta {
+  border: 0;
+  cursor: pointer;
+  line-height: 1.2;
+}
+#old-site .contact-direct {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35em 0.6em;
+  align-items: baseline;
+}
+#old-site .contact-direct a {
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+#old-site .contact-mail:hover { opacity: 1; }
+@media (hover: hover) {
+  #old-site .contact-direct a:hover { opacity: 0.55; }
+}
+@media (max-width: 768px) {
+  #old-site .contact-direct { justify-content: center; text-align: center; padding: 0 16px; }
+  /* telefonon az e-mail-cím külön sorba kerül, előtte nincs pont */
+  #old-site .contact-direct span:nth-of-type(2) { display: none; }
+  #old-site .contact-direct a:last-child { flex-basis: 100%; }
+}
+
+#contact-form-dialog {
+  --cf-bg: #EFECE7;
+  --cf-ink: #1C1A17;
+  --cf-muted: #6E6860;
+  --cf-accent: #8C3B2A;
+  --cf-line: rgba(28, 26, 23, 0.22);
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(560px, 100vw);
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--cf-bg);
+  color: var(--cf-ink);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  transform: translateX(100%);
+  transition: transform 0.55s cubic-bezier(0.65, 0, 0.35, 1), overlay 0.55s allow-discrete, display 0.55s allow-discrete;
+}
+#contact-form-dialog[open] { transform: none; }
+@starting-style { #contact-form-dialog[open] { transform: translateX(100%); } }
+#contact-form-dialog::backdrop {
+  background: rgba(28, 26, 23, 0.45);
+  opacity: 0;
+  transition: opacity 0.45s ease, overlay 0.45s allow-discrete, display 0.45s allow-discrete;
+}
+#contact-form-dialog[open]::backdrop { opacity: 1; }
+@starting-style { #contact-form-dialog[open]::backdrop { opacity: 0; } }
+
+#contact-form-dialog * { box-sizing: border-box; margin: 0; padding: 0; }
+#contact-form-dialog .cf-inner {
+  position: relative;
+  min-height: 100%;
+  padding: clamp(28px, 6vh, 64px) clamp(20px, 5vw, 48px) 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+#contact-form-dialog .cf-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--cf-ink);
+  font: 300 32px/1 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  cursor: pointer;
+}
+#contact-form-dialog .cf-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(2.6rem, 6vw, 3.6rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+#contact-form-dialog .cf-lead {
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--cf-muted);
+  max-width: 36ch;
+}
+#contact-form-dialog .cf-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-top: 8px;
+}
+#contact-form-dialog .cf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 0;
+  min-width: 0;
+}
+#contact-form-dialog .cf-field > span,
+#contact-form-dialog .cf-field legend {
+  font-size: 0.95rem;
+  color: var(--cf-ink);
+}
+#contact-form-dialog .cf-field legend { margin-bottom: 10px; }
+#contact-form-dialog .cf-field em { font-style: normal; color: var(--cf-muted); }
+#contact-form-dialog input[type="text"],
+#contact-form-dialog textarea {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--cf-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--cf-ink);
+  font: 400 16px/1.5 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  padding: 8px 0;
+  outline: none;
+  transition: border-color 0.25s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+#contact-form-dialog textarea { resize: vertical; min-height: 96px; }
+#contact-form-dialog input[type="text"]:focus,
+#contact-form-dialog textarea:focus { border-bottom-color: var(--cf-accent); }
+#contact-form-dialog .cf-field.is-invalid input { border-bottom-color: var(--cf-accent); }
+
+#contact-form-dialog .cf-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+#contact-form-dialog .cf-chips label { position: relative; cursor: pointer; }
+#contact-form-dialog .cf-chips input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+#contact-form-dialog .cf-chips span {
+  display: inline-block;
+  padding: 0.55em 1.1em;
+  border: 1px solid var(--cf-ink);
+  border-radius: 999px;
+  font-size: 0.95rem;
+  background: linear-gradient(var(--cf-accent), var(--cf-accent)) left center / 0% 100% no-repeat;
+  transition: background-size 0.4s cubic-bezier(0.65, 0, 0.35, 1), color 0.14s linear 0.12s, border-color 0.3s ease;
+}
+#contact-form-dialog .cf-chips input:checked + span {
+  background-size: 100% 100%;
+  color: #F1ECE6;
+  border-color: var(--cf-accent);
+}
+#contact-form-dialog .cf-chips input:focus-visible + span { outline: 2px solid var(--cf-accent); outline-offset: 2px; }
+
+#contact-form-dialog .cf-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+#contact-form-dialog .cf-error { color: var(--cf-accent); font-size: 0.95rem; line-height: 1.45; }
+#contact-form-dialog .cf-error a { color: inherit; }
+
+#contact-form-dialog .cf-submit {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.85em 1.6em;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(var(--cf-ink), var(--cf-ink)) left center / 100% 100% no-repeat;
+  color: #F1ECE6;
+  font: 400 1.1rem/1.2 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  cursor: pointer;
+  transition: background-size 0.5s cubic-bezier(0.65, 0, 0.35, 1), color 0.14s linear 0.18s, box-shadow 0.3s ease, opacity 0.3s ease;
+}
+@media (hover: hover) {
+  #contact-form-dialog .cf-submit:hover:not(:disabled) {
+    background-size: 0% 100%;
+    color: var(--cf-ink);
+    box-shadow: inset 0 0 0 1px var(--cf-ink);
+  }
+  #contact-form-dialog .cf-direct a:hover { opacity: 0.55; }
+}
+#contact-form-dialog .cf-submit:disabled { opacity: 0.5; cursor: wait; }
+
+#contact-form-dialog .cf-done { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+#contact-form-dialog .cf-done[hidden], #contact-form-dialog .cf-form[hidden], #contact-form-dialog [hidden] { display: none; }
+
+#contact-form-dialog .cf-direct {
+  margin-top: auto;
+  padding-top: 28px;
+  font-size: 0.95rem;
+  color: var(--cf-muted);
+}
+#contact-form-dialog .cf-direct a { color: var(--cf-ink); text-decoration: none; transition: opacity 0.3s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  #contact-form-dialog, #contact-form-dialog::backdrop { transition: none; }
+}
+#contact-form-dialog:focus { outline: none; }

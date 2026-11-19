@@ -239,12 +239,68 @@
           <a class="chr-hover" href="https://www.instagram.com/rozmannboti/"
              target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram</a>
         </nav>
-        <a class="contact-cta" id="contact-cta" href="mailto:rozmann.boti@gmail.com">Írj nekem <span aria-hidden="true">→</span></a>
-        <a class="contact-mail" id="contact-mail"
-           href="mailto:rozmann.boti@gmail.com">rozmann.boti@gmail.com</a>
+        <!-- 2026-11-19: a gomb az űrlapot nyitja (#contact-form-dialog), alatta a közvetlen elérhetőségek -->
+        <button type="button" class="contact-cta" id="contact-cta" aria-haspopup="dialog"
+                aria-controls="contact-form-dialog">Írj nekem <span aria-hidden="true">→</span></button>
+        <div class="contact-mail contact-direct" id="contact-mail">
+          <a href="https://wa.me/36707722277" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+          <span aria-hidden="true">·</span>
+          <a href="tel:+36707722277">+36 70 772 2277</a>
+          <span aria-hidden="true">·</span>
+          <a href="mailto:rozmann.boti@gmail.com">rozmann.boti@gmail.com</a>
+        </div>
       </div>
     </div>
   </section>
+
+  <!-- ===== KAPCSOLAT-ŰRLAP (2026-11-19) =====
+       Natív <dialog>: showModal() a felső rétegbe teszi, így a pinelt, transzformált szekciók nem zavarják.
+       Beküldés: POST /api/kapcsolat (worker/index.ts → Brevo e-mail). -->
+  <dialog class="cf-dialog" id="contact-form-dialog" aria-labelledby="cf-title" data-lenis-prevent autofocus>
+    <div class="cf-inner">
+      <button type="button" class="cf-close" id="cf-close" aria-label="Bezárás">×</button>
+      <h2 class="cf-title" id="cf-title">Beszéljünk</h2>
+      <p class="cf-lead">Pár sor elég. Hamarosan jelentkezem, és megbeszéljük, mire van szükséged.</p>
+
+      <form class="cf-form" id="cf-form" novalidate>
+        <label class="cf-field">
+          <span>Neved</span>
+          <input type="text" name="name" autocomplete="name" required maxlength="120">
+        </label>
+        <label class="cf-field">
+          <span>Telefonszám vagy e-mail-cím</span>
+          <input type="text" name="contact" autocomplete="email" inputmode="email" required maxlength="160">
+        </label>
+        <fieldset class="cf-field cf-needs">
+          <legend>Mire van szükséged?</legend>
+          <div class="cf-chips">
+            <label><input type="checkbox" name="needs" value="Weboldal"><span>Weboldal</span></label>
+            <label><input type="checkbox" name="needs" value="Webshop"><span>Webshop</span></label>
+            <label><input type="checkbox" name="needs" value="Arculat"><span>Arculat</span></label>
+            <label><input type="checkbox" name="needs" value="Meglévő oldal javítása"><span>Meglévő oldal javítása</span></label>
+          </div>
+        </fieldset>
+        <label class="cf-field">
+          <span>Pár szó a vállalkozásodról <em>(nem kötelező)</em></span>
+          <textarea name="message" rows="4" maxlength="4000"></textarea>
+        </label>
+        <!-- spamcsapda: embernek nem látszik -->
+        <label class="cf-hp" aria-hidden="true">Weboldal<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+
+        <p class="cf-error" id="cf-error" role="alert" hidden></p>
+        <button type="submit" class="cf-submit" id="cf-submit">Elküldöm <span aria-hidden="true">→</span></button>
+      </form>
+
+      <div class="cf-done" id="cf-done" hidden>
+        <p class="cf-title">Köszönöm!</p>
+        <p class="cf-lead">Megkaptam az üzeneted, hamarosan jelentkezem.</p>
+      </div>
+
+      <p class="cf-direct">Vagy keress közvetlenül:
+        <a href="https://wa.me/36707722277" target="_blank" rel="noopener noreferrer">WhatsApp</a> ·
+        <a href="tel:+36707722277">+36 70 772 2277</a></p>
+    </div>
+  </dialog>
 
   <!-- ===== FOOTER ===== -->
   <div class="footer-transition" id="footer-transition"></div>
