@@ -1004,7 +1004,9 @@ function setupProjectsSection() {
     gsap.set(frame, { yPercent: -50, y: frameY });
     // 2026-11-18: a keretekben saját fotók vannak, ezért a belső csúszás kicsi (a kép 120% magas,
     // -16% → 0%): így az arc és a képernyő végig a kereten belül marad, és felül sincs rés
-    gsap.set(frameImg, { yPercent: -16 });
+    // 2026-11-19: az 1. képen (eredeti portré) a haj a kép legtetején kezdődik, ezért itt csak -2% → 0%,
+    // különben a görgetés elején a fej teteje kilóg a keretből
+    gsap.set(frameImg, { yPercent: -2 });
 
     tl.to(frame, { y: frameYEnd, duration: frameDur, ease: 'none' }, pairStart);
     tl.to(frameImg, { yPercent: 0, duration: frameDur, ease: 'none' }, pairStart);
