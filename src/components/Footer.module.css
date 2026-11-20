@@ -64,3 +64,12 @@
     align-items: flex-start;
   }
 }
+
+/* 2026-11-20: iPhone (iOS 26 Safari): a lebegő alsó böngészősáv rácsúszik a fix hero aljára, és
+   levágta a közösségi gombok alját. Érintőképernyőn a sor a böngészősáv magasságával
+   (100lvh - 100svh) feljebb kerül, legalább 28 px-szel. */
+@media (orientation: portrait) and (pointer: coarse) {
+  .footer {
+    bottom: calc(var(--edge) + max(28px, 100lvh - 100svh));
+  }
+}
