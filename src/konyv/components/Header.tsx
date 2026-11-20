@@ -19,7 +19,7 @@ export function Header({ ref }: { ref: Ref<HTMLElement> }) {
           ← Főoldal
         </a>
         <div className={styles.actions}>
-          <a className={`${pill.pill} ${pill.accent}`} href={NAV.talk.href}>
+          <a className={`${pill.pill} ${pill.accent}`} href="/#urlap">
             {NAV.talk.label}
           </a>
           <button

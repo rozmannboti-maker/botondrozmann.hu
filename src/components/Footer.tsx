@@ -22,7 +22,7 @@ export function Footer({ ref }: { ref: Ref<HTMLElement> }) {
             <span data-visit>{FOOTER.visit}</span>
           </span>
           <span data-amp>&amp;</span>
-          <a href={FOOTER.subscribe.href} data-sub>
+          <a href={FOOTER.subscribe.href} data-sub data-open-form>
             {FOOTER.subscribe.label}
           </a>
         </div>

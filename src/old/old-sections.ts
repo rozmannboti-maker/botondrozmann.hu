@@ -876,6 +876,20 @@ function setupProjectsSection() {
     var close = function () { dlg!.close(); };
     dlg.addEventListener('close', function () { var l = lenis(); if (l) l.start(); });
     openBtn.addEventListener('click', open);
+    // 2026-11-20: a többi kapcsolatgomb (fejléc "Beszéljünk", hero "Írj nekem" stb., data-open-form)
+    // is ezt az űrlapot nyitja; a href (mailto) csak tartalék, ha a JS nem futna
+    document.addEventListener('click', function (e) {
+      var t = e.target as Element | null;
+      var a = t && t.closest ? t.closest('[data-open-form]') : null;
+      if (!a) return;
+      e.preventDefault();
+      open();
+    });
+    // a /referenciak/ oldal "Beszéljünk" gombja ide visz (/#urlap): betöltés után rögtön nyílik
+    if (location.hash === '#urlap') {
+      history.replaceState(null, '', location.pathname + location.search);
+      window.setTimeout(open, 600);
+    }
     if (closeBtn) closeBtn.addEventListener('click', close);
     // a sötét háttérre kattintva is bezárul
     dlg.addEventListener('click', function (e) { if (e.target === dlg) close(); });

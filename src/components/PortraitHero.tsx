@@ -46,7 +46,7 @@ export function PortraitHero({ ready }: Props) {
           <p>{PORTRAIT.role}</p>
           <p className={styles.spec}>{PORTRAIT.spec}</p>
         </div>
-        <a className={styles.cta} href={PORTRAIT.cta.href}>
+        <a className={styles.cta} href={PORTRAIT.cta.href} data-open-form>
           {PORTRAIT.cta.label}
         </a>
       </div>

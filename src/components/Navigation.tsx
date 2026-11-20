@@ -15,6 +15,7 @@ export function Navigation({ ref }: { ref: Ref<HTMLElement> }) {
           className={`${pill.pill} ${pill.accent}`}
           href={NAV.talk.href}
           data-nav-item
+          data-open-form
         >
           {NAV.talk.label}
         </a>
