@@ -929,11 +929,17 @@ function setupProjectsSection() {
       // negyedéhez ér; visszafelé viszont már akkor zárul, amikor a teteje a felső negyed alá
       // csúszik (különben a terrakotta kör az előző szekciót is eltakarta, míg a cím lent járt)
       var contactEl = document.getElementById('contact');
+      var ctPinEl = document.getElementById('contact-pin');
+      var ctaElsM = [document.getElementById('contact-cta'), mailEl].filter(Boolean);
+      if (ctPinEl) ctPinEl.classList.add('ct-m');
       var blobOpen = false;
       var setBlob = function (on) {
         if (on === blobOpen) return;
         blobOpen = on;
         blob.classList.toggle('is-open', on);
+        // 2026-11-20: telefonon a szekció tartalma is ezzel együtt, időre (CSS-átmenettel) jelenik meg
+        if (ctPinEl) ctPinEl.classList.toggle('ct-in', on);
+        ctaElsM.forEach(function (el) { el.classList.toggle('is-shown', on); });
       };
       var syncBlob = function (dir) {
         var top = contactEl.getBoundingClientRect().top;
@@ -963,6 +969,9 @@ function setupProjectsSection() {
     tl.to([stTimeline, pctEl], { opacity: 0, duration: 0.08 }, 0.1);
 
     
+    // 2026-11-20: telefonon a cím, a szövegek és a linkek NEM görgetéshez kötve jelennek meg
+    // (a scrubbolt clip-path minden képkockánál újrarajzolt), hanem a kör nyitásával együtt (.ct-in)
+    if (!lowBlob) {
     gsap.set(title, { yPercent: 0, x: function () { return window.innerWidth * 1.1; } });
     tl.to(title, {
       x: 0,
@@ -976,12 +985,13 @@ function setupProjectsSection() {
       { clipPath: 'inset(0 0 0% 0)', duration: 0.2, ease: 'none' },
       0.28
     );
+    }
 
     // 2026-11-05: az "Írj nekem" gomb és az e-mail cím NEM görgetéshez kötve (scrub) tűnik elő:
     // úgy félúton megállva gyakran levágva maradt az alja. A szakasz 36%-ánál egyszerre,
     // CSS-átmenettel jelennek meg (.is-shown), és visszagörgetve tűnnek el.
     var ctaEls = [document.getElementById('contact-cta'), mailEl].filter(Boolean);
-    ScrollTrigger.create({
+    if (!lowBlob) ScrollTrigger.create({
       trigger: '#contact',
       start: 'top bottom',
       end: 'bottom bottom',
@@ -1072,6 +1082,7 @@ function setupProjectsSection() {
     var dispoYEnd = function () { return -window.innerHeight * 1.65; };
 
     
+    if (lowBlob) return;
     gsap.set(frame, { yPercent: -50, y: frameY });
     // 2026-11-18: a keretekben saját fotók vannak, ezért a belső csúszás kicsi (a kép 120% magas,
     // -16% → 0%): így az arc és a képernyő végig a kereten belül marad, és felül sincs rés
@@ -1336,6 +1347,17 @@ function setupProjectsSection() {
     
     var footerTopChars = document.querySelectorAll('#footer .footer-top .chr-hover .ch-top');
     if (footerTopChars.length) {
+      // 2026-11-20: telefonon nem görgetéshez kötve (a scrubbolt clip-path akadozott), hanem
+      // egyszer, időre fut le, amikor a lábléc előjön; visszagörgetve visszafelé
+      var lowFc = window.matchMedia('(max-width: 768px)').matches;
+      if (lowFc) {
+        gsap.set(footerTopChars, { yPercent: 110 });
+        gsap.to(footerTopChars, {
+          yPercent: 0, duration: 0.7, ease: 'power3.out',
+          stagger: { each: 0.01, from: 'start' },
+          scrollTrigger: { trigger: '#footer-transition', start: 'center bottom', toggleActions: 'play none none reverse' }
+        });
+      } else {
       gsap.set(footerTopChars, { clipPath: 'inset(100% 0 0 0)' });
       gsap.to(footerTopChars, {
         clipPath: 'inset(0 0 0 0)',
@@ -1348,6 +1370,7 @@ function setupProjectsSection() {
           scrub: true,
         }
       });
+      }
     }
 
     
@@ -1394,6 +1417,15 @@ function setupProjectsSection() {
       }
 
       gsap.set(ordered, { yPercent: 110 });
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        // telefonon időre fut (lásd fent)
+        gsap.to(ordered, {
+          yPercent: 0, duration: 0.9, ease: 'power3.out',
+          stagger: { each: 0.03, from: 'start' },
+          scrollTrigger: { trigger: '#footer-transition', start: 'center bottom', toggleActions: 'play none none reverse' }
+        });
+        return;
+      }
       gsap.to(ordered, {
         yPercent: 0,
         ease: 'power3.out',
@@ -1428,6 +1460,9 @@ function setupProjectsSection() {
     var ctSocials = document.getElementById('contact-socials');
     var ctMail = document.getElementById('contact-mail');
 
+    // 2026-11-20: telefonon a lábléc-átmenetben csak transform mozog (grafikus chip): a lekerekítés
+    // fix, a Kapcsolat szövegei pedig vágás (clip-path) helyett időre halványulnak el (.ct-out)
+    var lowFt = window.matchMedia('(max-width: 768px)').matches;
     var ftl = gsap.timeline({
       scrollTrigger: {
         trigger: '#footer-transition',
@@ -1436,6 +1471,7 @@ function setupProjectsSection() {
         scrub: true,
         onUpdate: function (self) {
           var p = self.progress;
+          if (lowFt) contactPin.classList.toggle('ct-out', p > 0.03);
           if (p > 0.2) {
             contactBgEl.style.display = 'none';
             contactSection.style.pointerEvents = 'none';
@@ -1447,6 +1483,10 @@ function setupProjectsSection() {
       }
     });
 
+    if (lowFt) {
+      // a lekerekített alsó sarkok induláskor a képernyő alatt vannak (110vh), így fixen is jók
+      gsap.set(contactBlobWrap, { height: '110vh', overflow: 'hidden', borderRadius: '0 0 50px 50px' });
+    } else {
     ftl.set(contactBlobWrap, {
       height: '110vh', overflow: 'hidden',
       borderRadius: '0 0 0px 0px'
@@ -1456,6 +1496,7 @@ function setupProjectsSection() {
       borderRadius: '0 0 50px 50px',
       duration: 0.15, ease: 'power2.out'
     }, 0);
+    }
     // a felhúzódó réteg saját grafikus rétegen mozog (telefonon így nem rajzolódik újra)
     contactBlobWrap.style.willChange = 'transform';
     contactPin.style.willChange = 'transform';
@@ -1471,6 +1512,7 @@ function setupProjectsSection() {
       duration: 1.0, ease: 'none'
     }, 0);
 
+    if (!lowFt) {
     ftl.fromTo([ctSocials, ctMail],
       { clipPath: 'inset(0 0 0% 0)' },
       { clipPath: 'inset(0 0 100% 0)', duration: 0.1, ease: 'none' },
@@ -1481,6 +1523,7 @@ function setupProjectsSection() {
       { clipPath: 'inset(0 0 100% 0)', duration: 0.25, ease: 'power2.in' },
       0
     );
+    }
   })();
 
   

@@ -1324,3 +1324,44 @@
   #contact-form-dialog, #contact-form-dialog::backdrop { transition: none; }
 }
 #contact-form-dialog:focus { outline: none; }
+
+/* ===== Telefon: Kapcsolat + lábléc akadásmentesen (2026-11-20) =====
+   A tartalom nem görgetéshez kötve (scrubbolt clip-path) jelenik meg, hanem a terrakotta kör nyitásával
+   együtt (.ct-in), időre, csak opacity + translate (grafikus chip). A lábléc felé görgetve (.ct-out)
+   gyorsan elhalványul. A transform-ot a régi CSS !important-tal foglalja, ezért a külön translate kell. */
+@media (max-width: 768px) {
+  #old-site .ct-m .contact-title,
+  #old-site .ct-m .contact-dispo p,
+  #old-site .ct-m .contact-socials {
+    opacity: 0;
+    translate: 0 1.4rem;
+    transition: opacity 0.35s ease, translate 0.35s ease;
+    will-change: opacity, translate;
+  }
+  #old-site .ct-m .contact-socials,
+  #old-site .ct-m .contact-title { clip-path: none !important; }
+  #old-site .ct-m.ct-in .contact-title,
+  #old-site .ct-m.ct-in .contact-dispo p,
+  #old-site .ct-m.ct-in .contact-socials {
+    opacity: 1;
+    translate: 0 0;
+    transition: opacity 0.7s ease, translate 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  #old-site .ct-m.ct-in .contact-title { transition-delay: 0.35s; }
+  #old-site .ct-m.ct-in #contact-dispo p { transition-delay: 0.5s; }
+  #old-site .ct-m.ct-in #contact-dispo-2 p { transition-delay: 0.6s; }
+  #old-site .ct-m.ct-in .contact-socials { transition-delay: 0.7s; }
+  #old-site .ct-m.ct-in .contact-cta.is-shown,
+  #old-site .ct-m.ct-in .contact-mail.is-shown { transition-delay: 0.8s, 0.8s, 0s, 0.18s, 0s; }
+  #old-site .ct-m .contact-mail { clip-path: none !important; }
+
+  #old-site .ct-m.ct-out .contact-title,
+  #old-site .ct-m.ct-out .contact-dispo p,
+  #old-site .ct-m.ct-out .contact-socials,
+  #old-site .ct-m.ct-out .contact-cta,
+  #old-site .ct-m.ct-out .contact-mail {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    transition-delay: 0s;
+  }
+}
