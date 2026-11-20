@@ -867,14 +867,33 @@ function setupProjectsSection() {
     var lenis = function () { return (window as any).__scroll && (window as any).__scroll.lenis; };
     var FALLBACK = 'Most nem sikerült elküldeni. Írj inkább <a href="https://wa.me/36707722277" target="_blank" rel="noopener noreferrer">WhatsAppon</a>, vagy hívj: <a href="tel:+36707722277">+36 70 772 2277</a>.';
 
+    // 2026-11-20: iPhone-on a billentyűzet feljövetelekor a Safari a háttér-oldalt görgette, és a fix
+    // panelben a kurzor a mező alá csúszott (ismert WebKit-hiba). Érintőképernyőn ezért, amíg az űrlap
+    // nyitva van, a body rögzítve van (position: fixed a mostani görgetési helyen), bezáráskor vissza.
+    var touch = window.matchMedia('(pointer: coarse)').matches;
+    var lockY = 0;
+    var lockScroll = function () {
+      if (!touch) return;
+      lockY = window.scrollY;
+      var b = document.body.style;
+      b.position = 'fixed'; b.top = -lockY + 'px'; b.left = '0'; b.right = '0'; b.width = '100%';
+    };
+    var unlockScroll = function () {
+      if (!touch) return;
+      var b = document.body.style;
+      b.position = ''; b.top = ''; b.left = ''; b.right = ''; b.width = '';
+      window.scrollTo(0, lockY);
+      var l = lenis(); if (l) l.scrollTo(lockY, { immediate: true, force: true });
+    };
     var open = function () {
       if (dlg!.open) return;
       openedAt = Date.now();
+      lockScroll();
       dlg!.showModal();
       var l = lenis(); if (l) l.stop();
     };
     var close = function () { dlg!.close(); };
-    dlg.addEventListener('close', function () { var l = lenis(); if (l) l.start(); });
+    dlg.addEventListener('close', function () { var l = lenis(); if (l) l.start(); unlockScroll(); });
     openBtn.addEventListener('click', open);
     // 2026-11-20: a többi kapcsolatgomb (fejléc "Beszéljünk", hero "Írj nekem" stb., data-open-form)
     // is ezt az űrlapot nyitja; a href (mailto) csak tartalék, ha a JS nem futna
