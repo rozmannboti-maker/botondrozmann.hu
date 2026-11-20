@@ -36,8 +36,20 @@ export function OldSections() {
       const wrap = document.getElementById("contact-blob-wrap");
       if (nav && btn && blob && wrap) {
         let onAccent = false;
+        const contactEl = document.getElementById("contact");
         const check = () => {
           const b = btn.getBoundingClientRect();
+          // 2026-11-20: telefonon (.ct-static) nincs kör, a Kapcsolat egy sima terrakotta blokk
+          if (contactEl && document.documentElement.classList.contains("ct-static")) {
+            const r = contactEl.getBoundingClientRect();
+            const y = b.top + b.height / 2;
+            const on = y > r.top && y < r.bottom - 32;
+            if (on !== onAccent) {
+              onAccent = on;
+              nav.setAttribute("data-on-accent", String(on));
+            }
+            return;
+          }
           const c = blob.getBoundingClientRect();
           const r = c.width / 2;
           const inside = r > 0 && Math.hypot(b.left + b.width / 2 - (c.left + r), b.top + b.height / 2 - (c.top + c.height / 2)) < r;

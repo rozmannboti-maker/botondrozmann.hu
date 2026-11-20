@@ -1365,3 +1365,81 @@
     transition-delay: 0s;
   }
 }
+
+/* ===== Telefon: statikus Kapcsolat + kitakarós lábléc (2026-11-20, .ct-static) =====
+   A JS telefonon nem animálja a Kapcsolatot és a láblécet (gyors görgetésnél a tartalom lemaradt).
+   A Kapcsolat sima terrakotta blokk a dokumentumban, lekerekített aljjal; a lábléc sticky, alatta
+   van (alacsonyabb z-index), és a Kapcsolat felcsúszva tárja fel. Nincs görgetéshez kötött animáció. */
+@media (max-width: 768px) {
+  .ct-static #old-site .contact-blob-wrap,
+  .ct-static #old-site .contact-bg,
+  .ct-static #old-site .footer-transition { display: none !important; }
+
+  .ct-static #old-site .contact {
+    min-height: 0;
+    background: #8C3B2A;
+    border-radius: 0 0 32px 32px;
+    position: relative;
+    z-index: 20010;
+  }
+  .ct-static #old-site .contact-pin {
+    position: relative;
+    top: auto;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    padding: 112px 24px 64px;
+    text-align: center;
+  }
+  .ct-static #old-site .contact-pin > * {
+    position: static !important;
+    transform: none !important;
+    translate: none !important;
+    opacity: 1 !important;
+    clip-path: none !important;
+    visibility: visible !important;
+    will-change: auto !important;
+  }
+  .ct-static #old-site .contact-title { font-size: clamp(3.5rem, 17vw, 5rem); }
+  .ct-static #old-site .contact-dispo { width: 100%; max-width: 30rem; }
+  .ct-static #old-site .contact-dispo p { opacity: 1 !important; translate: none !important; }
+
+  .ct-static #old-site #contact-frame {
+    display: block !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: min(72vw, 300px);
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+  }
+  .ct-static #old-site #contact-frame .frame-corner { position: absolute !important; }
+  .ct-static #old-site #contact-frame .contact-frame-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: none !important;
+  }
+  .ct-static #old-site #contact-frame-2 { display: none !important; }
+
+  .ct-static #old-site .contact-bottom { width: 100%; gap: 22px; margin-top: 8px; }
+  .ct-static #old-site .contact-socials,
+  .ct-static #old-site .contact-socials * { clip-path: none !important; opacity: 1 !important; translate: none !important; }
+  .ct-static #old-site .contact-cta,
+  .ct-static #old-site .contact-mail { opacity: 1 !important; transform: none !important; translate: none !important; }
+
+  .ct-static #old-site .footer {
+    position: sticky;
+    bottom: 0;
+    height: 100svh;
+    margin-top: -32px;
+    visibility: visible !important;
+    z-index: 20000;
+  }
+  .ct-static #old-site .footer-ascii-wrap { display: none; }
+  .ct-static #old-site .footer .chr-hover .ch-top { clip-path: none !important; transform: none !important; }
+}
