@@ -1378,7 +1378,7 @@
   .ct-static #old-site .contact {
     min-height: 0;
     background: #8C3B2A;
-    border-radius: 0 0 32px 32px;
+    border-radius: 32px;
     position: relative;
     z-index: 20010;
   }
@@ -1396,8 +1396,6 @@
   .ct-static #old-site .contact-pin > * {
     position: static !important;
     transform: none !important;
-    translate: none !important;
-    opacity: 1 !important;
     clip-path: none !important;
     visibility: visible !important;
     will-change: auto !important;
@@ -1407,7 +1405,7 @@
   .ct-static #old-site .contact-dispo p { opacity: 1 !important; translate: none !important; }
 
   .ct-static #old-site #contact-frame {
-    display: block !important;
+    display: none !important;
     position: relative !important;
     top: auto !important;
     left: auto !important;
@@ -1442,4 +1440,29 @@
   }
   .ct-static #old-site .footer-ascii-wrap { display: none; }
   .ct-static #old-site .footer .chr-hover .ch-top { clip-path: none !important; transform: none !important; }
+}
+
+/* telefon, .ct-static: elemenkénti beúszás (a JS .rv-m / .is-in osztályt ad, IntersectionObserver) */
+@media (max-width: 768px) {
+  .ct-static #old-site .contact-pin > *:not(.rv-m),
+  .ct-static #old-site .contact-bottom { opacity: 1 !important; translate: none !important; }
+  .ct-static #old-site .contact-pin .rv-m,
+  .ct-static #old-site .contact-bottom .rv-m {
+    opacity: 0 !important;
+    translate: 0 28px !important;
+    transition: opacity 0.7s ease, translate 0.9s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  }
+  .ct-static #old-site .contact-pin .rv-m.is-in,
+  .ct-static #old-site .contact-bottom .rv-m.is-in {
+    opacity: 1 !important;
+    translate: 0 0 !important;
+  }
+  .ct-static #old-site .contact-socials.rv-m * { opacity: 1 !important; }
+}
+@media (max-width: 768px) {
+  /* az "Írj nekem" gomb tartsa meg a hover-kitöltés átmenetét is */
+  .ct-static #old-site .contact-bottom .contact-cta.rv-m {
+    transition: opacity 0.7s ease, translate 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+      background-size 0.5s cubic-bezier(0.65, 0, 0.35, 1), color 0.14s linear 0.18s, box-shadow 0.3s ease !important;
+  }
 }

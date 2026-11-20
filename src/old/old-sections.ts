@@ -961,6 +961,22 @@ function setupProjectsSection() {
     // (a kör, a pin és az időzített előtűnés gyors görgetésnél lemaradt / akadozott), lásd CSS .ct-static
     if (window.matchMedia('(max-width: 768px)').matches) {
       document.documentElement.classList.add('ct-static');
+      // 2026-11-20: minden elem külön, akkor úszik be, amikor ő maga a képernyőre ér (időre, CSS-sel),
+      // így gyors görgetésnél sem marad le semmi; lefelé kigörgetve visszaáll, hogy újra lejátszódjon
+      var rvEls = [title, dispo, dispo2, socials, document.getElementById('contact-cta'), mailEl].filter(Boolean) as HTMLElement[];
+      rvEls.forEach(function (el) { el.classList.add('rv-m'); });
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) {
+            var el = en.target as HTMLElement;
+            if (en.isIntersecting) el.classList.add('is-in');
+            else if (en.boundingClientRect.top > 0) el.classList.remove('is-in');
+          });
+        }, { rootMargin: '0px 0px -8% 0px' });
+        rvEls.forEach(function (el) { io.observe(el); });
+      } else {
+        rvEls.forEach(function (el) { el.classList.add('is-in'); });
+      }
       return;
     }
 
@@ -1418,9 +1434,16 @@ function setupProjectsSection() {
         if (lukeRev[i]) ordered.push(lukeRev[i]);
       }
 
-      // telefonon a lábléc statikus, a név egyszerűen látszik
-      if (window.matchMedia('(max-width: 768px)').matches) return;
       gsap.set(ordered, { yPercent: 110 });
+      // 2026-11-20: telefonon a név időre úszik be, amikor a Kapcsolat alja felcsúszik a lábléc elől
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        gsap.to(ordered, {
+          yPercent: 0, duration: 0.9, ease: 'power3.out',
+          stagger: { each: 0.035, from: 'start' },
+          scrollTrigger: { trigger: '#contact', start: 'bottom 55%', toggleActions: 'play none none reverse' }
+        });
+        return;
+      }
       gsap.to(ordered, {
         yPercent: 0,
         ease: 'power3.out',
