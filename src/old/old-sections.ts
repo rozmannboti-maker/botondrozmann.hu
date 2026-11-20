@@ -1841,10 +1841,8 @@ function setupProjectsSection() {
     
     items.forEach(function (item) { if (item.dataset.img) allSrcs.push(item.dataset.img); });
     
-    Object.keys(PROJECTS).forEach(function (id) {
-      var imgs = PROJECTS[id].images;
-      if (imgs) allSrcs = allSrcs.concat(imgs);
-    });
+    // 2026-11-20: a PROJECTS lista az eredeti sablon projektjei (a képeik nincsenek meg, 23 db 404),
+    // ezért azokat nem töltjük elő; csak a saját referenciák (data-img) képei
     
     var seen = {};
     allSrcs = allSrcs.filter(function (s) { if (seen[s]) return false; seen[s] = true; return true; });
