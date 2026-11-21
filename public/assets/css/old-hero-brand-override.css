@@ -1466,3 +1466,22 @@
       background-size 0.5s cubic-bezier(0.65, 0, 0.35, 1), color 0.14s linear 0.18s, box-shadow 0.3s ease !important;
   }
 }
+
+/* ===== Lábléc: jogi linkek (2026-11-21), az e-mail és a © alatt, mindegyik külön sorban ===== */
+#old-site .footer-legal {
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  gap: 0.35rem;
+  margin-top: 0.9rem;
+}
+#old-site .footer-top-col .footer-legal a {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.9rem;
+  color: rgba(28, 26, 23, 0.6);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+@media (hover: hover) {
+  #old-site .footer-top-col .footer-legal a:hover { color: #8C3B2A; }
+}
