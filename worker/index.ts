@@ -69,7 +69,9 @@ async function handleContact(req: Request, env: Env): Promise<Response> {
     method: "POST",
     headers: { "api-key": env.BREVO_API_KEY, "content-type": "application/json", accept: "application/json" },
     body: JSON.stringify({
-      sender: { email: "hello@rozmannbotond.hu", name: "botondrozmann.hu űrlap" },
+      // 2026-11-21: a Brevóban csak a gmailes cím hitelesített feladó (a hello@rozmannbotond.hu-t
+      // elutasította); ha a botondrozmann.hu domain hitelesítve lesz, ide jöhet egy domaines cím
+      sender: { email: env.ADMIN_EMAIL, name: "botondrozmann.hu űrlap" },
       to: [{ email: env.ADMIN_EMAIL }],
       // ha e-mail-címet adott meg, a „Válasz” gomb egyből neki ír
       ...(isEmail ? { replyTo: { email: contact, name } } : {}),
