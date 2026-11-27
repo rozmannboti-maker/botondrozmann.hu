@@ -1,5 +1,6 @@
 // 2026-11-12: Cloudflare Worker (statikus fájlok) a botondrozmann.hu-hoz. A Cloudflare minden
 // GitHub-push után lefuttatja az `npm run build`-et, és a dist mappát teszi ki.
+// 2026-11-27: RB Panel a /panel alatt (SPA-útválasztás a Workerben).
 // 2026-11-19: Kapcsolat-űrlap. A Worker-kód (worker/index.ts) CSAK az /api/* kéréseket kapja,
 // minden más változatlanul a statikus fájlokból jön.
 {
@@ -9,7 +10,7 @@
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*"],
+    "run_worker_first": ["/api/*", "/panel", "/panel/*"],
     // nem létező címre valódi 404 (ne a főoldal jöjjön 200-zal: a Google ezt „soft 404”-nek veszi)
     "not_found_handling": "none"
   },

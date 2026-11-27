@@ -1,4 +1,4 @@
-// 2026-11-19: Cloudflare Worker a botondrozmann.hu-hoz. CSAK az /api/* kéréseket kapja
+// 2026-11-19: Cloudflare Worker a botondrozmann.hu-hoz. CSAK az /api/* és a /panel kéréseket kapja
 // (wrangler.jsonc: run_worker_first), minden más változatlanul a statikus fájlokból (dist) jön.
 //
 // POST /api/kapcsolat: a Kapcsolat-űrlap. A beküldött üzenetet a Brevo e-mailben továbbítja
@@ -94,6 +94,14 @@ export default {
       return handleContact(req, env);
     }
     if (url.pathname.startsWith("/api/")) return json({ ok: false, error: "not_found" }, 404);
+    // 2026-11-27: RB Panel (React SPA, forrás: ~/Developer/rb-panel, a buildje a public/panel mappában).
+    // A létező fájlok mennek, minden más /panel/... cím a panel index.html-jét kapja (a React Router dönt).
+    if (url.pathname === "/panel") return Response.redirect(new URL("/panel/", url).toString(), 301);
+    if (url.pathname.startsWith("/panel/")) {
+      const res = await env.ASSETS.fetch(req);
+      if (res.status !== 404) return res;
+      return env.ASSETS.fetch(new Request(new URL("/panel/", url).toString(), req));
+    }
     return env.ASSETS.fetch(req);
   },
 };

@@ -4,3 +4,8 @@
   Cache-Control: public, max-age=2592000
 /konyv/*
   Cache-Control: public, max-age=2592000
+/panel/assets/*
+  Cache-Control: public, max-age=2592000
+  X-Robots-Tag: noindex
+/panel/*
+  X-Robots-Tag: noindex
