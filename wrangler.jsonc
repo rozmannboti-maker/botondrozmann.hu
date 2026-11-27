@@ -10,7 +10,7 @@
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*", "/panel", "/panel/*"],
+    "run_worker_first": ["/api/*", "/panel", "/panel/*", "/admin", "/admin/*"],
     // nem létező címre valódi 404 (ne a főoldal jöjjön 200-zal: a Google ezt „soft 404”-nek veszi)
     "not_found_handling": "none"
   },

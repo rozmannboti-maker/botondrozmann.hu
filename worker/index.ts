@@ -96,6 +96,9 @@ export default {
     if (url.pathname.startsWith("/api/")) return json({ ok: false, error: "not_found" }, 404);
     // 2026-11-27: RB Panel (React SPA, forrás: ~/Developer/rb-panel, a buildje a public/panel mappában).
     // A létező fájlok mennek, minden más /panel/... cím a panel index.html-jét kapja (a React Router dönt).
+    // 2026-11-27: /admin = Botond admin felülete, ugyanaz az alkalmazás (a fájlok a /panel/assets alól jönnek)
+    if (url.pathname === "/admin") return Response.redirect(new URL("/admin/", url).toString(), 301);
+    if (url.pathname.startsWith("/admin/")) return env.ASSETS.fetch(new Request(new URL("/panel/", url).toString(), req));
     if (url.pathname === "/panel") return Response.redirect(new URL("/panel/", url).toString(), 301);
     if (url.pathname.startsWith("/panel/")) {
       const res = await env.ASSETS.fetch(req);
