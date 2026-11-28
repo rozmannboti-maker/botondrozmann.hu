@@ -49,6 +49,7 @@ export default defineConfig({
         // 2026-11-21: jogi oldalak
         aszf: resolve(__dirname, "aszf/index.html"),
         adatvedelem: resolve(__dirname, "adatvedelem/index.html"),
+        adatfeldolgozas: resolve(__dirname, "adatfeldolgozas/index.html"),
         sutik: resolve(__dirname, "sutik/index.html"),
       },
     },
